@@ -36,8 +36,11 @@
 		<Unit filename="src/glm.c">
 			<Option compilerVar="CC" />
 			<Option weight="0" />
+			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
-		<Unit filename="src/glm.h" />
+		<Unit filename="src/glm.h">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
 		<Unit filename="src/model.cpp" />
 		<Extensions>
 			<code_completion />

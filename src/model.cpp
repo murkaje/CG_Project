@@ -1,4 +1,4 @@
-#include "glm.h"
+#include <GL/freeglut.h>
 #include <iostream>
 
 //Writing a comment to check if i can committ
