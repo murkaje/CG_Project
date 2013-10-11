@@ -2,12 +2,12 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="Object" />
+		<Option title="GraphicsProject2013" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release">
-				<Option output="bin/Object" prefix_auto="1" extension_auto="1" />
+				<Option output="bin/test" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin" />
 				<Option object_output="obj" />
 				<Option type="1" />
@@ -33,15 +33,23 @@
 			<Add library="gdi32" />
 			<Add directory="lib" />
 		</Linker>
-		<Unit filename="src/glm.c">
-			<Option compilerVar="CC" />
-			<Option weight="0" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="src/glm.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
+		<Unit filename="include/behavior.h" />
+		<Unit filename="include/component.h" />
+		<Unit filename="include/mesh.h" />
+		<Unit filename="include/object.h" />
+		<Unit filename="include/renderer.h" />
+		<Unit filename="include/scene.h" />
+		<Unit filename="include/transform.h" />
+		<Unit filename="include/vector3f.h" />
+		<Unit filename="src/behavior.cpp" />
+		<Unit filename="src/component.cpp" />
+		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/model.cpp" />
+		<Unit filename="src/object.cpp" />
+		<Unit filename="src/renderer.cpp" />
+		<Unit filename="src/scene.cpp" />
+		<Unit filename="src/transform.cpp" />
+		<Unit filename="src/vector3f.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />
