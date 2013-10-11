@@ -9,6 +9,8 @@ private:
     std::list<Object> objects;
 
 public:
+    void init();
+
     void draw();
 
     void update();

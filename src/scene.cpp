@@ -5,6 +5,11 @@
 #include <transform.h>
 #include <behavior.h>
 
+void Scene::init() {
+
+}
+
+
 void Scene::addObject(Object* object) {
     objects.push_back(*object);
 }
@@ -13,7 +18,7 @@ void Scene::update() {
     for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         Behavior* b = (Behavior*)obj->getComponent(Component::BEHAVIOR);
         for (std::list<behavior_function>::iterator b1 = b->actions.begin(); b1 != b->actions.end(); b1++) {
-            (*b1)(&*obj);
+            (*b1)(*obj);
         }
     }
 }

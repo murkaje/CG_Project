@@ -5,7 +5,7 @@
 
 #include <list>
 
-typedef void (*behavior_function)(Object*);
+typedef void (*behavior_function)(Object&);
 
 class Behavior: public Component {
 private:

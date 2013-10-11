@@ -31,21 +31,31 @@
 			<Add directory="lib" />
 		</Linker>
 		<Unit filename="include/behavior.h" />
+		<Unit filename="include/camera.h" />
 		<Unit filename="include/component.h" />
+		<Unit filename="include/graphicssubsystem.h" />
+		<Unit filename="include/inputsubsystem.h" />
 		<Unit filename="include/mesh.h" />
 		<Unit filename="include/object.h" />
 		<Unit filename="include/renderer.h" />
 		<Unit filename="include/scene.h" />
+		<Unit filename="include/scenemanager.h" />
 		<Unit filename="include/transform.h" />
+		<Unit filename="include/utils.h" />
 		<Unit filename="include/vector3f.h" />
 		<Unit filename="src/behavior.cpp" />
+		<Unit filename="src/camera.cpp" />
 		<Unit filename="src/component.cpp" />
+		<Unit filename="src/graphicssubsystem.cpp" />
+		<Unit filename="src/inputsubsystem.cpp" />
+		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mesh.cpp" />
-		<Unit filename="src/model.cpp" />
 		<Unit filename="src/object.cpp" />
 		<Unit filename="src/renderer.cpp" />
 		<Unit filename="src/scene.cpp" />
+		<Unit filename="src/scenemanager.cpp" />
 		<Unit filename="src/transform.cpp" />
+		<Unit filename="src/utils.cpp" />
 		<Unit filename="src/vector3f.cpp" />
 		<Extensions>
 			<code_completion />
