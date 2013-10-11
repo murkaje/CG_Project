@@ -74,6 +74,8 @@ int main(int argc, char* argv[]) {
     Object *planeObj = new Object();
     planeObj->addComponent(new Transform(vector3f::zero, vector3f::zero, vector3f(6,6,6)));
     planeObj->addComponent(new PlaneMesh());
+    //TODO: make a color class with predefined colors, also, when we introduce shaders the color should be
+    //moved there from the renderer and the renderer would use the shader
     planeObj->addComponent(new MeshRenderer(vector3f(0.5,0.5,0.5)));
 
     testScene.addObject(planeObj);

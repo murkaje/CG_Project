@@ -16,7 +16,7 @@ void Scene::draw() {
             glPushMatrix();
             Transform* t = (Transform*)obj->getComponent(Component::TRANSFORM);
             if (t == NULL) {
-                break;
+                continue;
             } else {
                 glTranslatef(t->position.x,t->position.y,t->position.z);
                 glRotatef(t->rotation.x,t->rotation.y,t->rotation.z,1.0);

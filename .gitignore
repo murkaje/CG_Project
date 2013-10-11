@@ -16,3 +16,6 @@
 # Codeblock specific
 *.depend
 *.layout
+
+# Directories
+obj
