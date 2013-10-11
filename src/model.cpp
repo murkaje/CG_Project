@@ -6,6 +6,7 @@
 #include <mesh.h>
 #include <renderer.h>
 #include <behavior.h>
+#include <unistd.h>
 
 //Writing a comment to check if i can committ
 
@@ -54,8 +55,9 @@ void idle() {
 
 
 void rotatePlane(Object *obj) {
+    int degreesPerSecond = 90;
     Transform* t = (Transform*)obj->getComponent(Component::TRANSFORM);
-    t->rotation.y = frameStart;
+    t->rotation.y += degreesPerSecond*delta;
 }
 
 // ----------------------------------------------- //
