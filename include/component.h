@@ -14,6 +14,7 @@ public:
     static const std::string RENDERER;
     static const std::string TRANSFORM;
     static const std::string MESH;
+    static const std::string BEHAVIOR;
 
     Component(std::string name);
 

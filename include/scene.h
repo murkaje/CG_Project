@@ -11,6 +11,8 @@ private:
 public:
     void draw();
 
+    void update();
+
     void addObject(Object *object);
 };
 

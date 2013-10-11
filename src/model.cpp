@@ -5,6 +5,7 @@
 #include <transform.h>
 #include <mesh.h>
 #include <renderer.h>
+#include <behavior.h>
 
 //Writing a comment to check if i can committ
 
@@ -16,6 +17,8 @@
 // --------------- Global variables --------------------- //
 
 Scene testScene;
+double frameStart, delta;
+int MAX_FPS;
 
 // --------------- Forward declarations ------------- //
 int main(int argc, char* argv[]);
@@ -35,8 +38,24 @@ void controls(int key, int x, int y) {
 }
 
 void idle() {
+    double needed = frameStart+(1000.0/MAX_FPS);
+    if (needed >= glutGet(GLUT_ELAPSED_TIME)) {
+        double d = (needed-glutGet(GLUT_ELAPSED_TIME))*1000;
+        usleep(d);
+    }
 
+    delta = (glutGet(GLUT_ELAPSED_TIME)-frameStart)/1000;
+
+    testScene.update();
+
+    frameStart = glutGet(GLUT_ELAPSED_TIME);
     glutPostRedisplay();
+}
+
+
+void rotatePlane(Object *obj) {
+    Transform* t = (Transform*)obj->getComponent(Component::TRANSFORM);
+    t->rotation.y = frameStart;
 }
 
 // ----------------------------------------------- //
@@ -77,9 +96,11 @@ int main(int argc, char* argv[]) {
     //TODO: make a color class with predefined colors, also, when we introduce shaders the color should be
     //moved there from the renderer and the renderer would use the shader
     planeObj->addComponent(new MeshRenderer(vector3f(0.5,0.5,0.5)));
+    planeObj->addComponent(new Behavior(rotatePlane));
 
     testScene.addObject(planeObj);
 
+    frameStart = glutGet(GLUT_ELAPSED_TIME);
     // Run main application loop
     glutMainLoop();
     return 0;
