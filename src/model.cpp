@@ -1,5 +1,10 @@
 #include <GL/freeglut.h>
 #include <iostream>
+#include <scene.h>
+#include <vector3f.h>
+#include <transform.h>
+#include <mesh.h>
+#include <renderer.h>
 
 //Writing a comment to check if i can committ
 
@@ -10,6 +15,7 @@
 
 // --------------- Global variables --------------------- //
 
+Scene testScene;
 
 // --------------- Forward declarations ------------- //
 int main(int argc, char* argv[]);
@@ -65,6 +71,13 @@ int main(int argc, char* argv[]) {
     glutSpecialFunc(controls);
     glutIdleFunc(idle);
 
+    Object *planeObj = new Object();
+    planeObj->addComponent(new Transform(vector3f::zero, vector3f::zero, vector3f(6,6,6)));
+    planeObj->addComponent(new PlaneMesh());
+    planeObj->addComponent(new MeshRenderer(vector3f(0.5,0.5,0.5)));
+
+    testScene.addObject(planeObj);
+
     // Run main application loop
     glutMainLoop();
     return 0;
@@ -74,21 +87,14 @@ int main(int argc, char* argv[]) {
  * This function is invoked every time the screen is being repainted.
  */
 void display() {
-    // Clear screen
+    // Clear screen (TODO: add per-scene render settings and clear from there?)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Set up view
+    // Set up view (TODO: create camera object, add it to scene and set up the view there)
     glLoadIdentity();
     gluLookAt(6, 6, 6, 0, 0, 0, 0, 1, 0);
 
-    // Draw the y = 0 plane
-    glColor3f(0.5, 0.5, 0.5);
-    glBegin(GL_QUADS);
-        glVertex3f(-3, 0, 3);
-        glVertex3f(-3, 0, -3);
-        glVertex3f(3, 0, -3);
-        glVertex3f(3, 0, 3);
-    glEnd();
+    testScene.draw();
 
     // Flush picture
     glutSwapBuffers();

@@ -2,7 +2,7 @@
 <CodeBlocks_project_file>
 	<FileVersion major="1" minor="6" />
 	<Project>
-		<Option title="Object" />
+		<Option title="GraphicsProject2013" />
 		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
@@ -30,14 +30,6 @@
 			<Add library="GLU" />
 			<Add directory="lib" />
 		</Linker>
-		<Unit filename="src/glm.c">
-			<Option compilerVar="CC" />
-			<Option weight="0" />
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
-		<Unit filename="src/glm.h">
-			<Option target="&lt;{~None~}&gt;" />
-		</Unit>
 		<Unit filename="src/model.cpp" />
 		<Extensions>
 			<code_completion />
