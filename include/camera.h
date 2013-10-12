@@ -2,12 +2,16 @@
 #define CAMERA_H
 
 #include <object.h>
+#include <transform.h>
 
 class Camera: public Object {
 private:
 
 public:
-    Camera();
+    double zNear, zFar;
+
+    Camera(double zNear, double zFar);
+    Transform transform;
 
     virtual void setup() {};
 };
@@ -17,9 +21,20 @@ private:
 
 public:
     int fov;
-    double zNear, zFar, aspectRatio;
+    double aspect;
 
-    PerspectiveCamera(int fov, double aspectRatio, double zNear, double zFar);
+    PerspectiveCamera(int fov, double aspect, double zNear, double zFar);
+
+    void setup();
+};
+
+class OrthographicCamera: public Camera {
+private:
+
+public:
+    double vSize;
+
+    OrthographicCamera(double vSize, double zNear, double zFar);
 
     void setup();
 };

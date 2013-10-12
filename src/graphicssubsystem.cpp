@@ -44,10 +44,6 @@ void GraphicsSubsystem::draw() {
     // Clear screen (TODO: add per-scene render settings?)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Set up view (TODO: create camera object, add it to scene and set up in the scene draw() call)
-    glLoadIdentity();
-    gluLookAt(6, 6, 6, 0, 0, 0, 0, 1, 0);
-
     SceneManager::testScene.draw();
 
     glutSwapBuffers();

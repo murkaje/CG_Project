@@ -14,6 +14,9 @@ void Scene::init() {
 
 
 void Scene::setCamera(Camera *camera) {
+    if (this->camera != NULL) {
+        delete this->camera;
+    }
     this->camera = camera;
 }
 
@@ -22,15 +25,32 @@ void Scene::addObject(Object* object) {
 }
 
 void Scene::update() {
+    Behavior* cb = (Behavior*)camera->getComponent(Component::BEHAVIOR);
+    if (cb != NULL) {
+        for (std::list<behavior_function>::iterator b1 = cb->actions.begin(); b1 != cb->actions.end(); b1++) {
+            (*b1)(*camera);
+        }
+    }
     for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         Behavior* b = (Behavior*)obj->getComponent(Component::BEHAVIOR);
-        for (std::list<behavior_function>::iterator b1 = b->actions.begin(); b1 != b->actions.end(); b1++) {
-            (*b1)(*obj);
+        if (b != NULL) {
+            for (std::list<behavior_function>::iterator b1 = b->actions.begin(); b1 != b->actions.end(); b1++) {
+                (*b1)(*obj);
+            }
         }
     }
 }
 
 void Scene::draw() {
+    glLoadIdentity();
+    Transform *ct = (Transform*)camera->getComponent(Component::TRANSFORM);
+    glRotatef(ct->rotation.x,1.0,0.0,0.0);
+    glRotatef(ct->rotation.y,0.0,1.0,0.0);
+    glRotatef(ct->rotation.z,0.0,0.0,1.0);
+    glScalef(ct->scale.x,ct->scale.y,ct->scale.z);
+    gluLookAt(ct->position.x,ct->position.y,ct->position.z,
+            0, 0, 0,
+            0, 1, 0);
 
     for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         Renderer* r = (Renderer*)obj->getComponent(Component::RENDERER);
@@ -52,4 +72,8 @@ void Scene::draw() {
         }
     }
 
+}
+
+Scene::~Scene() {
+    delete camera;
 }

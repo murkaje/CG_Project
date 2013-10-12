@@ -3,7 +3,7 @@
 
 struct vector3f {
 public:
-    static const vector3f zero;
+    static const vector3f zero, unit;
 
     float x, y, z;
     vector3f (float x, float y): x(x), y(y), z(0) {};

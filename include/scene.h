@@ -22,6 +22,8 @@ public:
     void addObject(Object *object);
 
     void setCamera(Camera *camera);
+
+    ~Scene();
 };
 
 #endif

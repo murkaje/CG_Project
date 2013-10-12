@@ -10,7 +10,7 @@ private:
 public:
     vector3f position, rotation, scale;
 
-    Transform(vector3f position=vector3f::zero, vector3f rotation=vector3f::zero, vector3f scale=vector3f::zero);
+    Transform(vector3f position=vector3f::zero, vector3f rotation=vector3f::zero, vector3f scale=vector3f::unit);
 };
 
 #endif

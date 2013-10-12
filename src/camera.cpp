@@ -1,21 +1,30 @@
 #include "camera.h"
 #include "transform.h"
+#include "vector3f.h"
 
 #include <GL/freeglut.h>
 
-Camera::Camera() {
-    addComponent(new Transform());
-
+Camera::Camera(double zNear, double zFar): zNear(zNear), zFar(zFar) {
+    addComponent(&transform);
 }
 
-PerspectiveCamera::PerspectiveCamera(int fov, double aspectRatio, double zNear, double zFar):fov(fov), aspectRatio(aspectRatio), zNear(zNear), zFar(zFar) {
+PerspectiveCamera::PerspectiveCamera(int fov, double aspect, double zNear, double zFar): Camera(zNear, zFar), fov(fov), aspect(aspect) {
 
 }
 
 
 void PerspectiveCamera::setup() {
-    // Set up perspective
     glMatrixMode(GL_PROJECTION);
-        gluPerspective(fov, aspectRatio, zNear, zFar);
+        gluPerspective(fov, aspect, zNear, zFar);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+OrthographicCamera::OrthographicCamera(double vSize, double zNear, double zFar): Camera(zNear, zFar), vSize(vSize) {
+
+}
+
+void OrthographicCamera::setup() {
+    glMatrixMode(GL_PROJECTION);
+        glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
     glMatrixMode(GL_MODELVIEW);
 }

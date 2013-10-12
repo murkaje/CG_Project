@@ -14,7 +14,7 @@
 void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
     Transform* t = (Transform*)obj.getComponent(Component::TRANSFORM);
-    t->rotation.y += degreesPerSecond*GraphicsSubsystem::delta;
+    t->rotation.z += degreesPerSecond*GraphicsSubsystem::delta;
 }
 
 int main(int argc, char* argv[]) {
@@ -34,7 +34,13 @@ int main(int argc, char* argv[]) {
 
     SceneManager::testScene.addObject(planeObj);
 
-    SceneManager::testScene.setCamera(new PerspectiveCamera(45, 4.0/3.0, 0.5, 100));
+    Camera *camera = new OrthographicCamera(10, 0.5, 100);
+    //Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    camera->transform.position = vector3f(6,6,6);
+    camera->addComponent(new Behavior(rotateObject));
+    //TODO: right now camera is handled separately, should really generalize it to an ordinary object
+    //also currently just looks at 0,0,0 from it's position (view is transformed with rotations/scaling)
+    SceneManager::testScene.setCamera(camera);
 
     SceneManager::testScene.init();
     GraphicsSubsystem::run();
