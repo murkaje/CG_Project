@@ -4,11 +4,18 @@
 #include <renderer.h>
 #include <transform.h>
 #include <behavior.h>
+#include <camera.h>
 
 void Scene::init() {
-
+    if (camera != NULL) {
+        camera->setup();
+    }
 }
 
+
+void Scene::setCamera(Camera *camera) {
+    this->camera = camera;
+}
 
 void Scene::addObject(Object* object) {
     objects.push_back(*object);

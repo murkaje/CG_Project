@@ -9,6 +9,7 @@
 #include <graphicssubsystem.h>
 #include <scenemanager.h>
 #include <inputsubsystem.h>
+#include <camera.h>
 
 void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
@@ -33,6 +34,9 @@ int main(int argc, char* argv[]) {
 
     SceneManager::testScene.addObject(planeObj);
 
+    SceneManager::testScene.setCamera(new PerspectiveCamera(45, 4.0/3.0, 0.5, 100));
+
+    SceneManager::testScene.init();
     GraphicsSubsystem::run();
     return 0;
 }

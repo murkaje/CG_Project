@@ -26,11 +26,6 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glutDisplayFunc(GraphicsSubsystem::draw);
     glutIdleFunc(GraphicsSubsystem::idle);
 
-    // Set up perspective
-    glMatrixMode(GL_PROJECTION);
-        gluPerspective(45, 1, 0.5, 100);
-    glMatrixMode(GL_MODELVIEW);
-
     // Enable basic lighting
     glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);

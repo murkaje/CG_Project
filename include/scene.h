@@ -4,9 +4,13 @@
 #include <list>
 #include <object.h>
 
+class Camera;
+
 class Scene {
 private:
     std::list<Object> objects;
+
+    Camera *camera;
 
 public:
     void init();
@@ -16,6 +20,8 @@ public:
     void update();
 
     void addObject(Object *object);
+
+    void setCamera(Camera *camera);
 };
 
 #endif
