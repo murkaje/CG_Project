@@ -21,6 +21,7 @@ void Scene::setCamera(Camera *camera) {
 }
 
 void Scene::addObject(Object* object) {
+    object->registerWithScene(this);
     objects.push_back(*object);
 }
 
@@ -76,4 +77,5 @@ void Scene::draw() {
 
 Scene::~Scene() {
     delete camera;
+    camera = NULL;
 }

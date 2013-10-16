@@ -16,7 +16,9 @@ public:
     static const std::string MESH;
     static const std::string BEHAVIOR;
 
-    Component(std::string name);
+    Component(std::string name="component");
+
+    ~Component();
 
     std::string name;
 

@@ -13,7 +13,7 @@
 
 void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
-    Transform* t = (Transform*)obj.getComponent(Component::TRANSFORM);
+    Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
     t->rotation.z += degreesPerSecond*GraphicsSubsystem::delta;
 }
 
@@ -24,20 +24,20 @@ int main(int argc, char* argv[]) {
 
     InputSubsystem::init();
 
-    Object *planeObj = new Object();
-    planeObj->addComponent(new Transform(vector3f::zero, vector3f::zero, vector3f(6,6,6)));
-    planeObj->addComponent(new PlaneMesh());
-    //TODO: make a color class with predefined colors, also, when we introduce shaders the color should be
-    //moved there from the renderer and the renderer would use the shader to render the mesh
-    planeObj->addComponent(new MeshRenderer(vector3f(0.5,0.5,0.5)));
-    planeObj->addComponent(new Behavior(rotateObject));
-
+    Object *planeObj = GeometricShape::createPlane(vector3f::zero,vector3f::zero,vector3f(6,6,6),vector3f(0.5,0.5,0.5));
     SceneManager::testScene.addObject(planeObj);
+
+    Object *sphereObj = GeometricShape::createSphere(vector3f(0,1,0), vector3f::zero, vector3f(1,1,1),vector3f(0,1,0));
+    SceneManager::testScene.addObject(sphereObj);
+
+    Object *cubeObj = GeometricShape::createCube(vector3f(2,1,2), vector3f::zero, vector3f(1,1,1),vector3f(1,0,0));
+    cubeObj->addComponent(new Behavior(rotateObject));
+    SceneManager::testScene.addObject(cubeObj);
 
     Camera *camera = new OrthographicCamera(10, 0.5, 100);
     //Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
     camera->transform.position = vector3f(6,6,6);
-    camera->addComponent(new Behavior(rotateObject));
+    //camera->addComponent(new Behavior(rotateObject));
     //TODO: right now camera is handled separately, should really generalize it to an ordinary object
     //also currently just looks at 0,0,0 from it's position (view is transformed with rotations/scaling)
     SceneManager::testScene.setCamera(camera);

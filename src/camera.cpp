@@ -4,7 +4,7 @@
 
 #include <GL/freeglut.h>
 
-Camera::Camera(double zNear, double zFar): zNear(zNear), zFar(zFar) {
+Camera::Camera(double zNear, double zFar): Object("camera"), zNear(zNear), zFar(zFar), transform(*(new Transform())) {
     addComponent(&transform);
 }
 

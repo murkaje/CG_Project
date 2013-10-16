@@ -11,7 +11,7 @@ public:
     double zNear, zFar;
 
     Camera(double zNear, double zFar);
-    Transform transform;
+    Transform &transform;
 
     virtual void setup() {};
 };

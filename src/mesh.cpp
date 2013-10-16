@@ -15,3 +15,11 @@ void PlaneMesh::describe() {
         glVertex3f(0.5, 0, 0.5);
     glEnd();
 }
+
+void SphereMesh::describe() {
+    glutSolidSphere(0.5,10,10);
+}
+
+void CubeMesh::describe() {
+    glutSolidCube(1);
+}
