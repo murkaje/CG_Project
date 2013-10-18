@@ -11,7 +11,7 @@ const std::string Component::RENDERER   = "renderer";
 const std::string Component::TRANSFORM  = "transform";
 const std::string Component::MESH       = "mesh";
 const std::string Component::BEHAVIOR   = "behavior";
-
+const std::string Component::LIGHT   = "light";
 Object* Component::owner() {
     return owner_;
 }

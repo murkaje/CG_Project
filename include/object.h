@@ -3,6 +3,7 @@
 
 #include <string>
 #include <map>
+#include <list>
 
 #include <transform.h>
 #include <mesh.h>
@@ -17,6 +18,7 @@ private:
     Scene *currentScene_;
     std::map<std::string,Component*> components;
 
+    std::list<Object> children;
 public:
     std::string name;
 
@@ -31,6 +33,10 @@ public:
     virtual void unreisterWithScene(Scene *scene) {currentScene_ = NULL;};
 
     Scene* getCurrentScene();
+
+    void addChild(Object *object);
+
+    std::list<Object>& getChildren();
 };
 
 class GeometricShape: public Object {

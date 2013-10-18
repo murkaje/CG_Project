@@ -7,7 +7,7 @@
 #include <stack>
 #include <GL/freeglut.h>
 
-class Light : public Object {
+class Light : public Component {
 private:
     struct LightsCache {
         std::stack<GLenum> available;
@@ -16,6 +16,13 @@ private:
         void returnLight(GLenum light);
 
         LightsCache() {
+            available.push(GL_LIGHT7);
+            available.push(GL_LIGHT6);
+            available.push(GL_LIGHT5);
+            available.push(GL_LIGHT4);
+            available.push(GL_LIGHT3);
+            available.push(GL_LIGHT2);
+            available.push(GL_LIGHT1);
             available.push(GL_LIGHT0);
         }
     };
@@ -24,16 +31,15 @@ private:
     GLenum light;
 protected:
     static void update(Object &lightObj);
+
+    Light(bool enabled=true);
 public:
-    Transform &transform;
     vector3f ambient, diffuse, specular;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
-    Light(Transform *transform, bool enabled=true);
-
     void enabled(bool enabled);
 
-    static Light* createPointLight(vector3f position);
+    static Object* createPointLight(vector3f position);
 };
 
 #endif

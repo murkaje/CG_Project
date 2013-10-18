@@ -15,6 +15,7 @@ public:
     static const std::string TRANSFORM;
     static const std::string MESH;
     static const std::string BEHAVIOR;
+    static const std::string LIGHT;
 
     Component(std::string name="component");
 
