@@ -26,8 +26,6 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glutDisplayFunc(GraphicsSubsystem::draw);
     glutIdleFunc(GraphicsSubsystem::idle);
 
-    // Enable basic lighting
-    glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
 }

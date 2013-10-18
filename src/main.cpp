@@ -10,6 +10,9 @@
 #include <scenemanager.h>
 #include <inputsubsystem.h>
 #include <camera.h>
+#include <light.h>
+
+#define v3f vector3f
 
 void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
@@ -24,23 +27,26 @@ int main(int argc, char* argv[]) {
 
     InputSubsystem::init();
 
-    Object *planeObj = GeometricShape::createPlane(vector3f::zero,vector3f::zero,vector3f(6,6,6),vector3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,6,6),v3f(0.5,0.5,0.5));
     SceneManager::testScene.addObject(planeObj);
 
-    Object *sphereObj = GeometricShape::createSphere(vector3f(0,1,0), vector3f::zero, vector3f(1,1,1),vector3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,1,0), v3f::zero, v3f(1,1,1),v3f(0,1,0));
     SceneManager::testScene.addObject(sphereObj);
 
-    Object *cubeObj = GeometricShape::createCube(vector3f(2,1,2), vector3f::zero, vector3f(1,1,1),vector3f(1,0,0));
+    Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     cubeObj->addComponent(new Behavior(rotateObject));
     SceneManager::testScene.addObject(cubeObj);
 
-    Camera *camera = new OrthographicCamera(10, 0.5, 100);
-    //Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
-    camera->transform.position = vector3f(6,6,6);
+    //Camera *camera = new OrthographicCamera(10, 0.5, 100);
+    Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    camera->transform.position = v3f(6,6,6);
     //camera->addComponent(new Behavior(rotateObject));
     //TODO: right now camera is handled separately, should really generalize it to an ordinary object
     //also currently just looks at 0,0,0 from it's position (view is transformed with rotations/scaling)
     SceneManager::testScene.setCamera(camera);
+
+    Object *light = Light::createPointLight(v3f(3,3,3));
+    SceneManager::testScene.addObject(light);
 
     SceneManager::testScene.init();
     GraphicsSubsystem::run();
