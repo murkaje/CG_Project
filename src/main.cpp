@@ -11,17 +11,50 @@
 #include <inputsubsystem.h>
 #include <camera.h>
 #include <light.h>
+#include <collider.h>
 
 #define v3f vector3f
 
-void rotateObject(Object &obj) {
+void rotateObject(Object &obj)
+{
     int degreesPerSecond = 90;
     Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
     t->rotation.z += degreesPerSecond*GraphicsSubsystem::delta;
 }
 
-int main(int argc, char* argv[]) {
-    GraphicsSubsystem::init(argc,argv);
+void moveObject(Object &obj)
+{
+    int movePerSecond = 2;
+    if(InputSubsystem::keyDown["UP"] == true)
+    {
+//        std::cout<<"up is pressed"<<std::endl;
+        Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
+        t->position.x += -movePerSecond * GraphicsSubsystem::delta;
+    }
+    if(InputSubsystem::keyDown["DOWN"] == true)
+    {
+//        std::cout<<"down is pressed"<<std::endl;
+        Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
+        t->position.x += movePerSecond * GraphicsSubsystem::delta;
+    }
+    if(InputSubsystem::keyDown["RIGHT"] == true)
+    {
+//        std::cout<<"right is pressed"<<std::endl;
+        Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
+        t->position.z += -movePerSecond * GraphicsSubsystem::delta;
+    }
+    if(InputSubsystem::keyDown["LEFT"] == true)
+    {
+//        std::cout<<"left is pressed"<<std::endl;
+        Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
+        t->position.z += movePerSecond * GraphicsSubsystem::delta;
+    }
+}
+
+
+int main(int argc, char* argv[])
+{
+        GraphicsSubsystem::init(argc,argv);
     GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
     GraphicsSubsystem::zBufferEnabled(true);
 
@@ -30,7 +63,9 @@ int main(int argc, char* argv[]) {
     Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,6,6),v3f(0.5,0.5,0.5));
     SceneManager::testScene.addObject(planeObj);
 
+
     Object *sphereObj = GeometricShape::createSphere(v3f(0,1,0), v3f::zero, v3f(1,1,1),v3f(0,1,0));
+    sphereObj->addComponent(new Behavior(moveObject));
     SceneManager::testScene.addObject(sphereObj);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));

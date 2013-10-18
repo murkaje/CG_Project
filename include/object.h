@@ -7,6 +7,7 @@
 #include <transform.h>
 #include <mesh.h>
 #include <renderer.h>
+#include <string>
 
 class Component;
 class Scene;
