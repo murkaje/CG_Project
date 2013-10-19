@@ -74,7 +74,7 @@ void checkIntersection(Object &obj)
     {
         Transform *iterObjT = (Transform*)iterObj->getComponent(Component::TRANSFORM);
 
-        if(iterObj->name != obj.name)
+        if(iterObj->name != obj.name && (*iterObj).name == "cube")
         {
 //            float euclideanDistanceBetweenObjects = sqrt(pow((objT->position.x - iterObjT->position.x),2) +
 //                                                    pow((objT->position.y - iterObjT->position.y),2) +
@@ -92,11 +92,13 @@ void checkIntersection(Object &obj)
 //                cout<<xDistance<<" x min: "<<xMinDistance<<endl;
 //                cout<<yDistance<<" y min: "<<yMinDistance<<endl;
 //                cout<<zDistance<<" z min: "<<zMinDistance<<endl;
-
+            MeshRenderer *mr = (MeshRenderer*)(*iterObj).getComponent(Component::RENDERER);
             if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance)
             {
-
+                mr->color = v3f(1,0,0);
                 cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
+            } else {
+                mr->color = v3f(0,0,1);
             }
         }
     }
