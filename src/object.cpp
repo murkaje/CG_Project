@@ -27,6 +27,14 @@ Scene* Object::getCurrentScene() {
     return currentScene_;
 }
 
+void Object::addChild(Object* object) {
+    children.push_back(*object);
+}
+
+std::list<Object>& Object::getChildren() {
+    return children;
+}
+
 Object::~Object() {
     for (std::map<std::string,Component*>::iterator comp = components.begin(); comp != components.end(); comp++) {
         if (comp->second != NULL) {

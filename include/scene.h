@@ -12,6 +12,9 @@ private:
 
     Camera *camera;
 
+    void drawObjs(std::list<Object> &objects);
+    void updateObjs(std::list<Object> &objects);
+
 public:
     void init();
 

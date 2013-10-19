@@ -43,9 +43,12 @@
 		</Linker>
 		<Unit filename="include/behavior.h" />
 		<Unit filename="include/camera.h" />
+		<Unit filename="include/collider.h" />
 		<Unit filename="include/component.h" />
 		<Unit filename="include/graphicssubsystem.h" />
+		<Unit filename="include/eventmanager.h" />
 		<Unit filename="include/inputsubsystem.h" />
+		<Unit filename="include/light.h" />
 		<Unit filename="include/mesh.h" />
 		<Unit filename="include/object.h" />
 		<Unit filename="include/renderer.h" />
@@ -56,9 +59,12 @@
 		<Unit filename="include/vector3f.h" />
 		<Unit filename="src/behavior.cpp" />
 		<Unit filename="src/camera.cpp" />
+		<Unit filename="src/collider.cpp" />
 		<Unit filename="src/component.cpp" />
 		<Unit filename="src/graphicssubsystem.cpp" />
+		<Unit filename="src/eventmanager.cpp" />
 		<Unit filename="src/inputsubsystem.cpp" />
+		<Unit filename="src/light.cpp" />
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/object.cpp" />

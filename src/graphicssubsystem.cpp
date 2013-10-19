@@ -2,6 +2,7 @@
 #include "scenemanager.h"
 #include "utils.h"
 #include "eventmanager.h"
+#include "inputsubsystem.h"
 
 #include <unistd.h>
 #include <string>
@@ -29,8 +30,6 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glutDisplayFunc(GraphicsSubsystem::draw);
     glutIdleFunc(GraphicsSubsystem::idle);
 
-    // Enable basic lighting
-    glEnable(GL_LIGHT0);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
 }
@@ -59,6 +58,7 @@ void GraphicsSubsystem::idle() {
         usleep(d);
     }
 
+    InputSubsystem::update();
     EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
     SceneManager::testScene.update();

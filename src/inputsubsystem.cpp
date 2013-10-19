@@ -5,12 +5,17 @@
 #include <fstream>
 #include <iostream>
 
-std::map<std::string,int> InputSubsystem::keyMap;
-std::map<int,void (*)()> InputSubsystem::bindMap;
+std::map<std::string, int> InputSubsystem::keyMap;
+std::map<int, std::string> InputSubsystem::keyNameMap;
+std::map<int, void (*)()> InputSubsystem::bindMap;
+
+std::map<int, bool> InputSubsystem::keyState;
 
 void InputSubsystem::init() {
-    glutKeyboardFunc(InputSubsystem::keys);
+    glutKeyboardFunc(InputSubsystem::keyDown);
+    glutKeyboardUpFunc(InputSubsystem::keyUp);
     glutSpecialFunc(InputSubsystem::specialKeys);
+    glutSpecialUpFunc(InputSubsystem::specialUpKeys);
 
     mapKeys();
 
@@ -37,29 +42,56 @@ void InputSubsystem::init() {
             }
         }
         if(vars.size() == 2) {
+            //Might be better to evaluate GetCommand later to
+            //allow command registrations after init
             bind(keyMap[vars[0]], EventManager::GetCommand(vars[1]));
         }
         getline(bindFile, line);
     }
 }
 
-//This might need rethinking
+//Eventually need unified key map as regular and special key codes overlap
+//Possibly indexed strings and int <-> int lookup tables.
 void InputSubsystem::mapKeys() {
     keyMap["ESC"] = 27;
     keyMap["ENTER"] = 13;
     keyMap["SPACE"] = ' ';
+    keyMap["W"] = 'w';
+    keyMap["A"] = 'a';
+    keyMap["S"] = 's';
+    keyMap["D"] = 'd';
 }
 
-void InputSubsystem::keys(unsigned char key, int x, int y) {
-    try {
-        EventManager::QueEvent(bindMap.at(key));
-    } catch(std::exception e) {}
+void InputSubsystem::update() {
+    std::map<int,bool>::const_iterator iter=keyState.begin();
+    while(iter != keyState.end()) {
+        if(iter->second) {
+            try {
+                EventManager::QueEvent(bindMap.at(iter->first));
+            } catch(std::exception e) {}
+        }
+        iter++;
+    }
+}
+
+void InputSubsystem::keyDown(unsigned char key, int x, int y) {
+    keyState[key] = true;
+}
+
+void InputSubsystem::keyUp(unsigned char key, int x, int y) {
+    keyState[key] = false;
 }
 
 void InputSubsystem::specialKeys(int key, int x, int y) {
+    keyState[key+256] = true;
+}
 
+void InputSubsystem::specialUpKeys(int key, int x, int y) {
+    keyState[key+256] = false;
 }
 
 void InputSubsystem::bind(int key, void (*func)()) {
-    bindMap[key] = func;
+    if(func != NULL) {
+        bindMap[key] = func;
+    }
 }

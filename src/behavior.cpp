@@ -8,3 +8,4 @@ Behavior::Behavior(behavior_function action): Component(Component::BEHAVIOR) {
 Behavior::Behavior(std::list<behavior_function> actions): Component(Component::BEHAVIOR), actions(actions) {
 
 }
+
