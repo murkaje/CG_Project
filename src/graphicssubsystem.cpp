@@ -1,8 +1,10 @@
 #include "graphicssubsystem.h"
 #include "scenemanager.h"
 #include "utils.h"
+#include "eventmanager.h"
 
 #include <unistd.h>
+#include <string>
 
 #include <GL/freeglut.h>
 
@@ -10,6 +12,7 @@ double GraphicsSubsystem::frameStart = 0;
 double GraphicsSubsystem::delta = 0;
 
 void GraphicsSubsystem::init(int argc, char* argv[]) {
+    EventManager::RegisterCommand("exit", GraphicsSubsystem::shutdown);
     glutInit(&argc, argv);
 }
 
@@ -56,8 +59,8 @@ void GraphicsSubsystem::idle() {
         usleep(d);
     }
 
+    EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
-
     SceneManager::testScene.update();
 
     frameStart = Utils::time();

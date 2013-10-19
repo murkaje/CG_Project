@@ -44,6 +44,7 @@ int main(int argc, char* argv[]) {
 
     SceneManager::testScene.init();
     GraphicsSubsystem::run();
+
     return 0;
 }
 
