@@ -26,6 +26,8 @@ public:
 
     void setCamera(Camera *camera);
 
+    std::list<Object>& getObjsList();
+
     ~Scene();
 };
 

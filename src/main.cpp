@@ -13,20 +13,25 @@
 #include <light.h>
 #include <collider.h>
 #include <eventmanager.h>
+#include <math.h>
 
 #define v3f vector3f
 
 //Eventually a player should register move functions
-void moveLeft() {
+void moveLeft()
+{
     std::cout<<"Moving left\n";
 }
-void moveRight() {
+void moveRight()
+{
     std::cout<<"Moving right\n";
 }
-void moveBackward() {
+void moveBackward()
+{
     std::cout<<"Moving backward\n";
 }
-void moveForward() {
+void moveForward()
+{
     std::cout<<"Moving forward\n";
 }
 
@@ -41,22 +46,65 @@ void moveObject(Object &obj)
 {
     Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
     int movePerSecond = 2;
-    if(InputSubsystem::keyState[GLUT_KEY_UP+256] == true) {
+    if(InputSubsystem::keyState[GLUT_KEY_UP+256] == true)
+    {
         t->position.x += -movePerSecond * GraphicsSubsystem::delta;
     }
-    if(InputSubsystem::keyState[GLUT_KEY_DOWN+256] == true) {
+    if(InputSubsystem::keyState[GLUT_KEY_DOWN+256] == true)
+    {
         t->position.x += movePerSecond * GraphicsSubsystem::delta;
     }
-    if(InputSubsystem::keyState[GLUT_KEY_RIGHT+256] == true) {
+    if(InputSubsystem::keyState[GLUT_KEY_RIGHT+256] == true)
+    {
         t->position.z += -movePerSecond * GraphicsSubsystem::delta;
     }
-    if(InputSubsystem::keyState[GLUT_KEY_LEFT+256] == true) {
+    if(InputSubsystem::keyState[GLUT_KEY_LEFT+256] == true)
+    {
         t->position.z += movePerSecond * GraphicsSubsystem::delta;
+    }
+}
+
+void checkIntersection(Object &obj)
+{
+    using namespace std;
+    Transform *objT = (Transform*)obj.getComponent(Component::TRANSFORM);
+    Scene* sceneObj = obj.getCurrentScene();
+    std::list<Object> &objects = sceneObj->getObjsList();
+    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++)
+    {
+        Transform *iterObjT = (Transform*)iterObj->getComponent(Component::TRANSFORM);
+
+        if(iterObj->name != obj.name)
+        {
+//            float euclideanDistanceBetweenObjects = sqrt(pow((objT->position.x - iterObjT->position.x),2) +
+//                                                    pow((objT->position.y - iterObjT->position.y),2) +
+//                                                    pow((objT->position.z - iterObjT->position.z),2));
+
+//            cout<<fabs(objT->position.x - iterObjT->position.x) <<endl;
+            float xDistance = fabs(objT->position.x - iterObjT->position.x);
+            float yDistance = fabs(objT->position.y - iterObjT->position.y);
+            float zDistance = fabs(objT->position.z - iterObjT->position.z);
+
+            float xMinDistance = (objT->scale.x + iterObjT->scale.x)/float(2);
+            float yMinDistance = (objT->scale.y + iterObjT->scale.y)/float(2);
+            float zMinDistance = (objT->scale.z + iterObjT->scale.z)/float(2);
+
+//                cout<<xDistance<<" x min: "<<xMinDistance<<endl;
+//                cout<<yDistance<<" y min: "<<yMinDistance<<endl;
+//                cout<<zDistance<<" z min: "<<zMinDistance<<endl;
+
+            if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance)
+            {
+
+                cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
+            }
+        }
     }
 }
 
 int main(int argc, char* argv[])
 {
+
     GraphicsSubsystem::init(argc,argv);
     GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
     GraphicsSubsystem::zBufferEnabled(true);
@@ -68,13 +116,18 @@ int main(int argc, char* argv[])
 
     InputSubsystem::init();
 
-    Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,6,6),v3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
 
     Object *sphereObj = GeometricShape::createSphere(v3f(0,1,0), v3f::zero, v3f(1,1,1),v3f(0,1,0));
-    sphereObj->addComponent(new Behavior(moveObject));
+    Behavior * behaviorObj = new Behavior(moveObject);
+    behaviorObj->actions.push_back(checkIntersection);
+    sphereObj->addComponent(behaviorObj);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     cubeObj->addComponent(new Behavior(rotateObject));
+
+    Object *secondCubeObj = GeometricShape::createCube(v3f(2,1,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
+    //secondCubeObj->addComponent(new Behavior(rotateObject));
 
     //Camera *camera = new OrthographicCamera(10, 0.5, 100);
     Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
@@ -91,6 +144,7 @@ int main(int argc, char* argv[])
     SceneManager::testScene.addObject(planeObj);
     SceneManager::testScene.addObject(sphereObj);
     SceneManager::testScene.addObject(cubeObj);
+    SceneManager::testScene.addObject(secondCubeObj);
 
     SceneManager::testScene.init();
     GraphicsSubsystem::run();

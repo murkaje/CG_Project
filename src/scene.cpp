@@ -101,6 +101,12 @@ void Scene::drawObjs(std::list<Object> &objects) {
     }
 }
 
+std::list<Object>& Scene::getObjsList()
+{
+    return objects;
+}
+
+
 Scene::~Scene() {
     delete camera;
     camera = NULL;

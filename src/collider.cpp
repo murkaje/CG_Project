@@ -1,4 +1,6 @@
 #include "collider.h"
+#include<object.h>
+#include<iostream>
 
 Collider::Collider()
 {
@@ -6,12 +8,12 @@ Collider::Collider()
 }
 
 
-//void Collider::checkIntersection(Object &obj)
-//{
-//
-//    std::cout<<"something"<<std::endl;
-//
-//}
+void Collider::checkIntersection(Object *obj)
+{
+
+    std::cout<<"something"<<std::endl;
+
+}
 
 Collider::~Collider()
 {
