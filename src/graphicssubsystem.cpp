@@ -6,6 +6,7 @@
 
 #include <unistd.h>
 #include <string>
+#include <cstdio>
 
 #include <GL/freeglut.h>
 
@@ -32,6 +33,7 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
 
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
+    glShadeModel(GL_SMOOTH);
 }
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled) {
@@ -47,6 +49,12 @@ void GraphicsSubsystem::draw() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     SceneManager::testScene.draw();
+
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glRasterPos2f(10.0, 10.0);
+    const unsigned char* str = (unsigned const char*) "FPS: ";
+    //printf((const char*)str);
+    glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, str);
 
     glutSwapBuffers();
 }

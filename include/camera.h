@@ -4,39 +4,21 @@
 #include <object.h>
 #include <transform.h>
 
-class Camera: public Object {
+class Camera: public Component {
 private:
 
 public:
+    bool perspective;
     double zNear, zFar;
-
-    Camera(double zNear, double zFar);
-    Transform &transform;
-
-    virtual void setup() {};
-};
-
-class PerspectiveCamera: public Camera {
-private:
-
-public:
     int fov;
-    double aspect;
+    double vSize, aspect;
 
-    PerspectiveCamera(int fov, double aspect, double zNear, double zFar);
-
-    void setup();
-};
-
-class OrthographicCamera: public Camera {
-private:
-
-public:
-    double vSize;
-
-    OrthographicCamera(double vSize, double zNear, double zFar);
+    Camera(bool perspective=true);
 
     void setup();
+
+    static Object* createPerspectiveCamera(int fov, double aspect, double zNear, double zFar);
+    static Object* createOrthographicCamera(double vSize, double zNear, double zFar);
 };
 
 #endif

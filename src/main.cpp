@@ -120,7 +120,7 @@ int main(int argc, char* argv[])
 
     Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
 
-    Object *sphereObj = GeometricShape::createSphere(v3f(0,1,0), v3f::zero, v3f(1,1,1),v3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,90,0), v3f(1,1,1),v3f(0,1,0));
     Behavior * behaviorObj = new Behavior(moveObject);
     behaviorObj->actions.push_back(checkIntersection);
     sphereObj->addComponent(behaviorObj);
@@ -128,16 +128,17 @@ int main(int argc, char* argv[])
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     cubeObj->addComponent(new Behavior(rotateObject));
 
-    Object *secondCubeObj = GeometricShape::createCube(v3f(2,1,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
+    Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
     //secondCubeObj->addComponent(new Behavior(rotateObject));
 
-    //Camera *camera = new OrthographicCamera(10, 0.5, 100);
-    Camera *camera = new PerspectiveCamera(45, 4.0/3.0, 0.5, 100);
-    camera->transform.position = v3f(6,6,6);
+    //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
+    Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    ((Transform*)camera->getComponent(Component::TRANSFORM))->position = v3f(0,6,6);
+    ((Transform*)camera->getComponent(Component::TRANSFORM))->rotation = v3f(-45,0,0);
     //camera->addComponent(new Behavior(rotateObject));
-    //TODO: right now camera is handled separately, should really generalize it to an ordinary object
-    //also currently just looks at 0,0,0 from it's position (view is transformed with rotations/scaling)
-    SceneManager::testScene.setCamera(camera);
+    SceneManager::testScene.setCamera((Camera*)camera->getComponent(Component::CAMERA));
+    //SceneManager::testScene.addObject(camera);
+    sphereObj->addChild(camera);
 
     Object *light = Light::createPointLight(v3f(0,1,0));
     light->addChild(GeometricShape::createSphere(v3f(0,0,0), v3f::zero, v3f(0.1,0.1,0.1),v3f(1,1,0)));

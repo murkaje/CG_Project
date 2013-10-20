@@ -16,6 +16,7 @@ public:
     static const std::string MESH;
     static const std::string BEHAVIOR;
     static const std::string LIGHT;
+    static const std::string CAMERA;
 
     Component(std::string name="component");
 

@@ -3,7 +3,7 @@
 #include <component.h>
 #include <cstdio>
 
-Object::Object(std::string name): name(name) {
+Object::Object(std::string name): parent_(NULL), name(name) {
 
 }
 
@@ -23,11 +23,16 @@ Component* Object::getComponent(std::string name) {
         return components[name];
 }
 
+Object* Object::parent() {
+    return parent_;
+}
+
 Scene* Object::getCurrentScene() {
     return currentScene_;
 }
 
 void Object::addChild(Object* object) {
+    object->parent_ = this;
     children.push_back(*object);
 }
 

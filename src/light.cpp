@@ -22,25 +22,21 @@ void Light::update(Object &lightObj) {
         glLightf(light->light, GL_LINEAR_ATTENUATION, light->linear_attenuation);
         glLightf(light->light, GL_QUADRATIC_ATTENUATION, light->quadratic_attenuation);
 
-        //float dir[] = {t.position.x, t.position.y, t.position.z};
-        //glLightfv(light->light, GL_SPOT_DIRECTION, dir);
-        //glLightf(light->light, GL_SPOT_CUTOFF, light->cutoff);
-        //glLightf(light->light, GL_SPOT_EXPONENT, light->exponent);
+        float dir[] = {light->direction.x, light->direction.y, light->direction.z};
+        glLightfv(light->light, GL_SPOT_DIRECTION, dir);
+        glLightf(light->light, GL_SPOT_CUTOFF, light->cutoff);
+        glLightf(light->light, GL_SPOT_EXPONENT, light->exponent);
     }
 }
 
-Light::Light(bool enabled): Component(Component::LIGHT), ambient(vector3f::zero), diffuse(vector3f::zero), specular(vector3f::zero) {
+Light::Light(bool enabled): Component(Component::LIGHT), ambient(vector3f::zero), diffuse(vector3f::unit), specular(vector3f::unit), direction(vector3f(0,0,-1)) {
     light = Light::lightsCache.getAvailableLight();
     this->enabled(enabled);
     constant_attenuation = 1.0;
-    linear_attenuation = 1.0;
-    quadratic_attenuation = 1.0;
-    exponent = 1.0;
-    cutoff = 45.0;
-
-    ambient = vector3f::zero;
-    diffuse = vector3f::unit;
-    specular = vector3f::unit;
+    linear_attenuation = 0.0;
+    quadratic_attenuation = 0.0;
+    exponent = 0.0;
+    cutoff = 180.0;
 }
 
 void Light::enabled(bool enabled) {

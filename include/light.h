@@ -34,7 +34,7 @@ protected:
 
     Light(bool enabled=true);
 public:
-    vector3f ambient, diffuse, specular;
+    vector3f ambient, diffuse, specular, direction;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
     void enabled(bool enabled);

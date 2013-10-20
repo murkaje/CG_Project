@@ -19,6 +19,8 @@ private:
     std::map<std::string,Component*> components;
 
     std::list<Object> children;
+protected:
+    Object* parent_;
 public:
     std::string name;
 
@@ -28,6 +30,8 @@ public:
 
     void addComponent(Component *component);
     Component* getComponent(std::string name);
+
+    Object* parent();
 
     virtual void registerWithScene(Scene *scene) {currentScene_ = scene;};
     virtual void unreisterWithScene(Scene *scene) {currentScene_ = NULL;};

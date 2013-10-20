@@ -4,27 +4,37 @@
 
 #include <GL/freeglut.h>
 
-Camera::Camera(double zNear, double zFar): Object("camera"), zNear(zNear), zFar(zFar), transform(*(new Transform())) {
-    addComponent(&transform);
+Camera::Camera(bool perspective): Component(Component::CAMERA) {
+    this->perspective = perspective;
 }
 
-PerspectiveCamera::PerspectiveCamera(int fov, double aspect, double zNear, double zFar): Camera(zNear, zFar), fov(fov), aspect(aspect) {
-
+Object* Camera::createPerspectiveCamera(int fov, double aspect, double zNear, double zFar) {
+    Object *camera = new Object("perspectiveCamera");
+    Camera *c = new Camera();
+    c->fov = fov;
+    c->aspect = aspect;
+    c->zNear = zNear;
+    c->zFar = zFar;
+    camera->addComponent(c);
+    camera->addComponent(new Transform());
+    return camera;
 }
 
+Object* Camera::createOrthographicCamera(double vSize, double zNear, double zFar) {
+    Object *camera = new Object("orthographicCamera");
+    Camera *c = new Camera(false);
+    c->vSize = vSize;
+    c->zNear = zNear;
+    c->zFar = zFar;
+    camera->addComponent(c);
+    camera->addComponent(new Transform());
+    return camera;
+}
 
-void PerspectiveCamera::setup() {
+void Camera::setup() {
     glMatrixMode(GL_PROJECTION);
-        gluPerspective(fov, aspect, zNear, zFar);
+        if (perspective) gluPerspective(fov, aspect, zNear, zFar);
+        else glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
     glMatrixMode(GL_MODELVIEW);
 }
 
-OrthographicCamera::OrthographicCamera(double vSize, double zNear, double zFar): Camera(zNear, zFar), vSize(vSize) {
-
-}
-
-void OrthographicCamera::setup() {
-    glMatrixMode(GL_PROJECTION);
-        glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
-    glMatrixMode(GL_MODELVIEW);
-}
