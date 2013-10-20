@@ -7,6 +7,8 @@ class SceneManager
 {
 public:
     static Scene testScene;
+
+    static Scene& CurrentScene();
 };
 
 #endif

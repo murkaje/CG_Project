@@ -41,6 +41,9 @@ public:
     void addChild(Object *object);
 
     std::list<Object>& getChildren();
+
+    static Object* Find(std::string name);
+    static Object* Find(Object* obj, std::string name);
 };
 
 class GeometricShape: public Object {

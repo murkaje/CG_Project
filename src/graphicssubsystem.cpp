@@ -57,7 +57,7 @@ void GraphicsSubsystem::draw()
     // Clear screen (TODO: add per-scene render settings?)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
- //   PhysicsSubsystem::PerformPhysicsChecks();
+    PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::testScene.draw();
 
     glColor3f(1.0f, 0.0f, 0.0f);

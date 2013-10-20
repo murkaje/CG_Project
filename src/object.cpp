@@ -1,7 +1,29 @@
 
 #include <object.h>
 #include <component.h>
+#include <scenemanager.h>
+
 #include <cstdio>
+
+Object* find_(std::list<Object> &objects, std::string name) {
+    for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
+        if ((*obj).name.compare(name) == 0) {
+            return &(*obj);
+        }
+        Object *fromChild = find_((*obj).getChildren(), name);
+        if (fromChild != NULL) return fromChild;
+    }
+    return NULL;
+}
+
+Object* Object::Find(std::string name) {
+    return find_(SceneManager::CurrentScene().getObjsList(), name);
+}
+
+Object* Object::Find(Object* obj, std::string name) {
+    if (obj->name.compare(name) == 0) return obj;
+    else return find_(obj->getChildren(), name);
+}
 
 Object::Object(std::string name): parent_(NULL), name(name) {
 

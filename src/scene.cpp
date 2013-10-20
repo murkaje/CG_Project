@@ -8,7 +8,9 @@
 #include <cstdio>
 
 void Scene::init() {
-    if (camera != NULL) {
+    Object* cam = Object::Find("MainCamera");
+    if (cam != NULL) {
+        setCamera((Camera*)cam->getComponent(Component::CAMERA));
         camera->setup();
     }
 }
@@ -19,10 +21,6 @@ void Scene::setCamera(Camera *camera) {
 }
 
 void Scene::addObject(Object* object) {
-    Camera *c = (Camera*)object->getComponent(Component::CAMERA);
-    if (c != NULL) {
-        setCamera(c);
-    }
     object->registerWithScene(this);
     for (std::list<Object>::iterator obj = object->getChildren().begin(); obj != object->getChildren().end(); obj++) {
         (*obj).registerWithScene(this);
@@ -63,14 +61,16 @@ void Scene::updateObjs(std::list<Object> &objects) {
 void Scene::draw() {
     glPushMatrix();
         glLoadIdentity();
-        Object* parent = camera->owner();
-        while (parent != NULL) {
-            Transform* t = (Transform*)parent->getComponent(Component::TRANSFORM);
-            glRotatef(-t->rotation.z,0.0,0.0,1.0);
-            glRotatef(-t->rotation.y,0.0,1.0,0.0);
-            glRotatef(-t->rotation.x,1.0,0.0,0.0);
-            glTranslatef(-t->position.x,-t->position.y,-t->position.z);
-            parent = parent->parent();
+        if (camera != NULL) {
+            Object* parent = camera->owner();
+            while (parent != NULL) {
+                Transform* t = (Transform*)parent->getComponent(Component::TRANSFORM);
+                glRotatef(-t->rotation.z,0.0,0.0,1.0);
+                glRotatef(-t->rotation.y,0.0,1.0,0.0);
+                glRotatef(-t->rotation.x,1.0,0.0,0.0);
+                glTranslatef(-t->position.x,-t->position.y,-t->position.z);
+                parent = parent->parent();
+            }
         }
         drawObjs(objects);
     glPopMatrix();
@@ -107,6 +107,6 @@ std::list<Object>& Scene::getObjsList()
 
 
 Scene::~Scene() {
-    delete camera;
+    if (camera != NULL) delete camera;
     camera = NULL;
 }

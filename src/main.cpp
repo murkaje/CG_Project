@@ -64,46 +64,6 @@ void moveObject(Object &obj)
     }
 }
 
-void checkIntersection(Object &obj)
-{
-    using namespace std;
-    Transform *objT = (Transform*)obj.getComponent(Component::TRANSFORM);
-    Scene* sceneObj = obj.getCurrentScene();
-    std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++)
-    {
-        Transform *iterObjT = (Transform*)iterObj->getComponent(Component::TRANSFORM);
-
-        if(iterObj->name != obj.name && (*iterObj).name == "cube")
-        {
-//            float euclideanDistanceBetweenObjects = sqrt(pow((objT->position.x - iterObjT->position.x),2) +
-//                                                    pow((objT->position.y - iterObjT->position.y),2) +
-//                                                    pow((objT->position.z - iterObjT->position.z),2));
-
-//            cout<<fabs(objT->position.x - iterObjT->position.x) <<endl;
-            float xDistance = fabs(objT->position.x - iterObjT->position.x);
-            float yDistance = fabs(objT->position.y - iterObjT->position.y);
-            float zDistance = fabs(objT->position.z - iterObjT->position.z);
-
-            float xMinDistance = (objT->scale.x + iterObjT->scale.x)/float(2);
-            float yMinDistance = (objT->scale.y + iterObjT->scale.y)/float(2);
-            float zMinDistance = (objT->scale.z + iterObjT->scale.z)/float(2);
-
-//                cout<<xDistance<<" x min: "<<xMinDistance<<endl;
-//                cout<<yDistance<<" y min: "<<yMinDistance<<endl;
-//                cout<<zDistance<<" z min: "<<zMinDistance<<endl;
-            MeshRenderer *mr = (MeshRenderer*)(*iterObj).getComponent(Component::RENDERER);
-            if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance)
-            {
-                mr->color = v3f(1,0,0);
-                cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
-            } else {
-                mr->color = v3f(0,0,1);
-            }
-        }
-    }
-}
-
 int main(int argc, char* argv[])
 {
 
@@ -120,23 +80,20 @@ int main(int argc, char* argv[])
 
     Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
 
-    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,90,0), v3f(1,1,1),v3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
     Behavior * behaviorObj = new Behavior(moveObject);
-    behaviorObj->actions.push_back(checkIntersection);
     sphereObj->addComponent(behaviorObj);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     cubeObj->addComponent(new Behavior(rotateObject));
 
     Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
-    //secondCubeObj->addComponent(new Behavior(rotateObject));
 
     //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
     Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
     ((Transform*)camera->getComponent(Component::TRANSFORM))->position = v3f(0,6,6);
     ((Transform*)camera->getComponent(Component::TRANSFORM))->rotation = v3f(-45,0,0);
-    //camera->addComponent(new Behavior(rotateObject));
-    SceneManager::testScene.setCamera((Camera*)camera->getComponent(Component::CAMERA));
+    camera->name = "MainCamera";
     //SceneManager::testScene.addObject(camera);
     sphereObj->addChild(camera);
 

@@ -19,11 +19,11 @@ PhysicsSubsystem::~PhysicsSubsystem()
 
  void PhysicsSubsystem::PerformPhysicsChecks()
 {
-    Scene* sceneObj = &SceneManager::testScene;
+    Scene* sceneObj = &SceneManager::CurrentScene();
     std::list<Object> &objects = sceneObj->getObjsList();
     for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++)
     {
-        checkIntersection((Object &)iterObj);
+        checkIntersection(*iterObj);
     }
 }
 
