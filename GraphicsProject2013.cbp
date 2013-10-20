@@ -43,6 +43,7 @@
 		<Unit filename="include/light.h" />
 		<Unit filename="include/mesh.h" />
 		<Unit filename="include/object.h" />
+		<Unit filename="include/physicssubsystem.h" />
 		<Unit filename="include/renderer.h" />
 		<Unit filename="include/scene.h" />
 		<Unit filename="include/scenemanager.h" />
@@ -60,6 +61,7 @@
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/object.cpp" />
+		<Unit filename="src/physicssubsystem.cpp" />
 		<Unit filename="src/renderer.cpp" />
 		<Unit filename="src/scene.cpp" />
 		<Unit filename="src/scenemanager.cpp" />
