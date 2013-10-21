@@ -7,6 +7,21 @@
 #include <camera.h>
 #include <cstdio>
 
+void positionCamera(Camera* camera) {
+    glLoadIdentity();
+    if (camera != NULL) {
+        Object* parent = camera->owner();
+        while (parent != NULL) {
+            Transform* t = (Transform*)parent->getComponent(Component::TRANSFORM);
+            glRotatef(-t->rotation.z,0.0,0.0,1.0);
+            glRotatef(-t->rotation.y,0.0,1.0,0.0);
+            glRotatef(-t->rotation.x,1.0,0.0,0.0);
+            glTranslatef(-t->position.x,-t->position.y,-t->position.z);
+            parent = parent->parent();
+        }
+    }
+}
+
 void Scene::init() {
     Object* cam = Object::Find("MainCamera");
     if (cam != NULL) {
@@ -29,7 +44,7 @@ void Scene::addObject(Object* object) {
 }
 
 void Scene::update() {
-
+    positionCamera(camera); //for lighting updates
     updateObjs(objects);
 }
 
@@ -60,18 +75,7 @@ void Scene::updateObjs(std::list<Object> &objects) {
 
 void Scene::draw() {
     glPushMatrix();
-        glLoadIdentity();
-        if (camera != NULL) {
-            Object* parent = camera->owner();
-            while (parent != NULL) {
-                Transform* t = (Transform*)parent->getComponent(Component::TRANSFORM);
-                glRotatef(-t->rotation.z,0.0,0.0,1.0);
-                glRotatef(-t->rotation.y,0.0,1.0,0.0);
-                glRotatef(-t->rotation.x,1.0,0.0,0.0);
-                glTranslatef(-t->position.x,-t->position.y,-t->position.z);
-                parent = parent->parent();
-            }
-        }
+        positionCamera(camera);
         drawObjs(objects);
     glPopMatrix();
 }
