@@ -1,7 +1,7 @@
 #ifndef COLLIDER_H
 #define COLLIDER_H
-#include<object.h>
 
+#include<object.h>
 
 class Collider
 {

@@ -1,6 +1,6 @@
 #include "collider.h"
-#include<object.h>
-#include<iostream>
+#include <object.h>
+#include <iostream>
 
 Collider::Collider()
 {

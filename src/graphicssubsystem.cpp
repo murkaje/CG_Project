@@ -3,13 +3,13 @@
 #include "utils.h"
 #include "eventmanager.h"
 #include "inputsubsystem.h"
-#include<physicssubsystem.h>
+#include <physicssubsystem.h>
 
 #include <unistd.h>
 #include <string>
 #include <cstdio>
 
-#include <GL/freeglut.h>
+#include <utils.h>
 
 double GraphicsSubsystem::frameStart = 0;
 double GraphicsSubsystem::delta = 0;
@@ -32,10 +32,15 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glutInitWindowPosition(x,y);
     glutCreateWindow(title);
 
+    GLint err = glewInit();
+    if (err != GLEW_OK) {
+        printf("GLEW initialization failure: %s", glewGetErrorString(err));
+        exit(-1);
+    }
+
     glutDisplayFunc(GraphicsSubsystem::draw);
     glutIdleFunc(GraphicsSubsystem::idle);
 
-    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_LIGHTING);
     glShadeModel(GL_SMOOTH);
 }

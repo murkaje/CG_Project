@@ -4,10 +4,13 @@
 #include <component.h>
 #include <vector3f.h>
 
+#include <utils.h>
+#include <material.h>
+
 class Renderer: public Component {
-private:
 
 public:
+    Material material;
 
     Renderer();
 
@@ -18,8 +21,6 @@ class MeshRenderer: public Renderer {
 private:
 
 public:
-    vector3f color;
-
     MeshRenderer(vector3f color);
 
     void render();

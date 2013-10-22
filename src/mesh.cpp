@@ -1,5 +1,5 @@
-#include <GL/freeglut.h>
 
+#include <utils.h>
 #include <mesh.h>
 
 Mesh::Mesh(): Component(Component::MESH) {

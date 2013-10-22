@@ -2,7 +2,7 @@
 #include "transform.h"
 #include "vector3f.h"
 
-#include <GL/freeglut.h>
+#include <utils.h>
 
 Camera::Camera(bool perspective): Component(Component::CAMERA) {
     this->perspective = perspective;

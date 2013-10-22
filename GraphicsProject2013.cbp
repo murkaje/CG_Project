@@ -42,6 +42,7 @@
 			<Add library="glu32" />
 			<Add library="winmm" />
 			<Add library="gdi32" />
+			<Add library="glew32" />
 			<Add directory="lib" />
 		</Linker>
 		<Unit filename="include/behavior.h" />
@@ -52,6 +53,7 @@
 		<Unit filename="include/graphicssubsystem.h" />
 		<Unit filename="include/inputsubsystem.h" />
 		<Unit filename="include/light.h" />
+		<Unit filename="include/material.h" />
 		<Unit filename="include/mesh.h" />
 		<Unit filename="include/object.h" />
 		<Unit filename="include/physicssubsystem.h" />
@@ -61,6 +63,8 @@
 		<Unit filename="include/transform.h" />
 		<Unit filename="include/utils.h" />
 		<Unit filename="include/vector3f.h" />
+		<Unit filename="shaders/default_fragment.glsl" />
+		<Unit filename="shaders/default_vertex.glsl" />
 		<Unit filename="src/behavior.cpp" />
 		<Unit filename="src/camera.cpp" />
 		<Unit filename="src/collider.cpp" />
@@ -70,6 +74,7 @@
 		<Unit filename="src/inputsubsystem.cpp" />
 		<Unit filename="src/light.cpp" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/material.cpp" />
 		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/object.cpp" />
 		<Unit filename="src/physicssubsystem.cpp" />

@@ -5,7 +5,8 @@
 #include <vector3f.h>
 
 #include <stack>
-#include <GL/freeglut.h>
+
+#include <utils.h>
 
 class Light : public Component {
 private:

@@ -1,9 +1,10 @@
 #include "inputsubsystem.h"
 #include "eventmanager.h"
 
-#include <GL/freeglut.h>
 #include <fstream>
 #include <iostream>
+
+#include <utils.h>
 
 std::map<std::string, int> InputSubsystem::keyMap;
 std::map<int, std::string> InputSubsystem::keyNameMap;

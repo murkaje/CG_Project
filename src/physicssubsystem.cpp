@@ -5,8 +5,6 @@
 #include<iostream>
 using namespace std;
 
-#define v3f vector3f
-
 PhysicsSubsystem::PhysicsSubsystem()
 {
     //ctor
@@ -57,10 +55,10 @@ PhysicsSubsystem::~PhysicsSubsystem()
             MeshRenderer *mr = (MeshRenderer*)(*iterObj).getComponent(Component::RENDERER);
             if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance)
             {
-                mr->color = v3f(1,0,0);
+                mr->material.diffuse = v3f(1,0,0);
                 cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
             } else {
-                mr->color = v3f(0,0,1);
+                mr->material.diffuse = v3f(0,0,1);
             }
         }
     }

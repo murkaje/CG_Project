@@ -1,11 +1,10 @@
-#include <GL/freeglut.h>
 
+#include <utils.h>
 #include <scene.h>
 #include <renderer.h>
 #include <transform.h>
 #include <behavior.h>
 #include <camera.h>
-#include <cstdio>
 
 void positionCamera(Camera* camera) {
     glLoadIdentity();

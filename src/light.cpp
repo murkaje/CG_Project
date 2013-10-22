@@ -65,9 +65,9 @@ void Light::LightsCache::returnLight(GLenum light) {
 Object* Light::createPointLight(vector3f position) {
     Object *light = new Object("pointLight");
     Light *l = new Light();
-    l->constant_attenuation = 1;
-    l->linear_attenuation = 0.05;
-    l->quadratic_attenuation = 0.005;
+    l->constant_attenuation = 0.0;
+    l->linear_attenuation = 0.1;
+    l->quadratic_attenuation = 0.01;
     light->addComponent(l);
     light->addComponent(new Transform(position));
     light->addComponent(new Behavior(Light::update));

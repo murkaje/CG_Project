@@ -1,4 +1,5 @@
-#include <GL/freeglut.h>
+
+#include <utils.h>
 #include <iostream>
 #include <scene.h>
 #include <vector3f.h>
@@ -14,8 +15,6 @@
 #include <collider.h>
 #include <eventmanager.h>
 #include <math.h>
-
-#define v3f vector3f
 
 //Eventually a player should register move functions
 void moveLeft()
@@ -78,7 +77,13 @@ int main(int argc, char* argv[])
 
     InputSubsystem::init();
 
-    Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
+    //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
+    //Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(6,0.01,6),v3f(0.5,0.5,0.5));
+    planeObj->name = "plane"; //rename the cube, so the current collision test wont trigger
+    //make the plane really shiny
+    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.specular = v3f(1,1,1);
+    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.shininess = 20;
 
     Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
     Behavior * behaviorObj = new Behavior(moveObject);
