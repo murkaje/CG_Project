@@ -15,7 +15,7 @@ PhysicsSubsystem::~PhysicsSubsystem()
     //dtor
 }
 
- void PhysicsSubsystem::PerformPhysicsChecks()
+void PhysicsSubsystem::PerformPhysicsChecks()
 {
     Scene* sceneObj = &SceneManager::CurrentScene();
     std::list<Object> &objects = sceneObj->getObjsList();
@@ -25,7 +25,7 @@ PhysicsSubsystem::~PhysicsSubsystem()
     }
 }
 
- void PhysicsSubsystem::checkIntersection(Object &obj)
+void PhysicsSubsystem::checkIntersection(Object &obj)
 {
     using namespace std;
     Transform *objT = (Transform*)obj.getComponent(Component::TRANSFORM);
@@ -56,7 +56,7 @@ PhysicsSubsystem::~PhysicsSubsystem()
             if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance)
             {
                 mr->material.diffuse = v3f(1,0,0);
-                cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
+//                cout<<"Colliding with "<<iterObj->name<<" !!!"<<endl;
             } else {
                 mr->material.diffuse = v3f(0,0,1);
             }

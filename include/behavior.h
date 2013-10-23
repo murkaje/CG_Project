@@ -15,6 +15,8 @@ public:
 
     Behavior(behavior_function action);
     Behavior(std::list<behavior_function> actions);
+
+    static void add(Object* obj, behavior_function action);
 };
 
 #endif

@@ -60,6 +60,8 @@
 		<Unit filename="include/transform.h" />
 		<Unit filename="include/utils.h" />
 		<Unit filename="include/vector3f.h" />
+		<Unit filename="shaders/default_fragment.glsl" />
+		<Unit filename="shaders/default_vertex.glsl" />
 		<Unit filename="src/behavior.cpp" />
 		<Unit filename="src/camera.cpp" />
 		<Unit filename="src/collider.cpp" />

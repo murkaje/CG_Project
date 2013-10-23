@@ -16,7 +16,7 @@ void MeshRenderer::render() {
     Mesh* m = (Mesh*)owner_->getComponent(Component::MESH);
     if (m != NULL) {
         material.describe();
-        glUseProgram(material.shader->prog);
+        glUseProgram(material.shader.prog);
         m->describe();
         glUseProgram(0);
     }

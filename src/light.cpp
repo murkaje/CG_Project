@@ -69,7 +69,7 @@ Object* Light::createPointLight(vector3f position) {
     l->linear_attenuation = 0.1;
     l->quadratic_attenuation = 0.01;
     light->addComponent(l);
-    light->addComponent(new Transform(position));
-    light->addComponent(new Behavior(Light::update));
+    Transform::setObjPosition(light, position.x, position.y, position.z);
+    Behavior::add(light, Light::update);
     return light;
 }

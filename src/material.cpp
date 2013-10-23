@@ -51,7 +51,7 @@ Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)
 }
 
 void Material::describe() {
-    //still need to do that proper vector3f implementation
+    //still need to do that proper vector4f implementation
     float spec[] = {specular.x, specular.y, specular.z, 1.0};
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
     float amb[] = {ambient.x, ambient.y, ambient.z, 1.0};
@@ -59,8 +59,4 @@ void Material::describe() {
     float diff[] = {diffuse.x, diffuse.y, diffuse.z, 1.0};
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-}
-
-Material::~Material() {
-    delete shader;
 }

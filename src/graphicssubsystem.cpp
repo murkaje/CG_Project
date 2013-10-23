@@ -31,11 +31,11 @@ void GraphicsSubsystem::shutdown()
     glutLeaveMainLoop();
 }
 
-Material::Shader* GraphicsSubsystem::loadShader(std::string name) {
+Material::Shader& GraphicsSubsystem::loadShader(std::string name) {
     if (shaderCache[name] == NULL) {
         shaderCache[name] = new Material::Shader(name);
     }
-    return shaderCache[name];
+    return *shaderCache[name];
 }
 
 void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* title)

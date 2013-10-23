@@ -16,51 +16,35 @@
 #include <eventmanager.h>
 #include <math.h>
 
-//Eventually a player should register move functions
+v3f spherePos = v3f(0,0.5,0);
+int movePerSecond = 2;
+
 void moveLeft()
 {
-    std::cout<<"Moving left\n";
+    spherePos.z += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveRight()
 {
-    std::cout<<"Moving right\n";
+    spherePos.z += -movePerSecond * GraphicsSubsystem::delta;
 }
 void moveBackward()
 {
-    std::cout<<"Moving backward\n";
+    spherePos.x += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveForward()
 {
-    std::cout<<"Moving forward\n";
+    spherePos.x += -movePerSecond * GraphicsSubsystem::delta;
 }
 
 void rotateObject(Object &obj)
 {
     int degreesPerSecond = 90;
-    Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
-    t->rotation.z += degreesPerSecond*GraphicsSubsystem::delta;
+    Transform::rotateObj(&obj, 0,0, degreesPerSecond*GraphicsSubsystem::delta);
 }
 
 void moveObject(Object &obj)
 {
-    Transform *t = (Transform*)obj.getComponent(Component::TRANSFORM);
-    int movePerSecond = 2;
-    if(InputSubsystem::keyState[GLUT_KEY_UP+256] == true)
-    {
-        t->position.x += -movePerSecond * GraphicsSubsystem::delta;
-    }
-    if(InputSubsystem::keyState[GLUT_KEY_DOWN+256] == true)
-    {
-        t->position.x += movePerSecond * GraphicsSubsystem::delta;
-    }
-    if(InputSubsystem::keyState[GLUT_KEY_RIGHT+256] == true)
-    {
-        t->position.z += -movePerSecond * GraphicsSubsystem::delta;
-    }
-    if(InputSubsystem::keyState[GLUT_KEY_LEFT+256] == true)
-    {
-        t->position.z += movePerSecond * GraphicsSubsystem::delta;
-    }
+    Transform::setObjPosition(&obj, spherePos.x, spherePos.y, spherePos.z);
 }
 
 int main(int argc, char* argv[])
@@ -79,25 +63,24 @@ int main(int argc, char* argv[])
 
     //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
     //Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
-    Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(6,0.01,6),v3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(25,0.001,25),v3f(0.5,0.5,0.5));
     planeObj->name = "plane"; //rename the cube, so the current collision test wont trigger
     //make the plane really shiny
     ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.specular = v3f(1,1,1);
-    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.shininess = 20;
+    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.shininess = 100;
 
-    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
-    Behavior * behaviorObj = new Behavior(moveObject);
-    sphereObj->addComponent(behaviorObj);
+    Object *sphereObj = GeometricShape::createSphere(spherePos, v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
+    Behavior::add(sphereObj, moveObject);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
-    cubeObj->addComponent(new Behavior(rotateObject));
+    Behavior::add(cubeObj, rotateObject);
 
     Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
 
     //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
     Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
-    ((Transform*)camera->getComponent(Component::TRANSFORM))->position = v3f(0,6,6);
-    ((Transform*)camera->getComponent(Component::TRANSFORM))->rotation = v3f(-45,0,0);
+    Transform::setObjPosition(camera, 0, 6, 6);
+    Transform::setObjRotation(camera, -45, 0, 0);
     camera->name = "MainCamera";
     //SceneManager::testScene.addObject(camera);
     sphereObj->addChild(camera);

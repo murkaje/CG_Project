@@ -18,7 +18,7 @@ private:
 
 public:
 
-    static Material::Shader* loadShader(std::string name);
+    static Material::Shader& loadShader(std::string name);
 
     static const int MAX_FPS = 60;
     static double delta;

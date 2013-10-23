@@ -15,21 +15,19 @@ private:
         std::string name;
         GLuint prog;
 
-        Shader(std::string name="");
+        Shader(std::string name="default");
 
         ~Shader();
     };
 
 public:
     //TODO material/shader cache, so objects can share shaders and/or materials
-    Shader *shader;
+    Shader &shader;
 
     vector3f ambient, diffuse, specular;
     float shininess;
 
     Material(std::string name="default");
-
-    ~Material();
 
     void describe();
 
