@@ -1,9 +1,15 @@
 #ifndef GRAPHICSSUBSYSTEM_H
 #define GRAPHICSSUBSYSTEM_H
 
+#include <material.h>
+
+#include <map>
+#include <string>
 
 class GraphicsSubsystem {
 private:
+    static std::map<std::string, Material::Shader*> shaderCache;
+
     static double frameStart;
 
     static void draw();
@@ -11,6 +17,9 @@ private:
     static void idle();
 
 public:
+
+    static Material::Shader* loadShader(std::string name);
+
     static const int MAX_FPS = 60;
     static double delta;
 

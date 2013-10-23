@@ -1,4 +1,5 @@
 #include "material.h"
+#include "graphicssubsystem.h"
 
 #include <stdexcept>
 #include <cerrno>
@@ -34,15 +35,18 @@ Material::Shader::Shader(std::string name): name(name) {
     glAttachShader(prog, vertex_shader);
     glAttachShader(prog, fragment_shader);
     glLinkProgram(prog);
+    printf("%s\n",("Created shader: "+name).c_str());
 }
 
 Material::Shader::~Shader() {
     glDeleteProgram(prog);
     glDeleteShader(vertex_shader);
     glDeleteShader(fragment_shader);
+    printf("%s\n", ("Deleted shader: "+name).c_str());
 }
 
-Material::Material(std::string name): shader(new Shader(name)), ambient(v3f::zero), diffuse(v3f::unit), specular(v3f::zero) {
+Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)),
+    ambient(v3f::zero), diffuse(v3f::unit), specular(v3f::zero) {
     shininess = 1;
 }
 

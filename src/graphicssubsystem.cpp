@@ -9,8 +9,7 @@
 #include <string>
 #include <cstdio>
 
-#include <utils.h>
-
+std::map<std::string, Material::Shader*> GraphicsSubsystem::shaderCache;
 double GraphicsSubsystem::frameStart = 0;
 double GraphicsSubsystem::delta = 0;
 
@@ -22,7 +21,21 @@ void GraphicsSubsystem::init(int argc, char* argv[])
 
 void GraphicsSubsystem::shutdown()
 {
+    printf("%s\n", "cleaning up shader cache...");
+    for (std::map<std::string,Material::Shader*>::iterator shad = shaderCache.begin(); shad != shaderCache.end(); shad++) {
+        if (shad->second != NULL) {
+            delete shad->second;
+            shad->second = NULL;
+        }
+    }
     glutLeaveMainLoop();
+}
+
+Material::Shader* GraphicsSubsystem::loadShader(std::string name) {
+    if (shaderCache[name] == NULL) {
+        shaderCache[name] = new Material::Shader(name);
+    }
+    return shaderCache[name];
 }
 
 void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* title)

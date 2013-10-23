@@ -33,6 +33,7 @@ public:
 
     void describe();
 
+    friend class GraphicsSubsystem;
 };
 
 #endif
