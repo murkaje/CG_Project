@@ -66,8 +66,8 @@ int main(int argc, char* argv[])
     Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(25,0.001,25),v3f(0.5,0.5,0.5));
     planeObj->name = "plane"; //rename the cube, so the current collision test wont trigger
     //make the plane really shiny
-    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.specular = v3f(1,1,1);
-    ((Renderer*)planeObj->getComponent(Component::RENDERER))->material.shininess = 100;
+    Renderer::get(*planeObj)->material.specular = v3f(1,1,1);
+    Renderer::get(*planeObj)->material.shininess = 100;
 
     Object *sphereObj = GeometricShape::createSphere(spherePos, v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
     Behavior::add(sphereObj, moveObject);

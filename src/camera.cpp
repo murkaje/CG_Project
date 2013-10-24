@@ -8,6 +8,11 @@ Camera::Camera(bool perspective): Component(Component::CAMERA) {
     this->perspective = perspective;
 }
 
+
+Camera* Camera::get(Object &obj) {
+    return (Camera*)obj.getComponent(Component::CAMERA);
+}
+
 Object* Camera::createPerspectiveCamera(int fov, double aspect, double zNear, double zFar) {
     Object *camera = new Object("perspectiveCamera");
     Camera *c = new Camera();

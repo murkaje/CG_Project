@@ -15,6 +15,8 @@ public:
     Renderer();
 
     virtual void render() {};
+
+    static Renderer* get(Object &obj);
 };
 
 class MeshRenderer: public Renderer {

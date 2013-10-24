@@ -25,7 +25,7 @@ Object* Object::Find(Object* obj, std::string name) {
     else return find_(obj->getChildren(), name);
 }
 
-Object::Object(std::string name): parent_(NULL), name(name) {
+Object::Object(std::string name): parent_(NULL), obj(*this), name(name) {
 
 }
 

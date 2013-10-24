@@ -19,6 +19,8 @@ public:
     static void setObjPosition(Object *obj, float dx, float dy, float dz);
     static void setObjRotation(Object *obj, float dx, float dy, float dz);
     static void setObjScale(Object *obj, float dx, float dy, float dz);
+
+    static Transform* get(Object &obj);
 };
 
 #endif

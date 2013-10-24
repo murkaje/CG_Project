@@ -6,6 +6,10 @@ Component(Component::TRANSFORM), position(position), rotation(rotation), scale(s
 
 }
 
+Transform* Transform::get(Object &obj) {
+    return ((Transform*)obj.getComponent(Component::TRANSFORM));
+}
+
 void Transform::translateObj(Object *obj, float dx, float dy, float dz) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {

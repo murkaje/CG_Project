@@ -9,6 +9,10 @@ Behavior::Behavior(std::list<behavior_function> actions): Component(Component::B
 
 }
 
+Behavior* Behavior::get(Object &obj) {
+    return (Behavior*)obj.getComponent(Component::BEHAVIOR);
+}
+
 void Behavior::add(Object* obj, behavior_function action) {
     Behavior *behavior = (Behavior*)obj->getComponent(Component::BEHAVIOR);
     if (behavior == NULL) {

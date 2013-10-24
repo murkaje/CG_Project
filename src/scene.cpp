@@ -11,11 +11,11 @@ void positionCamera(Camera* camera) {
     if (camera != NULL) {
         Object* parent = camera->owner();
         while (parent != NULL) {
-            Transform* t = (Transform*)parent->getComponent(Component::TRANSFORM);
-            glRotatef(-t->rotation.z,0.0,0.0,1.0);
-            glRotatef(-t->rotation.y,0.0,1.0,0.0);
-            glRotatef(-t->rotation.x,1.0,0.0,0.0);
-            glTranslatef(-t->position.x,-t->position.y,-t->position.z);
+            Transform &t = *Transform::get(*parent);
+            glRotatef(-t.rotation.z,0.0,0.0,1.0);
+            glRotatef(-t.rotation.y,0.0,1.0,0.0);
+            glRotatef(-t.rotation.x,1.0,0.0,0.0);
+            glTranslatef(-t.position.x,-t.position.y,-t.position.z);
             parent = parent->parent();
         }
     }
@@ -24,7 +24,7 @@ void positionCamera(Camera* camera) {
 void Scene::init() {
     Object* cam = Object::Find("MainCamera");
     if (cam != NULL) {
-        setCamera((Camera*)cam->getComponent(Component::CAMERA));
+        setCamera(Camera::get(*cam));
         camera->setup();
     }
 }
@@ -51,7 +51,7 @@ void Scene::update() {
 void Scene::updateObjs(std::list<Object> &objects) {
     for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         glPushMatrix();
-            Transform* t = (Transform*)obj->getComponent(Component::TRANSFORM);
+            Transform *t = Transform::get(*obj);
             if (t == NULL) {
                 continue;
             } else {
@@ -61,7 +61,7 @@ void Scene::updateObjs(std::list<Object> &objects) {
                 glRotatef(t->rotation.z,0.0,0.0,1.0);
                 glScalef(t->scale.x,t->scale.y,t->scale.z);
             }
-            Behavior* b = (Behavior*)obj->getComponent(Component::BEHAVIOR);
+            Behavior *b = Behavior::get(*obj);
             if (b != NULL) {
                 for (std::list<behavior_function>::iterator b1 = b->actions.begin(); b1 != b->actions.end(); b1++) {
                     (*b1)(*obj);

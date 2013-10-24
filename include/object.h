@@ -22,6 +22,8 @@ private:
 protected:
     Object* parent_;
 public:
+    Object &obj;
+
     std::string name;
 
     Object(std::string name="object");

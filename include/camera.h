@@ -19,6 +19,8 @@ public:
 
     static Object* createPerspectiveCamera(int fov, double aspect, double zNear, double zFar);
     static Object* createOrthographicCamera(double vSize, double zNear, double zFar);
+
+    static Camera* get(Object &obj);
 };
 
 #endif
