@@ -13,6 +13,7 @@ const std::string Component::MESH       = "mesh";
 const std::string Component::BEHAVIOR   = "behavior";
 const std::string Component::LIGHT      = "light";
 const std::string Component::CAMERA     = "camera";
+const std::string Component::COLLIDER   = "collider";
 
 Object* Component::owner() {
     return owner_;

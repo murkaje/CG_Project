@@ -17,6 +17,7 @@ public:
     static const std::string BEHAVIOR;
     static const std::string LIGHT;
     static const std::string CAMERA;
+    static const std::string COLLIDER;
 
     Component(std::string name="component");
 

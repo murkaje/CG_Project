@@ -46,6 +46,8 @@ public:
 
     static Object* Find(std::string name);
     static Object* Find(Object* obj, std::string name);
+
+    bool equal(Object &other);
 };
 
 class GeometricShape: public Object {

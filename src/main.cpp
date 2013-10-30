@@ -47,6 +47,20 @@ void moveObject(Object &obj)
     Transform::setObjPosition(&obj, spherePos.x, spherePos.y, spherePos.z);
 }
 
+void colorCollidingObjects(Object &obj) {
+    Collider *c = Collider::get(obj);
+    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+    for (; col != c->collisions().end(); col++) {
+        //printf("colliding with %s\n", col->with.owner()->name.c_str());
+        Renderer::get(*col->with.owner())->material.diffuse = v3f(0,1,0);
+    }
+}
+
+void resetColorIfNoCollisions(Object &obj) {
+    Collider *c = Collider::get(obj);
+    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = v3f(1,0,0);
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -64,18 +78,24 @@ int main(int argc, char* argv[])
     //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
     //Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
     Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(25,0.001,25),v3f(0.5,0.5,0.5));
-    planeObj->name = "plane"; //rename the cube, so the current collision test wont trigger
+    planeObj->name = "plane";
     //make the plane really shiny
     Renderer::get(*planeObj)->material.specular = v3f(1,1,1);
     Renderer::get(*planeObj)->material.shininess = 100;
 
     Object *sphereObj = GeometricShape::createSphere(spherePos, v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
     Behavior::add(sphereObj, moveObject);
+    Collider::addBox(*sphereObj);
+    Behavior::add(sphereObj, colorCollidingObjects);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     Behavior::add(cubeObj, rotateObject);
+    Collider::addBox(*cubeObj);
+    Behavior::add(cubeObj, resetColorIfNoCollisions);
 
     Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
+    Collider::addBox(*secondCubeObj);
+    Behavior::add(secondCubeObj, resetColorIfNoCollisions);
 
     //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
     Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);

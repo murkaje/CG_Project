@@ -1,17 +1,15 @@
 #ifndef PHYSICSSUBSYSTEM_H
 #define PHYSICSSUBSYSTEM_H
 
-#include<object.h>
+#include <object.h>
 
-class PhysicsSubsystem
-{
-    public:
-        PhysicsSubsystem();
-        virtual ~PhysicsSubsystem();
-        static void PerformPhysicsChecks();
-        static void checkIntersection(Object &obj);
-    protected:
-    private:
+class PhysicsSubsystem {
+public:
+    static void PerformPhysicsChecks();
+
+    static void checkIntersections(Object &obj);
+
+    static void checkBoxToBoxIntersection(Object &obj, Object &iterObj);
 };
 
 #endif
