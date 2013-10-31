@@ -16,35 +16,48 @@
 #include <eventmanager.h>
 #include <math.h>
 
-v3f spherePos = v3f(0,0.5,0);
+v3f moveVec = v3f::zero;
 int movePerSecond = 2;
 
 void moveLeft()
 {
-    spherePos.z += movePerSecond * GraphicsSubsystem::delta;
+    moveVec.z += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveRight()
 {
-    spherePos.z += -movePerSecond * GraphicsSubsystem::delta;
+    moveVec.z += -movePerSecond * GraphicsSubsystem::delta;
 }
 void moveBackward()
 {
-    spherePos.x += movePerSecond * GraphicsSubsystem::delta;
+    moveVec.x += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveForward()
 {
-    spherePos.x += -movePerSecond * GraphicsSubsystem::delta;
+    moveVec.x += -movePerSecond * GraphicsSubsystem::delta;
 }
 
 void rotateObject(Object &obj)
 {
     int degreesPerSecond = 90;
-    Transform::rotateObj(&obj, 0,0, degreesPerSecond*GraphicsSubsystem::delta);
+    Transform::rotateObj(&obj, 0, 0, degreesPerSecond*GraphicsSubsystem::delta);
 }
 
 void moveObject(Object &obj)
 {
-    Transform::setObjPosition(&obj, spherePos.x, spherePos.y, spherePos.z);
+    Collider *c = Collider::get(obj);
+    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+    v3f newPos = Transform::get(obj)->position+moveVec;
+    for (; col != c->collisions().end(); col++) {
+        //alter movement vector so we cannot go beyond collision points
+        Transform *otherCol = Transform::get(*col->with.owner());
+        if (moveVec.x > 0 && otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x = 0; //x+
+        else if (moveVec.x < 0 && otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x = 0; //x-
+        if (moveVec.z > 0 && otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z = 0; //z+
+        else if (moveVec.z < 0 && otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z = 0; //z-
+    }
+    Transform::translateObj(&obj, moveVec.x, moveVec.y, moveVec.z);
+    //reset movement vector for next frame
+    moveVec = v3f::zero;
 }
 
 void colorCollidingObjects(Object &obj) {
@@ -83,7 +96,7 @@ int main(int argc, char* argv[])
     Renderer::get(*planeObj)->material.specular = v3f(1,1,1);
     Renderer::get(*planeObj)->material.shininess = 100;
 
-    Object *sphereObj = GeometricShape::createSphere(spherePos, v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,90,0), v3f(1,1,1),v3f(0,1,0));
     Behavior::add(sphereObj, moveObject);
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, colorCollidingObjects);
