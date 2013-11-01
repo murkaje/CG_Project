@@ -11,7 +11,13 @@
 
 std::map<std::string, Material::Shader*> GraphicsSubsystem::shaderCache;
 double GraphicsSubsystem::frameStart = 0;
+double GraphicsSubsystem::counter = 0;
 double GraphicsSubsystem::delta = 0;
+int GraphicsSubsystem::width = 0;
+int GraphicsSubsystem::height = 0;
+int GraphicsSubsystem::fps = 0;
+int GraphicsSubsystem::frames = 0;
+char GraphicsSubsystem::fpsStr[8];
 
 void GraphicsSubsystem::init(int argc, char* argv[])
 {
@@ -42,6 +48,8 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
 {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_DEPTH | GLUT_RGBA);
     glutInitWindowSize(w, h);
+    width = w;
+    height = h;
     glutInitWindowPosition(x,y);
     glutCreateWindow(title);
 
@@ -78,28 +86,52 @@ void GraphicsSubsystem::draw()
     PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::testScene.draw();
 
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glRasterPos2f(10.0, 10.0);
-    const unsigned char* str = (unsigned const char*) "FPS: ";
-    //printf((const char*)str);
-    glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, str);
+    glDisable(GL_LIGHTING);
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+        glLoadIdentity();
+        gluOrtho2D(0.0, width, 0.0, height);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+        glLoadIdentity();
+        glColor3f(0.0, 1.0, 0.0);
+        glRasterPos2f(10.0, 10.0);
+        sprintf(fpsStr, "FPS: %d", fps);
+        glutBitmapString(GLUT_BITMAP_TIMES_ROMAN_24, (unsigned const char*)fpsStr);
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+    glEnable(GL_LIGHTING);
 
     glutSwapBuffers();
 }
 
 void GraphicsSubsystem::idle()
 {
+    if (frames == 0) {
+        counter = Utils::time();
+    }
     double needed = frameStart+(1000.0/MAX_FPS);
-    if (needed >= Utils::time())
-    {
+    if (needed >= Utils::time()) {
         double d = (needed-Utils::time())*1000;
         usleep(d);
+    }
+
+    if (counter+1000 >= Utils::time()) {
+        frames++;
+    } else {
+        fps = frames;
+        frames = 0;
     }
 
     InputSubsystem::update();
     EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
-    SceneManager::testScene.update();
+
+    SceneManager::CurrentScene().update();
 
     frameStart = Utils::time();
     glutPostRedisplay();

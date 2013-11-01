@@ -10,7 +10,11 @@ class GraphicsSubsystem {
 private:
     static std::map<std::string, Material::Shader*> shaderCache;
 
-    static double frameStart;
+    static char fpsStr[8];
+
+    static double frameStart, counter;
+
+    static int frames;
 
     static void draw();
 
@@ -22,6 +26,7 @@ public:
 
     static const int MAX_FPS = 60;
     static double delta;
+    static int width, height, fps;
 
     static void init(int argc, char* argv[]);
 
