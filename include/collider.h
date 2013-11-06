@@ -11,9 +11,9 @@ class Collider: public Component {
 protected:
     struct Collision {
         Collider &with;
-        v3f point;
+        v3f point, normal;
 
-        Collision(Collider &with, v3f point);
+        Collision(Collider &with, v3f point, v3f normal);
     };
 
     int _type;

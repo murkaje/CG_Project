@@ -50,10 +50,10 @@ void moveObject(Object &obj)
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
         Transform *otherCol = Transform::get(*col->with.owner());
-        if (moveVec.x > 0 && otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x = 0; //x+
-        else if (moveVec.x < 0 && otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x = 0; //x-
-        if (moveVec.z > 0 && otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z = 0; //z+
-        else if (moveVec.z < 0 && otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z = 0; //z-
+        if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x+
+        else if (otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x-
+        if (otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z+
+        else if (otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z-
     }
     Transform::translateObj(&obj, moveVec.x, moveVec.y, moveVec.z);
     //reset movement vector for next frame

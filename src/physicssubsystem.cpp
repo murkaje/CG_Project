@@ -34,13 +34,21 @@ void PhysicsSubsystem::checkBoxToBoxIntersection(Object &obj, Object &iterObj) {
     float yMinDistance = (objT.scale.y + iterObjT.scale.y)/float(2);
     float zMinDistance = (objT.scale.z + iterObjT.scale.z)/float(2);
 
+    float m = max(xDistance, yDistance);
+    m = max(m, zDistance);
+
 //  cout<<xDistance<<" x min: "<<xMinDistance<<endl;
 //  cout<<yDistance<<" y min: "<<yMinDistance<<endl;
 //  cout<<zDistance<<" z min: "<<zMinDistance<<endl;
     if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance) {
         //add collision object with reference to colliding collider and a collision point
-        Collider::get(obj)->collisions().push_back(Collider::Collision(*Collider::get(iterObj),
-            v3f(objT.position.x-xDistance+xMinDistance,objT.position.y-yDistance+yMinDistance,objT.position.z-zDistance+zMinDistance)));
+        Collider::get(obj)->collisions().push_back(
+            Collider::Collision(
+                *Collider::get(iterObj),
+                v3f(objT.position.x-xDistance+xMinDistance,objT.position.y-yDistance+yMinDistance,objT.position.z-zDistance+zMinDistance),
+                v3f(xDistance/m == 1.0 ? xDistance/m : 0, yDistance/m == 1.0 ? yDistance/m : 0, zDistance/m == 1.0 ? zDistance/m : 0)
+            )
+        );
     }
 }
 

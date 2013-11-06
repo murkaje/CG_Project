@@ -4,7 +4,7 @@ Collider::Collider(int type): Component(Component::COLLIDER), _type(type) {
 
 }
 
-Collider::Collision::Collision(Collider &with, v3f point): with(with), point(point) {
+Collider::Collision::Collision(Collider &with, v3f point, v3f normal): with(with), point(point), normal(normal) {
 
 }
 
