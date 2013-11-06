@@ -2,6 +2,7 @@
 #define PHYSICSSUBSYSTEM_H
 
 #include <object.h>
+#include <collider.h>
 
 class PhysicsSubsystem {
 public:
@@ -9,7 +10,7 @@ public:
 
     static void checkIntersections(Object &obj);
 
-    static void checkBoxToBoxIntersection(Object &obj, Object &iterObj);
+    static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
 };
 
 #endif

@@ -2,6 +2,8 @@ varying vec3 N;
 varying vec3 v;
 varying float d;
 
+uniform float time;
+
 void main (void) {
     vec3 light0 = normalize(gl_LightSource[0].position.xyz - v.xyz);
     vec3 viewer = normalize(-v);

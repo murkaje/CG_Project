@@ -3,7 +3,6 @@
 #include <vector3f.h>
 #include <math.h>
 #include <iostream>
-#include "collider.h"
 
 using namespace std;
 
@@ -19,34 +18,31 @@ void PhysicsSubsystem::PerformPhysicsChecks() {
     }
 }
 
-void PhysicsSubsystem::checkBoxToBoxIntersection(Object &obj, Object &iterObj) {
-    Transform &objT = *Transform::get(obj);
-    Transform &iterObjT = *Transform::get(iterObj);
-//  float euclideanDistanceBetweenObjects = sqrt(pow((objT.position.x - iterObjT.position.x),2) +
-//                                                    pow((objT.position.y - iterObjT.position.y),2) +
-//                                                    pow((objT.position.z - iterObjT.position.z),2));
+void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &other) {
+    Transform *t = Transform::get(*collider.owner());
+    float xPos = t->position.x+collider.center.x;
+    float yPos = t->position.y+collider.center.y;
+    float zPos = t->position.z+collider.center.z;
 
-    float xDistance = fabs(objT.position.x - iterObjT.position.x);
-    float yDistance = fabs(objT.position.y - iterObjT.position.y);
-    float zDistance = fabs(objT.position.z - iterObjT.position.z);
+    Transform *ot = Transform::get(*other.owner());
 
-    float xMinDistance = (objT.scale.x + iterObjT.scale.x)/float(2);
-    float yMinDistance = (objT.scale.y + iterObjT.scale.y)/float(2);
-    float zMinDistance = (objT.scale.z + iterObjT.scale.z)/float(2);
+    float xDistance = fabs(xPos - ot->position.x+other.center.x);
+    float yDistance = fabs(yPos - ot->position.y+other.center.y);
+    float zDistance = fabs(zPos - ot->position.z+other.center.z);
 
-    float m = max(xDistance, yDistance);
-    m = max(m, zDistance);
+    float xMinDistance = (collider.scale.x + other.scale.x)/float(2);
+    float yMinDistance = (collider.scale.y + other.scale.y)/float(2);
+    float zMinDistance = (collider.scale.z + other.scale.z)/float(2);
 
-//  cout<<xDistance<<" x min: "<<xMinDistance<<endl;
-//  cout<<yDistance<<" y min: "<<yMinDistance<<endl;
-//  cout<<zDistance<<" z min: "<<zMinDistance<<endl;
+    float maxDistance = max(xDistance, yDistance);
+    maxDistance = max(maxDistance, zDistance);
+
     if(xDistance < xMinDistance && yDistance < yMinDistance && zDistance < zMinDistance) {
-        //add collision object with reference to colliding collider and a collision point
-        Collider::get(obj)->collisions().push_back(
-            Collider::Collision(
-                *Collider::get(iterObj),
-                v3f(objT.position.x-xDistance+xMinDistance,objT.position.y-yDistance+yMinDistance,objT.position.z-zDistance+zMinDistance),
-                v3f(xDistance/m == 1.0 ? xDistance/m : 0, yDistance/m == 1.0 ? yDistance/m : 0, zDistance/m == 1.0 ? zDistance/m : 0)
+        //register collision
+        collider.collisions().push_back(
+            Collider::Collision(other, //collided with
+                v3f(xPos-xDistance+xMinDistance, yPos-yDistance+yMinDistance, zPos-zDistance+zMinDistance), //collision point
+                v3f(int(xDistance/maxDistance), int(yDistance/maxDistance), int(zDistance/maxDistance)) //normal of collision surface
             )
         );
     }
@@ -64,7 +60,7 @@ void PhysicsSubsystem::checkIntersections(Object &obj) {
                 case Collider::BOX:
                     switch (c->type()) {
                     case Collider::BOX:
-                        checkBoxToBoxIntersection(obj, *iterObj);
+                        BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
                         break;
                     case Collider::SPHERE:
                         break;
