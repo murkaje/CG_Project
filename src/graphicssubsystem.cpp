@@ -4,6 +4,7 @@
 #include "eventmanager.h"
 #include "inputsubsystem.h"
 #include <physicssubsystem.h>
+#include <networksubsystem.h>
 
 #include <unistd.h>
 #include <string>
@@ -126,6 +127,8 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
+
+    NetworkSubsystem::parseIncomingPackets();
 
     InputSubsystem::update();
     EventManager::ParseEvents();

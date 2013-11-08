@@ -35,12 +35,15 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add directory="include" />
+			<Add directory="include/RakNet" />
 		</Compiler>
 		<Linker>
 			<Add library="glut" />
 			<Add library="GL" />
 			<Add library="GLU" />
 			<Add library="GLEW" />
+			<Add library="RakNetLibStatic" />
+			<Add directory="lib" />
 		</Linker>
 		<Unit filename="include/behavior.h" />
 		<Unit filename="include/camera.h" />
@@ -52,6 +55,7 @@
 		<Unit filename="include/light.h" />
 		<Unit filename="include/material.h" />
 		<Unit filename="include/mesh.h" />
+		<Unit filename="include/networksubsystem.h" />
 		<Unit filename="include/object.h" />
 		<Unit filename="include/physicssubsystem.h" />
 		<Unit filename="include/renderer.h" />
@@ -73,6 +77,7 @@
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/material.cpp" />
 		<Unit filename="src/mesh.cpp" />
+		<Unit filename="src/networksubsystem.cpp" />
 		<Unit filename="src/object.cpp" />
 		<Unit filename="src/physicssubsystem.cpp" />
 		<Unit filename="src/renderer.cpp" />

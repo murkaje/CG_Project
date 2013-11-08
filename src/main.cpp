@@ -15,6 +15,7 @@
 #include <collider.h>
 #include <eventmanager.h>
 #include <math.h>
+#include <networksubsystem.h>
 
 v3f moveVec = v3f::zero;
 int movePerSecond = 2;
@@ -49,7 +50,7 @@ void moveObject(Object &obj)
     v3f newPos = Transform::get(obj)->position+moveVec;
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
-        printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
+        //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
         Transform *otherCol = Transform::get(*col->with.owner());
         if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x += moveVec.x*col->normal.x; //x+
         else if (otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x-
@@ -88,6 +89,11 @@ int main(int argc, char* argv[])
     EventManager::RegisterCommand("moveRight", moveRight);
 
     InputSubsystem::init();
+
+    NetworkSubsystem::init();
+    NetworkSubsystem::startServer();
+
+    NetworkSubsystem::connect("localhost");
 
     //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
     //Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
@@ -133,6 +139,9 @@ int main(int argc, char* argv[])
     SceneManager::testScene.init();
     GraphicsSubsystem::run();
 
+    NetworkSubsystem::shutdown();
+
+    printf("Successful termination");
     return 0;
 }
 
