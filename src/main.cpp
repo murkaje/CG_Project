@@ -49,10 +49,11 @@ void moveObject(Object &obj)
     v3f newPos = Transform::get(obj)->position+moveVec;
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
+        printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
         Transform *otherCol = Transform::get(*col->with.owner());
-        if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x+
+        if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x += moveVec.x*col->normal.x; //x+
         else if (otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x-
-        if (otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z+
+        if (otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z += moveVec.z*col->normal.z; //z+
         else if (otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z-
     }
     Transform::translateObj(&obj, moveVec.x, moveVec.y, moveVec.z);
@@ -96,7 +97,7 @@ int main(int argc, char* argv[])
     Renderer::get(*planeObj)->material.specular = v3f(1,1,1);
     Renderer::get(*planeObj)->material.shininess = 100;
 
-    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,90,0), v3f(1,1,1),v3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
     Behavior::add(sphereObj, moveObject);
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, colorCollidingObjects);
@@ -106,7 +107,7 @@ int main(int argc, char* argv[])
     Collider::addBox(*cubeObj);
     Behavior::add(cubeObj, resetColorIfNoCollisions);
 
-    Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(.5,.5,.5),v3f(1,0,1));
+    Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(3.5,.5,.5),v3f(1,0,1));
     Collider::addBox(*secondCubeObj);
     Behavior::add(secondCubeObj, resetColorIfNoCollisions);
 
@@ -119,7 +120,9 @@ int main(int argc, char* argv[])
     sphereObj->addChild(camera);
 
     Object *light = Light::createPointLight(v3f(0,1,0));
-    light->addChild(GeometricShape::createSphere(v3f(0,0,0), v3f::zero, v3f(0.1,0.1,0.1),v3f(1,1,0)));
+    Object *lightBall = GeometricShape::createSphere(v3f(0,0,0), v3f::zero, v3f(0.1,0.1,0.1),v3f(1,1,0));
+    Renderer::get(*lightBall)->material.lighting_enabled = false;
+    light->addChild(lightBall);
     sphereObj->addChild(light);
     //SceneManager::testScene.addObject(light);
     SceneManager::testScene.addObject(planeObj);

@@ -24,6 +24,8 @@ void MeshRenderer::render() {
         glUseProgram(material.shader.prog);
         GLint variable_location = glGetUniformLocation(material.shader.prog, "time");
         glUniform1f(variable_location, Utils::time());
+        variable_location = glGetUniformLocation(material.shader.prog, "lighting_enabled");
+        glUniform1i(variable_location, material.lighting_enabled);
         m->describe();
         glUseProgram(0);
     }

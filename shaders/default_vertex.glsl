@@ -4,6 +4,8 @@ varying float d;
 
 uniform float time;
 
+uniform int lighting_enabled;
+
 void main(void) {
     v = vec3(gl_ModelViewMatrix * gl_Vertex);
     N = normalize(gl_NormalMatrix * gl_Normal);

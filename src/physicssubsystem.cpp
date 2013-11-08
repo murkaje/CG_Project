@@ -26,9 +26,13 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
 
     Transform *ot = Transform::get(*other.owner());
 
-    float xDistance = fabs(xPos - ot->position.x+other.center.x);
-    float yDistance = fabs(yPos - ot->position.y+other.center.y);
-    float zDistance = fabs(zPos - ot->position.z+other.center.z);
+    float xDiff = xPos - ot->position.x+other.center.x;
+    float yDiff = yPos - ot->position.y+other.center.y;
+    float zDiff = zPos - ot->position.z+other.center.z;
+
+    float xDistance = fabs(xDiff);
+    float yDistance = fabs(yDiff);
+    float zDistance = fabs(zDiff);
 
     float xMinDistance = (collider.scale.x + other.scale.x)/float(2);
     float yMinDistance = (collider.scale.y + other.scale.y)/float(2);
@@ -42,7 +46,7 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
         collider.collisions().push_back(
             Collider::Collision(other, //collided with
                 v3f(xPos-xDistance+xMinDistance, yPos-yDistance+yMinDistance, zPos-zDistance+zMinDistance), //collision point
-                v3f(int(xDistance/maxDistance), int(yDistance/maxDistance), int(zDistance/maxDistance)) //normal of collision surface
+                v3f(int(xDiff/maxDistance), int(yDiff/maxDistance), int(zDiff/maxDistance)) //normal of collision surface
             )
         );
     }

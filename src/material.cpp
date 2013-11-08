@@ -48,6 +48,8 @@ Material::Shader::~Shader() {
 Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)),
     ambient(v3f::zero), diffuse(v3f::unit), specular(v3f::zero) {
     shininess = 1;
+
+    lighting_enabled = true;
 }
 
 void Material::describe() {
