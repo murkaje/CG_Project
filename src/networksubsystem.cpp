@@ -28,13 +28,22 @@ void NetworkSubsystem::startServer() {
     isServer = true;
 }
 
-void NetworkSubsystem::connect(const char* host) {
+bool NetworkSubsystem::connect(const char* host) {
     RakNet::SocketDescriptor sd;
     peer->Startup(1,&sd, 1);
-    printf("Connecting to server on port %d.\n", SERVER_PORT);
+    printf("Connecting...");
+    double s = Utils::time();
     peer->Connect(host, SERVER_PORT, 0,0);
+    while (peer->GetConnectionState(peer->GetMyGUID()) != RakNet::IS_CONNECTED) {
+        if (Utils::time()-s > 5000) {
+            printf("Failed to connect to server on port %d.\n", SERVER_PORT);
+            return false;
+        }
+    }
+    printf("Connected to server on port %d.\n", SERVER_PORT);
     isClient = true;
     peer->AttachPlugin(rpc);
+    return true;
 }
 
 void NetworkSubsystem::shutdown() {

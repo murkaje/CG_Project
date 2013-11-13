@@ -85,7 +85,7 @@ void GraphicsSubsystem::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     PhysicsSubsystem::PerformPhysicsChecks();
-    SceneManager::testScene.draw();
+    SceneManager::CurrentScene().draw();
 
     glDisable(GL_LIGHTING);
     glMatrixMode(GL_PROJECTION);

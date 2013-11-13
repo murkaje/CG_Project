@@ -10,13 +10,19 @@
 #include <renderer.h>
 #include <string>
 
+#include "NetworkIDObject.h"
+
 class Component;
 class Scene;
 
-class Object {
+class Object: public RakNet::NetworkIDObject {
 private:
+    static int nextNetworkId;
+
     Scene *currentScene_;
     std::map<std::string,Component*> components;
+
+    RakNet::NetworkID nid;
 
     std::list<Object> children;
 protected:

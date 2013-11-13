@@ -19,15 +19,17 @@ class NetworkSubsystem
 protected:
 private:
     static RakNet::RakPeerInterface *peer;
-    static RakNet::RPC3 *rpc;
-    static RakNet::NetworkIDManager networkIDManager;
-
-    static void parseIncomingPackets();
 
     static void synchronizeObjs(std::list<Object> &objects, RakNet::BitStream &bs, bool write);
 
     static void synchronizeCurrentScene();
 public:
+//temporarily public
+    static RakNet::RPC3 *rpc;
+    static RakNet::NetworkIDManager networkIDManager;
+
+    static void parseIncomingPackets();
+//stahp
     enum Messages
     {
         MSG_1=ID_USER_PACKET_ENUM+1
@@ -39,7 +41,7 @@ public:
 
     static void startServer();
 
-    static void connect(const char* host);
+    static bool connect(const char* host);
 
     static void shutdown();
 

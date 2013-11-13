@@ -26,6 +26,9 @@ void Scene::init() {
     if (cam != NULL) {
         setCamera(Camera::get(*cam));
         camera->setup();
+        printf("Found 'MainCamera' and set up the view projection.\n");
+    } else {
+        printf("Did not find 'MainCamera' object!\n");
     }
 }
 
@@ -43,6 +46,7 @@ void Scene::addObject(Object* object) {
 }
 
 void Scene::update() {
+    //init();
     positionCamera(camera); //for lighting updates
     updateObjs(objects);
 }

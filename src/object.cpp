@@ -2,8 +2,11 @@
 #include <object.h>
 #include <component.h>
 #include <scenemanager.h>
+#include <networksubsystem.h>
 
 #include <cstdio>
+
+int Object::nextNetworkId = 0;
 
 Object* find_(std::list<Object> &objects, std::string name) {
     for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
@@ -31,7 +34,9 @@ bool Object::equal(Object &other) {
 }
 
 Object::Object(std::string name): parent_(NULL), obj(*this), name(name) {
-
+    SetNetworkIDManager(&NetworkSubsystem::networkIDManager);
+    nid = nextNetworkId++;
+	SetNetworkID(nid);
 }
 
 void Object::addComponent(Component *component) {

@@ -105,6 +105,17 @@ void synchronizeTransform(Object& obj, RakNet::BitStream &bs, bool write) {
 
 }
 
+void Instantiate(Object *obj, RakNet::RPC3 *rpcFromNetwork = 0) {
+    if (rpcFromNetwork == 0) {
+        printf("Locally placed %s in current scene\n", obj->name.c_str());
+        SceneManager::CurrentScene().addObject(obj);
+    } else {
+        Object *objd = RakNet::_RPC3::Deref(obj);
+        printf("Deserialized %s and placed it in current scene\n", objd->name.c_str());
+        SceneManager::CurrentScene().addObject(objd);
+    }
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -121,6 +132,7 @@ int main(int argc, char* argv[])
 
     NetworkSubsystem::init();
     NetworkSubsystem::startServer();
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, Instantiate);
 
     NetworkSubsystem::connect("localhost");
 
@@ -154,7 +166,6 @@ int main(int argc, char* argv[])
     Transform::setObjPosition(camera, 0, 6, 6);
     Transform::setObjRotation(camera, -45, 0, 0);
     camera->name = "MainCamera";
-    //SceneManager::testScene.addObject(camera);
     sphereObj->addChild(camera);
 
     Object *light = Light::createPointLight(v3f(0,1,0));
@@ -162,13 +173,21 @@ int main(int argc, char* argv[])
     Renderer::get(*lightBall)->material.lighting_enabled = false;
     light->addChild(lightBall);
     sphereObj->addChild(light);
-    //SceneManager::testScene.addObject(light);
-    SceneManager::testScene.addObject(planeObj);
-    SceneManager::testScene.addObject(sphereObj);
-    SceneManager::testScene.addObject(cubeObj);
-    SceneManager::testScene.addObject(secondCubeObj);
+    //Instantiate(planeObj);
+    //Instantiate(sphereObj);
+    //Instantiate(cubeObj);
+    //Instantiate(secondCubeObj);
+    if (NetworkSubsystem::isServer) {
+        NetworkSubsystem::rpc->CallC("Instantiate", planeObj);
+        NetworkSubsystem::rpc->CallC("Instantiate", sphereObj);
+        NetworkSubsystem::rpc->CallC("Instantiate", cubeObj);
+        NetworkSubsystem::rpc->CallC("Instantiate", secondCubeObj);
+    }
 
-    SceneManager::testScene.init();
+    //hack to allow connection before main loop begins
+    sleep(1); NetworkSubsystem::parseIncomingPackets();
+
+    SceneManager::CurrentScene().init();
     GraphicsSubsystem::run();
 
     NetworkSubsystem::shutdown();
