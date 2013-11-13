@@ -128,13 +128,17 @@ void GraphicsSubsystem::idle()
         frames = 0;
     }
 
-    NetworkSubsystem::parseIncomingPackets();
+    if (NetworkSubsystem::isServer) NetworkSubsystem::parseIncomingPackets();
+    else NetworkSubsystem::synchronizeCurrentScene();
 
     InputSubsystem::update();
     EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
 
     SceneManager::CurrentScene().update();
+
+    if (NetworkSubsystem::isClient) NetworkSubsystem::parseIncomingPackets();
+    else NetworkSubsystem::synchronizeCurrentScene();
 
     frameStart = Utils::time();
     glutPostRedisplay();

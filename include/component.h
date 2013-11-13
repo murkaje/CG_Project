@@ -18,6 +18,7 @@ public:
     static const std::string LIGHT;
     static const std::string CAMERA;
     static const std::string COLLIDER;
+    static const std::string SYNCHRONIZER;
 
     Component(std::string name="component");
 

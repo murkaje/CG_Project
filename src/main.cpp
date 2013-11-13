@@ -16,6 +16,9 @@
 #include <eventmanager.h>
 #include <math.h>
 #include <networksubsystem.h>
+#include <synchronizer.h>
+
+#include "BitStream.h"
 
 v3f moveVec = v3f::zero;
 int movePerSecond = 2;
@@ -76,6 +79,32 @@ void resetColorIfNoCollisions(Object &obj) {
     if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = v3f(1,0,0);
 }
 
+void objSaysHello(Object& obj, RakNet::BitStream &bs, bool write) {
+    if (write) {
+        bs.Write((std::string("hello from ")+obj.name).c_str());
+    } else {
+        RakNet::RakString rs;
+        bs.Read(rs);
+        printf("%s got a %s\n", obj.name.c_str(), rs.C_String());
+    }
+}
+
+void synchronizeTransform(Object& obj, RakNet::BitStream &bs, bool write) {
+    Transform *t = Transform::get(obj);
+    if (t != NULL) {
+        if (write) {
+            bs.WriteVector(t->position.x,t->position.y,t->position.z);
+            bs.WriteVector(t->rotation.x,t->rotation.y,t->rotation.z);
+            bs.WriteVector(t->scale.x,t->scale.y,t->scale.z);
+        } else {
+            bs.ReadVector(t->position.x,t->position.y,t->position.z);
+            bs.ReadVector(t->rotation.x,t->rotation.y,t->rotation.z);
+            bs.ReadVector(t->scale.x,t->scale.y,t->scale.z);
+        }
+    }
+
+}
+
 int main(int argc, char* argv[])
 {
 
@@ -107,11 +136,14 @@ int main(int argc, char* argv[])
     Behavior::add(sphereObj, moveObject);
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, colorCollidingObjects);
+    //Synchronizer::add(sphereObj, objSaysHello);
+    Synchronizer::add(sphereObj, synchronizeTransform);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     Behavior::add(cubeObj, rotateObject);
     Collider::addBox(*cubeObj);
     Behavior::add(cubeObj, resetColorIfNoCollisions);
+    //Synchronizer::add(cubeObj, objSaysHello);
 
     Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(3.5,.5,.5),v3f(1,0,1));
     Collider::addBox(*secondCubeObj);
