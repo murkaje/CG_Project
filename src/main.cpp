@@ -1,4 +1,4 @@
-
+#include <unistd.h>
 #include <utils.h>
 #include <iostream>
 #include <scene.h>
@@ -185,7 +185,7 @@ int main(int argc, char* argv[])
     }
 
     //hack to allow connection before main loop begins
-    sleep(1); NetworkSubsystem::parseIncomingPackets();
+    usleep(1000); NetworkSubsystem::parseIncomingPackets();
 
     SceneManager::CurrentScene().init();
     GraphicsSubsystem::run();

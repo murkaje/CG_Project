@@ -1,6 +1,10 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include <windef.h>
+
+#define GLUT_DISABLE_ATEXIT_HACK
+
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <string>

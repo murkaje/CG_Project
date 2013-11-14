@@ -35,15 +35,22 @@
 		<Compiler>
 			<Add option="-Wall" />
 			<Add directory="include" />
+			<Add directory="include/RakNet" />
+			<Add directory="%BOOST_HOME%" />
 		</Compiler>
 		<Linker>
 			<Add library="freeglut" />
-			<Add library="opengl32" />
 			<Add library="glu32" />
-			<Add library="winmm" />
-			<Add library="gdi32" />
+			<Add library="opengl32" />
 			<Add library="glew32" />
+			<Add library="gdi32" />
+			<Add library="ws2_32" />
+			<Add library="wsock32" />
+			<Add library="winmm" />
+			<Add library="RakNetLibStatic" />
+			<Add library="LibRPC3" />
 			<Add directory="lib" />
+			<Add directory="lib/win32" />
 		</Linker>
 		<Unit filename="include/behavior.h" />
 		<Unit filename="include/camera.h" />
@@ -55,11 +62,13 @@
 		<Unit filename="include/light.h" />
 		<Unit filename="include/material.h" />
 		<Unit filename="include/mesh.h" />
+		<Unit filename="include/networksubsystem.h" />
 		<Unit filename="include/object.h" />
 		<Unit filename="include/physicssubsystem.h" />
 		<Unit filename="include/renderer.h" />
 		<Unit filename="include/scene.h" />
 		<Unit filename="include/scenemanager.h" />
+		<Unit filename="include/synchronizer.h" />
 		<Unit filename="include/transform.h" />
 		<Unit filename="include/utils.h" />
 		<Unit filename="include/vector3f.h" />
@@ -76,11 +85,13 @@
 		<Unit filename="src/main.cpp" />
 		<Unit filename="src/material.cpp" />
 		<Unit filename="src/mesh.cpp" />
+		<Unit filename="src/networksubsystem.cpp" />
 		<Unit filename="src/object.cpp" />
 		<Unit filename="src/physicssubsystem.cpp" />
 		<Unit filename="src/renderer.cpp" />
 		<Unit filename="src/scene.cpp" />
 		<Unit filename="src/scenemanager.cpp" />
+		<Unit filename="src/synchronizer.cpp" />
 		<Unit filename="src/transform.cpp" />
 		<Unit filename="src/utils.cpp" />
 		<Unit filename="src/vector3f.cpp" />
