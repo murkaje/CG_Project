@@ -8,12 +8,12 @@ class Camera;
 
 class Scene {
 private:
-    std::list<Object> objects;
+    std::list<Object*> objects;
 
     Camera *camera;
 
-    void drawObjs(std::list<Object> &objects);
-    void updateObjs(std::list<Object> &objects);
+    void drawObjs(std::list<Object*> &objects);
+    void updateObjs(std::list<Object*> &objects);
 
 public:
     void init();
@@ -22,11 +22,11 @@ public:
 
     void update();
 
-    void addObject(Object *object);
+    void addObject(Object &object);
 
     void setCamera(Camera *camera);
 
-    std::list<Object>& getObjsList();
+    std::list<Object*>& getObjsList();
 
     ~Scene();
 };

@@ -10,6 +10,18 @@ Transform* Transform::get(Object &obj) {
     return ((Transform*)obj.getComponent(Component::TRANSFORM));
 }
 
+void Transform::writeTo(RakNet::BitStream& out) {
+    out.WriteVector(position.x, position.y, position.z);
+    out.WriteVector(rotation.x, rotation.y, rotation.z);
+    out.WriteVector(scale.x, scale.y, scale.z);
+}
+
+void Transform::readFrom(RakNet::BitStream& in) {
+    in.ReadVector(position.x, position.y, position.z);
+    in.ReadVector(rotation.x, rotation.y, rotation.z);
+    in.ReadVector(scale.x, scale.y, scale.z);
+}
+
 void Transform::translateObj(Object *obj, float dx, float dy, float dz) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {

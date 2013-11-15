@@ -30,7 +30,7 @@ private:
     static LightsCache lightsCache;
 
     GLenum light;
-protected:
+
     static void update(Object &lightObj);
 
     Light(bool enabled=true);
@@ -40,7 +40,13 @@ public:
 
     void enabled(bool enabled);
 
+    void writeTo(RakNet::BitStream& out);
+    void readFrom(RakNet::BitStream& in);
+
     static Object* createPointLight(vector3f position);
+
+    friend class GraphicsSubsystem;
+    friend class Component;
 };
 
 #endif

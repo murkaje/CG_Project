@@ -8,12 +8,12 @@ using namespace std;
 
 void PhysicsSubsystem::PerformPhysicsChecks() {
     Scene* sceneObj = &SceneManager::CurrentScene();
-    std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
-        Collider *c = Collider::get(*iterObj);
+    std::list<Object*> &objects = sceneObj->getObjsList();
+    for (std::list<Object*>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
+        Collider *c = Collider::get(**iterObj);
         if (c != NULL) {
             c->collisions().clear();
-            checkIntersections(*iterObj);
+            checkIntersections(**iterObj);
         }
     }
 }
@@ -55,16 +55,16 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
 void PhysicsSubsystem::checkIntersections(Object &obj) {
     Scene* sceneObj = obj.getCurrentScene();
     Collider *oc = Collider::get(obj);
-    std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
-        if(!obj.equal(*iterObj)) {
-            Collider *c = Collider::get(*iterObj);
+    std::list<Object*> &objects = sceneObj->getObjsList();
+    for (std::list<Object*>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
+        if(!obj.equal(**iterObj)) {
+            Collider *c = Collider::get(**iterObj);
             if (c != NULL) {
-                switch (oc->type()) {
+                switch (oc->typeId()) {
                 case Collider::BOX:
-                    switch (c->type()) {
+                    switch (c->typeId()) {
                     case Collider::BOX:
-                        BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
+                        BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(**iterObj));
                         break;
                     case Collider::SPHERE:
                         break;

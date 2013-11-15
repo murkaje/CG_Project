@@ -20,17 +20,21 @@ private:
     static int nextNetworkId;
 
     Scene *currentScene_;
-    std::map<std::string,Component*> components;
 
-    RakNet::NetworkID nid;
-
-    std::list<Object> children;
+    std::list<Object*> children;
 protected:
     Object* parent_;
+
+    Object(Object &other);
 public:
     Object &obj;
 
+    RakNet::NetworkID networkId;
+    std::map<std::string,Component*> components;
+
     std::string name;
+
+    static Object& copy(Object &other);
 
     Object(std::string name="object");
 
@@ -46,14 +50,16 @@ public:
 
     Scene* getCurrentScene();
 
-    void addChild(Object *object);
+    void addChild(Object &object);
 
-    std::list<Object>& getChildren();
+    std::list<Object*>& getChildren();
 
     static Object* Find(std::string name);
     static Object* Find(Object* obj, std::string name);
 
     bool equal(Object &other);
+
+    friend class NetworkSubsystem;
 };
 
 class GeometricShape: public Object {

@@ -4,11 +4,27 @@
 #include <object.h>
 #include <material.h>
 
-Renderer::Renderer(): Component(Component::RENDERER) {
+Renderer::Renderer(int type): Component(Component::RENDERER), type(type) {
 
 }
 
-MeshRenderer::MeshRenderer(vector3f color) {
+void Renderer::writeTo(RakNet::BitStream& out) {
+    out.Write(material.shininess);
+    out.Write(material.lighting_enabled);
+    out.WriteVector(material.diffuse.x, material.diffuse.y, material.diffuse.z);
+    out.WriteVector(material.ambient.x, material.ambient.y, material.ambient.z);
+    out.WriteVector(material.specular.x, material.specular.y, material.specular.z);
+}
+
+void Renderer::readFrom(RakNet::BitStream& in) {
+    in.Read(material.shininess);
+    in.Read(material.lighting_enabled);
+    in.ReadVector(material.diffuse.x, material.diffuse.y, material.diffuse.z);
+    in.ReadVector(material.ambient.x, material.ambient.y, material.ambient.z);
+    in.ReadVector(material.specular.x, material.specular.y, material.specular.z);
+}
+
+MeshRenderer::MeshRenderer(vector3f color): Renderer(Renderer::MESH) {
     material.diffuse = color;
 }
 
@@ -16,6 +32,11 @@ Renderer* Renderer::get(Object &obj) {
     return ((Renderer*)obj.getComponent(Component::RENDERER));
 }
 
+template<> Component* Component::allocate_t<Renderer>(int type) {
+    Component *newComp = NULL;
+    if (type == Renderer::MESH) newComp = new MeshRenderer(v3f::unit);
+    return newComp;
+};
 
 void MeshRenderer::render() {
     Mesh* m = (Mesh*)owner_->getComponent(Component::MESH);

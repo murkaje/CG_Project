@@ -1,3 +1,4 @@
+
 #include <unistd.h>
 #include <utils.h>
 #include <iostream>
@@ -102,33 +103,62 @@ void synchronizeTransform(Object& obj, RakNet::BitStream &bs, bool write) {
             bs.ReadVector(t->scale.x,t->scale.y,t->scale.z);
         }
     }
+
 }
 
 int main(int argc, char* argv[])
 {
-
     GraphicsSubsystem::init(argc,argv);
-    GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
-    GraphicsSubsystem::zBufferEnabled(true);
-
-    EventManager::RegisterCommand("moveForward", moveForward);
-    EventManager::RegisterCommand("moveBackward", moveBackward);
-    EventManager::RegisterCommand("moveLeft", moveLeft);
-    EventManager::RegisterCommand("moveRight", moveRight);
+    GraphicsSubsystem::createWindow(30,30,30,30, "GraphicsProject2013Server");
 
     InputSubsystem::init();
 
     NetworkSubsystem::init();
+    NetworkSubsystem::startServer();
     RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, Instantiate);
 
-    Behavior::Register("moveObject", moveObject);
-    Behavior::Register("colorCollidingObjects", colorCollidingObjects);
-    //Synchronizer::Register("objSaysHello", objSaysHello);
-    Synchronizer::Register("synchronizeTransform", synchronizeTransform);
-    Behavior::Register("rotateObject", rotateObject);
-    Behavior::Register("resetColorIfNoCollisions", resetColorIfNoCollisions);
+    //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
+    //Object *planeObj = GeometricShape::createPlane(v3f::zero,v3f::zero,v3f(6,0,6),v3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createCube(v3f::zero,v3f::zero, v3f(25,0.001,25),v3f(0.5,0.5,0.5));
+    planeObj->name = "plane";
+    //make the plane really shiny
+    Renderer::get(*planeObj)->material.specular = v3f(1,1,1);
+    Renderer::get(*planeObj)->material.shininess = 100;
 
-    NetworkSubsystem::connect("localhost");
+    Object *sphereObj = GeometricShape::createSphere(v3f(0,0.5,0), v3f(0,45,0), v3f(1,1,1),v3f(0,1,0));
+    Behavior::add(sphereObj, "moveObject", moveObject);
+    Collider::addBox(*sphereObj);
+    Behavior::add(sphereObj, "colorCollidingObjects", colorCollidingObjects);
+    //Synchronizer::add(sphereObj, "objSaysHello", objSaysHello);
+    Synchronizer::add(sphereObj, "synchronizeTransform", synchronizeTransform);
+
+    Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
+    Behavior::add(cubeObj, "rotateObject", rotateObject);
+    Collider::addBox(*cubeObj);
+    Behavior::add(cubeObj, "resetColorIfNoCollisions", resetColorIfNoCollisions);
+    //Synchronizer::add(cubeObj, "objSaysHello");
+
+    Object *secondCubeObj = GeometricShape::createCube(v3f(2,0.5,0), v3f::zero, v3f(3.5,.5,.5),v3f(1,0,1));
+    Collider::addBox(*secondCubeObj);
+    Behavior::add(secondCubeObj, "resetColorIfNoCollisions");
+
+    //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
+    Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    Transform::setObjPosition(camera, 0, 6, 6);
+    Transform::setObjRotation(camera, -45, 0, 0);
+    camera->name = "MainCamera";
+    sphereObj->addChild(*camera);
+
+    Object *light = Light::createPointLight(v3f(0,1,0));
+    Object *lightBall = GeometricShape::createSphere(v3f(0,0,0), v3f::zero, v3f(0.1,0.1,0.1),v3f(1,1,0));
+    Renderer::get(*lightBall)->material.lighting_enabled = false;
+    light->addChild(*lightBall);
+    sphereObj->addChild(*light);
+
+    Instantiate(*planeObj);
+    Instantiate(*sphereObj);
+    Instantiate(*cubeObj);
+    Instantiate(*secondCubeObj);
 
     GraphicsSubsystem::run();
 

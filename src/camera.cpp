@@ -4,10 +4,27 @@
 
 #include <utils.h>
 
+void Camera::writeTo(RakNet::BitStream& out) {
+    out.Write(perspective);
+    out.Write(zNear);
+    out.Write(zFar);
+    out.Write(fov);
+    out.Write(vSize);
+    out.Write(aspect);
+}
+
+void Camera::readFrom(RakNet::BitStream& in) {
+    in.Read(perspective);
+    in.Read(zNear);
+    in.Read(zFar);
+    in.Read(fov);
+    in.Read(vSize);
+    in.Read(aspect);
+}
+
 Camera::Camera(bool perspective): Component(Component::CAMERA) {
     this->perspective = perspective;
 }
-
 
 Camera* Camera::get(Object &obj) {
     return (Camera*)obj.getComponent(Component::CAMERA);
