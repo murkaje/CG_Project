@@ -5,6 +5,8 @@
 #include "inputsubsystem.h"
 #include <physicssubsystem.h>
 #include <networksubsystem.h>
+#include "behavior.h"
+#include "light.h"
 
 #include <unistd.h>
 #include <string>
@@ -24,6 +26,9 @@ void GraphicsSubsystem::init(int argc, char* argv[])
 {
     EventManager::RegisterCommand("exit", GraphicsSubsystem::shutdown);
     glutInit(&argc, argv);
+
+    Behavior::Register("lightUpdate", Light::update);
+
 }
 
 void GraphicsSubsystem::shutdown()
@@ -39,9 +44,11 @@ void GraphicsSubsystem::shutdown()
 }
 
 Material::Shader& GraphicsSubsystem::loadShader(std::string name) {
+#ifndef SERVER
     if (shaderCache[name] == NULL) {
         shaderCache[name] = new Material::Shader(name);
     }
+#endif
     return *shaderCache[name];
 }
 
@@ -60,7 +67,9 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         exit(-1);
     }
 
+#ifndef SERVER
     glutDisplayFunc(GraphicsSubsystem::draw);
+#endif
     glutIdleFunc(GraphicsSubsystem::idle);
 
     glEnable(GL_LIGHTING);
@@ -84,7 +93,6 @@ void GraphicsSubsystem::draw()
     // Clear screen (TODO: add per-scene render settings?)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().draw();
 
     glDisable(GL_LIGHTING);
@@ -127,21 +135,26 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-
-    if (NetworkSubsystem::isServer) NetworkSubsystem::parseIncomingPackets();
-    else NetworkSubsystem::synchronizeCurrentScene();
-
+#ifndef SERVER
+    //NetworkSubsystem::synchronizeCurrentScene();
+#else
+    NetworkSubsystem::parseIncomingPackets();
+#endif
     InputSubsystem::update();
     EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
 
+    PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().update();
-
-    if (NetworkSubsystem::isClient) NetworkSubsystem::parseIncomingPackets();
-    else NetworkSubsystem::synchronizeCurrentScene();
-
+#ifndef SERVER
+    NetworkSubsystem::parseIncomingPackets();
+#else
+    //NetworkSubsystem::synchronizeCurrentScene();
+#endif
     frameStart = Utils::time();
+#ifndef SERVER
     glutPostRedisplay();
+#endif
 }
 
 void GraphicsSubsystem::run()

@@ -16,10 +16,9 @@ protected:
         Collision(Collider &with, v3f point, v3f normal);
     };
 
-    int _type;
     std::list<Collision> _collisions;
 
-    Collider(int type);
+    Collider(int type=0);
 
 public:
     static const int BOX = 0;
@@ -27,18 +26,20 @@ public:
 
     std::list<Collision>& collisions();
 
-    int type();
-
     static void addBox(Object &obj);
 
     static Collider* get(Object &obj);
 
     friend class PhysicsSubsystem;
+    friend class Component;
 };
 
 class BoxCollider: public Collider {
 public:
     v3f center, rotation, scale;
+
+    void writeTo(RakNet::BitStream& out);
+    void readFrom(RakNet::BitStream& in);
 
     BoxCollider();
 };

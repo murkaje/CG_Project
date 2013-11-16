@@ -14,13 +14,16 @@
 #define MAX_CLIENTS 10
 #define SERVER_PORT 60000
 
+RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in);
+RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out);
+
 class NetworkSubsystem
 {
 protected:
 private:
     static RakNet::RakPeerInterface *peer;
 
-    static void synchronizeObjs(std::list<Object> &objects, RakNet::BitStream &bs, bool write);
+    static void synchronizeObjs(std::list<Object*> &objects, RakNet::BitStream &bs, bool write);
 
     static void synchronizeCurrentScene();
 public:
@@ -32,8 +35,11 @@ public:
 //stahp
     enum Messages
     {
-        MSG_1=ID_USER_PACKET_ENUM+1
+        SYNC_MSG=ID_USER_PACKET_ENUM+1,
+        INIT_SCENE_MSG=ID_USER_PACKET_ENUM+2
     };
+
+    static RakNet::SystemAddress serverAddress;
 
     static bool isServer, isClient;
 

@@ -31,6 +31,18 @@
 					<Add option="-g" />
 				</Compiler>
 			</Target>
+			<Target title="Debug_Server">
+				<Option output="bin/test_server" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
+				<Option object_output="obj" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DSERVER=1" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
@@ -76,7 +88,13 @@
 		<Unit filename="src/graphicssubsystem.cpp" />
 		<Unit filename="src/inputsubsystem.cpp" />
 		<Unit filename="src/light.cpp" />
-		<Unit filename="src/main.cpp" />
+		<Unit filename="src/main.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="src/main_server.cpp">
+			<Option target="Debug_Server" />
+		</Unit>
 		<Unit filename="src/material.cpp" />
 		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/networksubsystem.cpp" />

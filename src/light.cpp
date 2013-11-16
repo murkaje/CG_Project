@@ -39,6 +39,31 @@ Light::Light(bool enabled): Component(Component::LIGHT), ambient(vector3f::zero)
     cutoff = 180.0;
 }
 
+void Light::writeTo(RakNet::BitStream& out) {
+    out.Write(exponent);
+    out.Write(cutoff);
+    out.Write(constant_attenuation);
+    out.Write(linear_attenuation);
+    out.Write(quadratic_attenuation);
+    out.WriteVector(ambient.x, ambient.y, ambient.z);
+    out.WriteVector(diffuse.x, diffuse.y, diffuse.z);
+    out.WriteVector(specular.x, specular.y, specular.z);
+    out.WriteVector(direction.x, direction.y, direction.z);
+}
+
+void Light::readFrom(RakNet::BitStream& in) {
+    light = Light::lightsCache.getAvailableLight();
+    in.Read(exponent);
+    in.Read(cutoff);
+    in.Read(constant_attenuation);
+    in.Read(linear_attenuation);
+    in.Read(quadratic_attenuation);
+    in.ReadVector(ambient.x, ambient.y, ambient.z);
+    in.ReadVector(diffuse.x, diffuse.y, diffuse.z);
+    in.ReadVector(specular.x, specular.y, specular.z);
+    in.ReadVector(direction.x, direction.y, direction.z);
+}
+
 void Light::enabled(bool enabled) {
     if (enabled) {
         glEnable(light);
@@ -70,6 +95,6 @@ Object* Light::createPointLight(vector3f position) {
     l->quadratic_attenuation = 0.01;
     light->addComponent(l);
     Transform::setObjPosition(light, position.x, position.y, position.z);
-    Behavior::add(light, Light::update);
+    Behavior::add(light, "lightUpdate");
     return light;
 }
