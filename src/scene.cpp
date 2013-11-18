@@ -22,13 +22,17 @@ void positionCamera(Camera* camera) {
 }
 
 void Scene::init() {
-    Object* cam = Object::Find("MainCamera");
-    if (cam != NULL) {
-        setCamera(Camera::get(*cam));
-        camera->setup();
-        printf("Found 'MainCamera' and set up the view projection.\n");
+    if (camera == NULL) {
+        Object* cam = Object::Find("MainCamera");
+        if (cam != NULL) {
+            setCamera(Camera::get(*cam));
+            camera->setup();
+            printf("Found 'MainCamera' and set up the view projection.\n");
+        } else {
+            //printf("Did not find 'MainCamera' object!\n");
+        }
     } else {
-        printf("Did not find 'MainCamera' object!\n");
+        //camera->setup();
     }
 }
 
@@ -46,11 +50,10 @@ void Scene::addObject(Object& object) {
 }
 
 void Scene::update() {
-    //init();
+    init();
     positionCamera(camera); //for lighting updates
     updateObjs(objects);
 }
-
 
 void Scene::updateObjs(std::list<Object*> &objects) {
     for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {

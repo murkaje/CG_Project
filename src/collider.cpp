@@ -27,6 +27,7 @@ std::list<Collider::Collision>& Collider::collisions() {
 template<> Component* Component::allocate_t<Collider>(int type) {
     Component *newComp = NULL;
     if (type == Collider::BOX) newComp = new BoxCollider();
+    else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
     return newComp;
 };
 

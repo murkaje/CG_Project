@@ -130,7 +130,7 @@ int main(int argc, char* argv[])
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, "colorCollidingObjects", colorCollidingObjects);
     //Synchronizer::add(sphereObj, "objSaysHello", objSaysHello);
-    Synchronizer::add(sphereObj, "synchronizeTransform", synchronizeTransform);
+    //Synchronizer::add(sphereObj, "synchronizeTransform", synchronizeTransform);
 
     Object *cubeObj = GeometricShape::createCube(v3f(2,1,2), v3f::zero, v3f(1,1,1),v3f(1,0,0));
     Behavior::add(cubeObj, "rotateObject", rotateObject);

@@ -8,8 +8,6 @@
 #include <utils.h>
 
 class Renderer: public Component {
-private:
-    int type;
 protected:
     Renderer(int type=-1);
 public:

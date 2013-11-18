@@ -6,7 +6,6 @@ Mesh::Mesh(int type): Component(Component::MESH) {
     this->type = type;
 }
 
-
 void Mesh::writeTo(RakNet::BitStream& out) {
 
 }
@@ -20,6 +19,7 @@ template<> Component* Component::allocate_t<Mesh>(int type) {
     if (type == Mesh::PLANE) newComp = new PlaneMesh();
     else if (type == Mesh::CUBE) newComp = new CubeMesh();
     else if (type == Mesh::SPHERE) newComp = new SphereMesh();
+    else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
     return newComp;
 };
 

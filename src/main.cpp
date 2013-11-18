@@ -124,7 +124,7 @@ int main(int argc, char* argv[])
     Behavior::Register("moveObject", moveObject);
     Behavior::Register("colorCollidingObjects", colorCollidingObjects);
     //Synchronizer::Register("objSaysHello", objSaysHello);
-    Synchronizer::Register("synchronizeTransform", synchronizeTransform);
+    //Synchronizer::Register("synchronizeTransform", synchronizeTransform);
     Behavior::Register("rotateObject", rotateObject);
     Behavior::Register("resetColorIfNoCollisions", resetColorIfNoCollisions);
 
