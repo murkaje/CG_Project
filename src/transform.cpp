@@ -1,7 +1,7 @@
 #include <object.h>
 #include <transform.h>
 
-Transform::Transform(vector3f position, vector3f rotation, vector3f scale):
+Transform::Transform(vec3f position, vec3f rotation, vec3f scale):
 Component(Component::TRANSFORM), position(position), rotation(rotation), scale(scale) {
 
 }
@@ -11,73 +11,57 @@ Transform* Transform::get(Object &obj) {
 }
 
 void Transform::writeTo(RakNet::BitStream& out) {
-    out.WriteVector(position.x, position.y, position.z);
-    out.WriteVector(rotation.x, rotation.y, rotation.z);
-    out.WriteVector(scale.x, scale.y, scale.z);
+    out << position << rotation << scale;
 }
 
 void Transform::readFrom(RakNet::BitStream& in) {
-    in.ReadVector(position.x, position.y, position.z);
-    in.ReadVector(rotation.x, rotation.y, rotation.z);
-    in.ReadVector(scale.x, scale.y, scale.z);
+    in >> position >> rotation >> scale;
 }
 
-void Transform::translateObj(Object *obj, float dx, float dy, float dz) {
+void Transform::translateObj(Object *obj, const vec3f &delta) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {
-        t->position.x += dx;
-        t->position.y += dy;
-        t->position.z += dz;
+        t->position += delta;
     }
 }
 
-void Transform::rotateObj(Object *obj, float dx, float dy, float dz) {
+void Transform::rotateObj(Object *obj, const vec3f &delta) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {
-        t->rotation.x += dx;
-        t->rotation.y += dy;
-        t->rotation.z += dz;
+        t->rotation += delta;
     }
 }
 
-void Transform::scaleObj(Object *obj, float dx, float dy, float dz) {
+void Transform::scaleObj(Object *obj, const vec3f &delta) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {
-        t->scale.x += dx;
-        t->scale.y += dy;
-        t->scale.z += dz;
+        t->scale += delta;
     }
 }
 
-void Transform::setObjPosition(Object *obj, float x, float y, float z) {
+void Transform::setObjPosition(Object *obj, const vec3f &pos) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t == NULL) {
         t = new Transform();
         obj->addComponent(t);
     }
-    t->position.x = x;
-    t->position.y = y;
-    t->position.z = z;
+    t->position = pos;
 }
 
-void Transform::setObjRotation(Object *obj, float x, float y, float z) {
+void Transform::setObjRotation(Object *obj, const vec3f &rot) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t == NULL) {
         t = new Transform();
         obj->addComponent(t);
     }
-    t->rotation.x = x;
-    t->rotation.y = y;
-    t->rotation.z = z;
+    t->rotation = rot;
 }
 
-void Transform::setObjScale(Object *obj, float x, float y, float z) {
+void Transform::setObjScale(Object *obj, const vec3f &scale) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t == NULL) {
         t = new Transform();
         obj->addComponent(t);
     }
-    t->scale.x = x;
-    t->scale.y = y;
-    t->scale.z = z;
+    t->scale = scale;
 }

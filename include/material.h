@@ -24,7 +24,7 @@ public:
     //TODO material cache, so objects can share materials
     Shader &shader;
 
-    vector3f ambient, diffuse, specular;
+    vec3f ambient, diffuse, specular;
     float shininess;
 
     bool lighting_enabled;

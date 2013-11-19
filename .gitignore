@@ -16,6 +16,7 @@
 # Codeblock specific
 *.depend
 *.layout
+*.cscope_file_list
 
 # Directories
 obj

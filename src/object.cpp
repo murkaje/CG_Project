@@ -110,7 +110,7 @@ GeometricShape::GeometricShape(Transform *transform, Mesh *mesh, MeshRenderer *r
     name = "geometricObject";
 }
 
-GeometricShape* GeometricShape::createPlane(vector3f position, vector3f rotation, vector3f scale, vector3f color) {
+GeometricShape* GeometricShape::createPlane(vec3f position, vec3f rotation, vec3f scale, vec3f color) {
     GeometricShape *obj = new GeometricShape(new Transform(position, rotation, scale),
                                                new PlaneMesh(),
                                                new MeshRenderer(color));
@@ -118,7 +118,7 @@ GeometricShape* GeometricShape::createPlane(vector3f position, vector3f rotation
     return obj;
 }
 
-GeometricShape* GeometricShape::createSphere(vector3f position, vector3f rotation, vector3f scale, vector3f color) {
+GeometricShape* GeometricShape::createSphere(vec3f position, vec3f rotation, vec3f scale, vec3f color) {
     GeometricShape *obj = new GeometricShape(new Transform(position, rotation, scale),
                                                new SphereMesh(),
                                                new MeshRenderer(color));
@@ -126,7 +126,7 @@ GeometricShape* GeometricShape::createSphere(vector3f position, vector3f rotatio
     return obj;
 }
 
-GeometricShape* GeometricShape::createCube(vector3f position, vector3f rotation, vector3f scale, vector3f color) {
+GeometricShape* GeometricShape::createCube(vec3f position, vec3f rotation, vec3f scale, vec3f color) {
     GeometricShape *obj = new GeometricShape(new Transform(position, rotation, scale),
                                                new CubeMesh(),
                                                new MeshRenderer(color));

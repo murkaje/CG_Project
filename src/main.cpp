@@ -2,7 +2,7 @@
 #include <utils.h>
 #include <iostream>
 #include <scene.h>
-#include <vector3f.h>
+#include <vec.h>
 #include <transform.h>
 #include <mesh.h>
 #include <renderer.h>
@@ -20,49 +20,49 @@
 
 #include "BitStream.h"
 
-v3f moveVec = v3f::zero;
+vec3f moveVec(0);
 int movePerSecond = 2;
 
 void moveLeft()
 {
-    moveVec.z += movePerSecond * GraphicsSubsystem::delta;
+    moveVec.z() += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveRight()
 {
-    moveVec.z += -movePerSecond * GraphicsSubsystem::delta;
+    moveVec.z() += -movePerSecond * GraphicsSubsystem::delta;
 }
 void moveBackward()
 {
-    moveVec.x += movePerSecond * GraphicsSubsystem::delta;
+    moveVec.x() += movePerSecond * GraphicsSubsystem::delta;
 }
 void moveForward()
 {
-    moveVec.x += -movePerSecond * GraphicsSubsystem::delta;
+    moveVec.x() += -movePerSecond * GraphicsSubsystem::delta;
 }
 
 void rotateObject(Object &obj)
 {
     int degreesPerSecond = 90;
-    Transform::rotateObj(&obj, 0, 0, degreesPerSecond*GraphicsSubsystem::delta);
+    Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
 }
 
 void moveObject(Object &obj)
 {
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
-    v3f newPos = Transform::get(obj)->position+moveVec;
+    vec3f newPos = Transform::get(obj)->position+moveVec;
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
         //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
         Transform *otherCol = Transform::get(*col->with.owner());
-        if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x += moveVec.x*col->normal.x; //x+
-        else if (otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x-
-        if (otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z += moveVec.z*col->normal.z; //z+
-        else if (otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z-
+        if (otherCol->position.x() > newPos.x() && newPos.x() >= col->point.x()) moveVec.x() += moveVec.x()*col->normal.x(); //x+
+        else if (otherCol->position.x() < newPos.x() && newPos.x() <= col->point.x()) moveVec.x() -= moveVec.x()*col->normal.x(); //x-
+        if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
+        else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
     }
-    Transform::translateObj(&obj, moveVec.x, moveVec.y, moveVec.z);
+    Transform::translateObj(&obj, moveVec);
     //reset movement vector for next frame
-    moveVec = v3f::zero;
+    moveVec = vec3f(0);
 }
 
 void colorCollidingObjects(Object &obj) {
@@ -70,13 +70,13 @@ void colorCollidingObjects(Object &obj) {
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
     for (; col != c->collisions().end(); col++) {
         //printf("colliding with %s\n", col->with.owner()->name.c_str());
-        Renderer::get(*col->with.owner())->material.diffuse = v3f(0,1,0);
+        Renderer::get(*col->with.owner())->material.diffuse = vec3f(0,1,0);
     }
 }
 
 void resetColorIfNoCollisions(Object &obj) {
     Collider *c = Collider::get(obj);
-    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = v3f(1,0,0);
+    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
 }
 
 void objSaysHello(Object& obj, RakNet::BitStream &bs, bool write) {
@@ -93,20 +93,14 @@ void synchronizeTransform(Object& obj, RakNet::BitStream &bs, bool write) {
     Transform *t = Transform::get(obj);
     if (t != NULL) {
         if (write) {
-            bs.WriteVector(t->position.x,t->position.y,t->position.z);
-            bs.WriteVector(t->rotation.x,t->rotation.y,t->rotation.z);
-            bs.WriteVector(t->scale.x,t->scale.y,t->scale.z);
+            t->writeTo(bs);
         } else {
-            bs.ReadVector(t->position.x,t->position.y,t->position.z);
-            bs.ReadVector(t->rotation.x,t->rotation.y,t->rotation.z);
-            bs.ReadVector(t->scale.x,t->scale.y,t->scale.z);
+            t->readFrom(bs);
         }
     }
 }
 
-int main(int argc, char* argv[])
-{
-
+int main(int argc, char* argv[]) {
     GraphicsSubsystem::init(argc,argv);
     GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
     GraphicsSubsystem::zBufferEnabled(true);
@@ -130,6 +124,7 @@ int main(int argc, char* argv[])
 
     NetworkSubsystem::connect("localhost");
 
+    SceneManager::CurrentScene().init();
     GraphicsSubsystem::run();
 
     NetworkSubsystem::shutdown();

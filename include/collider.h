@@ -11,9 +11,9 @@ class Collider: public Component {
 protected:
     struct Collision {
         Collider &with;
-        v3f point, normal;
+        vec3f point, normal;
 
-        Collision(Collider &with, v3f point, v3f normal);
+        Collision(Collider &with, vec3f point, vec3f normal);
     };
 
     std::list<Collision> _collisions;
@@ -36,12 +36,19 @@ public:
 
 class BoxCollider: public Collider {
 public:
-    v3f center, rotation, scale;
+    vec3f center, rotation, scale;
 
     void writeTo(RakNet::BitStream& out);
     void readFrom(RakNet::BitStream& in);
 
     BoxCollider();
+};
+
+template<> inline Component* Component::allocate_t<Collider>(int type) {
+    Component *newComp = NULL;
+    if (type == Collider::BOX) newComp = new BoxCollider();
+    else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
+    return newComp;
 };
 
 #endif

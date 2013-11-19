@@ -1,6 +1,6 @@
 #include "camera.h"
 #include "transform.h"
-#include "vector3f.h"
+#include "vec.h"
 
 #include <utils.h>
 

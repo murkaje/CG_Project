@@ -5,12 +5,10 @@
 #include <GL/freeglut.h>
 #include <string>
 #include <cstdio>
-#include "vector3f.h"
+#include "vec.h"
 #include "RPC3.h"
 #include "BitStream.h"
 #include "RakNetTypes.h"
-
-#define v3f vector3f
 
 class Object;
 

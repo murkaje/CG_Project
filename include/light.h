@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include <object.h>
-#include <vector3f.h>
+#include <vec.h>
 
 #include <stack>
 
@@ -35,15 +35,15 @@ private:
 
     Light(bool enabled=true);
 public:
-    vector3f ambient, diffuse, specular, direction;
+    vec4f ambient, diffuse, specular;
+    vec3f direction;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
     void enabled(bool enabled);
 
     void writeTo(RakNet::BitStream& out);
+    static Object* createPointLight(vec3f position);
     void readFrom(RakNet::BitStream& in);
-
-    static Object* createPointLight(vector3f position);
 
     friend class GraphicsSubsystem;
     friend class Component;

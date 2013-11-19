@@ -2,7 +2,7 @@
 #define INCLUDED_RENDERER_H
 
 #include <component.h>
-#include <vector3f.h>
+#include <vec.h>
 #include <material.h>
 
 #include <utils.h>
@@ -29,9 +29,16 @@ class MeshRenderer: public Renderer {
 private:
 
 public:
-    MeshRenderer(vector3f color);
+    MeshRenderer(vec3f color);
 
     void render();
+};
+
+template<> inline Component* Component::allocate_t<Renderer>(int type) {
+    Component *newComp = NULL;
+    if (type == Renderer::MESH) newComp = new MeshRenderer(vec3f(1));
+    else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
+    return newComp;
 };
 
 #endif

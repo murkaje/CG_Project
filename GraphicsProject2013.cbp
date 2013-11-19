@@ -4,17 +4,18 @@
 	<Project>
 		<Option title="GraphicsProject2013" />
 		<Option pch_mode="2" />
-		<Option compiler="gcc" />
+		<Option compiler="cygwin" />
 		<Build>
 			<Target title="Release">
 				<Option output="bin/test" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin" />
 				<Option object_output="obj" />
 				<Option type="1" />
-				<Option compiler="gcc" />
+				<Option compiler="cygwin" />
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=gnu++11" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -27,7 +28,6 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-Wall" />
 					<Add option="-g" />
 				</Compiler>
 			</Target>
@@ -44,12 +44,11 @@
 			<Add library="opengl32" />
 			<Add library="glew32" />
 			<Add library="gdi32" />
-			<Add library="ws2_32" />
-			<Add library="wsock32" />
 			<Add library="winmm" />
 			<Add library="RakNetLibStatic" />
+			<Add library="wsock32" />
+			<Add library="ws2_32" />
 			<Add library="LibRPC3" />
-			<Add directory="lib" />
 			<Add directory="lib/win32" />
 		</Linker>
 		<Unit filename="include/behavior.h" />
@@ -71,7 +70,7 @@
 		<Unit filename="include/synchronizer.h" />
 		<Unit filename="include/transform.h" />
 		<Unit filename="include/utils.h" />
-		<Unit filename="include/vector3f.h" />
+		<Unit filename="include/vec.h" />
 		<Unit filename="shaders/default_fragment.glsl" />
 		<Unit filename="shaders/default_vertex.glsl" />
 		<Unit filename="src/behavior.cpp" />
@@ -94,7 +93,6 @@
 		<Unit filename="src/synchronizer.cpp" />
 		<Unit filename="src/transform.cpp" />
 		<Unit filename="src/utils.cpp" />
-		<Unit filename="src/vector3f.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

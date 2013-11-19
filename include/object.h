@@ -70,9 +70,9 @@ public:
     Mesh &mesh;
     MeshRenderer &renderer;
 
-    static GeometricShape* createPlane(vector3f position, vector3f rotation, vector3f scale, vector3f color);
-    static GeometricShape* createSphere(vector3f position, vector3f rotation, vector3f scale, vector3f color);
-    static GeometricShape* createCube(vector3f position, vector3f rotation, vector3f scale, vector3f color);
+    static GeometricShape* createPlane(vec3f position, vec3f rotation, vec3f scale, vec3f color);
+    static GeometricShape* createSphere(vec3f position, vec3f rotation, vec3f scale, vec3f color);
+    static GeometricShape* createCube(vec3f position, vec3f rotation, vec3f scale, vec3f color);
 
 };
 
