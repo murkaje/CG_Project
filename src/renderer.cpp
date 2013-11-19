@@ -4,8 +4,8 @@
 #include <object.h>
 #include <material.h>
 
-Renderer::Renderer(int type): Component(Component::RENDERER), type(type) {
-
+Renderer::Renderer(int type): Component(Component::RENDERER) {
+    this->type = type;
 }
 
 void Renderer::writeTo(RakNet::BitStream& out) {
@@ -35,6 +35,7 @@ Renderer* Renderer::get(Object &obj) {
 template<> Component* Component::allocate_t<Renderer>(int type) {
     Component *newComp = NULL;
     if (type == Renderer::MESH) newComp = new MeshRenderer(v3f::unit);
+    else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
     return newComp;
 };
 

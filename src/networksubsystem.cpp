@@ -24,6 +24,8 @@ RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in) {
     for (std::map<std::string,Component*>::iterator comp = in.components.begin(); comp != in.components.end(); comp++) {
         RakNet::RakString compName(comp->first.c_str());
         out.Write(compName);
+        int compTypeId = comp->second->typeId();
+        out.Write(compTypeId);
         comp->second->writeTo(out);
     }
     unsigned short numChildren = in.getChildren().size();
@@ -47,7 +49,9 @@ RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out) {
     for (int i = 0; i < numComponents; i++) {
         RakNet::RakString compName;
         in.Read(compName);
-        Component *comp = Component::allocate(compName.C_String());
+        int compTypeId = 0;
+        in.Read(compTypeId);
+        Component *comp = Component::allocate(compName.C_String(), compTypeId);
         comp->readFrom(in);
         out.addComponent(comp);
     }

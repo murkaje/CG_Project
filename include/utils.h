@@ -22,4 +22,6 @@ public:
 
 void Instantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork = 0);
 
+//void InitScene(RakNet::RPC3 *rpcFromNetwork = 0);
+
 #endif

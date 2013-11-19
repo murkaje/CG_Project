@@ -67,9 +67,8 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         exit(-1);
     }
 
-#ifndef SERVER
     glutDisplayFunc(GraphicsSubsystem::draw);
-#endif
+
     glutIdleFunc(GraphicsSubsystem::idle);
 
     glEnable(GL_LIGHTING);
