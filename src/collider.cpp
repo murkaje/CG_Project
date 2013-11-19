@@ -4,7 +4,7 @@ Collider::Collider(int type): Component(Component::COLLIDER), _type(type) {
 
 }
 
-Collider::Collision::Collision(Collider &with, v3f point, v3f normal): with(with), point(point), normal(normal) {
+Collider::Collision::Collision(Collider &with, vec3f point, vec3f normal): with(with), point(point), normal(normal) {
 
 }
 
@@ -35,6 +35,6 @@ void Collider::addBox(Object &obj) {
     obj.addComponent(bc);
 }
 
-BoxCollider::BoxCollider(): Collider(Collider::BOX), center(v3f::zero), rotation(v3f::zero), scale(v3f::unit) {
+BoxCollider::BoxCollider(): Collider(Collider::BOX), center(vec3f(0)), rotation(vec3f(0)), scale(vec3f(1)) {
 
 }

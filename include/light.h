@@ -2,7 +2,7 @@
 #define LIGHT_H
 
 #include <object.h>
-#include <vector3f.h>
+#include <vec.h>
 
 #include <stack>
 
@@ -35,12 +35,13 @@ protected:
 
     Light(bool enabled=true);
 public:
-    vector3f ambient, diffuse, specular, direction;
+    vec4f ambient, diffuse, specular;
+    vec3f direction;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
     void enabled(bool enabled);
 
-    static Object* createPointLight(vector3f position);
+    static Object* createPointLight(vec3f position);
 };
 
 #endif

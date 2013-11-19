@@ -46,7 +46,7 @@ Material::Shader::~Shader() {
 }
 
 Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)),
-    ambient(v3f::zero), diffuse(v3f::unit), specular(v3f::zero) {
+    ambient(vec3f(0,0,0)), diffuse(vec3f(1,1,1)), specular(vec3f(0,0,0)) {
     shininess = 1;
 
     lighting_enabled = true;
@@ -54,11 +54,14 @@ Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)
 
 void Material::describe() {
     //still need to do that proper vector4f implementation
-    float spec[] = {specular.x, specular.y, specular.z, 1.0};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
-    float amb[] = {ambient.x, ambient.y, ambient.z, 1.0};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, amb);
-    float diff[] = {diffuse.x, diffuse.y, diffuse.z, 1.0};
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
+//    float spec[] = {specular.x, specular.y, specular.z, 1.0};
+//    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular.data());
+//    float amb[] = {ambient.x, ambient.y, ambient.z, 1.0};
+//    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, amb);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient.data());
+//    float diff[] = {diffuse.x, diffuse.y, diffuse.z, 1.0};
+//    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse.data());
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }

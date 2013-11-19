@@ -2,7 +2,7 @@
 #define INCLUDED_MESH_H
 
 #include <component.h>
-#include <vector3f.h>
+#include <vec.h>
 
 class Mesh: public Component {
 private:

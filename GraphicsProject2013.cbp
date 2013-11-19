@@ -15,6 +15,7 @@
 				<Option use_console_runner="0" />
 				<Compiler>
 					<Add option="-O2" />
+					<Add option="-std=gnu++11" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -70,7 +71,7 @@
 		<Unit filename="include/synchronizer.h" />
 		<Unit filename="include/transform.h" />
 		<Unit filename="include/utils.h" />
-		<Unit filename="include/vector3f.h" />
+		<Unit filename="include/vec.h" />
 		<Unit filename="shaders/default_fragment.glsl" />
 		<Unit filename="shaders/default_vertex.glsl" />
 		<Unit filename="src/behavior.cpp" />
@@ -93,7 +94,6 @@
 		<Unit filename="src/synchronizer.cpp" />
 		<Unit filename="src/transform.cpp" />
 		<Unit filename="src/utils.cpp" />
-		<Unit filename="src/vector3f.cpp" />
 		<Extensions>
 			<code_completion />
 			<envvars />

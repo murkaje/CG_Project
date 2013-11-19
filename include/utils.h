@@ -5,9 +5,7 @@
 #include <GL/freeglut.h>
 #include <string>
 #include <cstdio>
-#include "vector3f.h"
-
-#define v3f vector3f
+#include "vec.h"
 
 class Utils {
 public:

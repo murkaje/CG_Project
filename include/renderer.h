@@ -2,7 +2,7 @@
 #define INCLUDED_RENDERER_H
 
 #include <component.h>
-#include <vector3f.h>
+#include <vec.h>
 
 #include <utils.h>
 #include <material.h>
@@ -23,7 +23,7 @@ class MeshRenderer: public Renderer {
 private:
 
 public:
-    MeshRenderer(vector3f color);
+    MeshRenderer(vec3f color);
 
     void render();
 };

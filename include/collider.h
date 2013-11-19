@@ -11,9 +11,9 @@ class Collider: public Component {
 protected:
     struct Collision {
         Collider &with;
-        v3f point, normal;
+        vec3f point, normal;
 
-        Collision(Collider &with, v3f point, v3f normal);
+        Collision(Collider &with, vec3f point, vec3f normal);
     };
 
     int _type;
@@ -38,7 +38,7 @@ public:
 
 class BoxCollider: public Collider {
 public:
-    v3f center, rotation, scale;
+    vec3f center, rotation, scale;
 
     BoxCollider();
 };

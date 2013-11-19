@@ -8,7 +8,7 @@ Renderer::Renderer(): Component(Component::RENDERER) {
 
 }
 
-MeshRenderer::MeshRenderer(vector3f color) {
+MeshRenderer::MeshRenderer(vec3f color) {
     material.diffuse = color;
 }
 

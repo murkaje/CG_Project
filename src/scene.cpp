@@ -12,10 +12,10 @@ void positionCamera(Camera* camera) {
         Object* parent = camera->owner();
         while (parent != NULL) {
             Transform &t = *Transform::get(*parent);
-            glRotatef(-t.rotation.z,0.0,0.0,1.0);
-            glRotatef(-t.rotation.y,0.0,1.0,0.0);
-            glRotatef(-t.rotation.x,1.0,0.0,0.0);
-            glTranslatef(-t.position.x,-t.position.y,-t.position.z);
+            glRotatef(-t.rotation.z(),0.0,0.0,1.0);
+            glRotatef(-t.rotation.y(),0.0,1.0,0.0);
+            glRotatef(-t.rotation.x(),1.0,0.0,0.0);
+            glTranslatef(-t.position.x(),-t.position.y(),-t.position.z());
             parent = parent->parent();
         }
     }
@@ -59,11 +59,11 @@ void Scene::updateObjs(std::list<Object> &objects) {
             if (t == NULL) {
                 continue;
             } else {
-                glTranslatef(t->position.x,t->position.y,t->position.z);
-                glRotatef(t->rotation.x,1.0,0.0,0.0);
-                glRotatef(t->rotation.y,0.0,1.0,0.0);
-                glRotatef(t->rotation.z,0.0,0.0,1.0);
-                glScalef(t->scale.x,t->scale.y,t->scale.z);
+                glTranslatef(t->position.x(),t->position.y(),t->position.z());
+                glRotatef(t->rotation.x(),1.0,0.0,0.0);
+                glRotatef(t->rotation.y(),0.0,1.0,0.0);
+                glRotatef(t->rotation.z(),0.0,0.0,1.0);
+                glScalef(t->scale.x(),t->scale.y(),t->scale.z());
             }
             Behavior *b = Behavior::get(*obj);
             if (b != NULL) {
@@ -91,11 +91,11 @@ void Scene::drawObjs(std::list<Object> &objects) {
             if (t == NULL) {
                 continue;
             } else {
-                glTranslatef(t->position.x,t->position.y,t->position.z);
-                glRotatef(t->rotation.x,1.0,0.0,0.0);
-                glRotatef(t->rotation.y,0.0,1.0,0.0);
-                glRotatef(t->rotation.z,0.0,0.0,1.0);
-                glScalef(t->scale.x,t->scale.y,t->scale.z);
+                glTranslatef(t->position.x(),t->position.y(),t->position.z());
+                glRotatef(t->rotation.x(),1.0,0.0,0.0);
+                glRotatef(t->rotation.y(),0.0,1.0,0.0);
+                glRotatef(t->rotation.z(),0.0,0.0,1.0);
+                glScalef(t->scale.x(),t->scale.y(),t->scale.z());
             }
 
             Renderer* r = (Renderer*)obj->getComponent(Component::RENDERER);
