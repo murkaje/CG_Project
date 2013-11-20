@@ -45,6 +45,7 @@
 			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++0x" />
 			<Add option="-Wall" />
 			<Add directory="include" />
 			<Add directory="include/RakNet" />
@@ -63,6 +64,7 @@
 		<Unit filename="include/collider.h" />
 		<Unit filename="include/component.h" />
 		<Unit filename="include/eventmanager.h" />
+		<Unit filename="include/funcdefs.h" />
 		<Unit filename="include/graphicssubsystem.h" />
 		<Unit filename="include/inputsubsystem.h" />
 		<Unit filename="include/light.h" />

@@ -73,6 +73,9 @@ void Scene::updateObjs(std::list<Object*> &objects) {
                 for (std::list<std::string>::iterator b1 = b->actions.begin(); b1 != b->actions.end(); b1++) {
                     Behavior::Execute(*b1, **obj);
                 }
+                for (std::list<std::string>::iterator b1 = b->actionsLocal.begin(); b1 != b->actionsLocal.end(); b1++) {
+                    Behavior::Execute(*b1, **obj);
+                }
             }
             updateObjs((**obj).getChildren());
         glPopMatrix();

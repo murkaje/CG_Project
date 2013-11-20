@@ -12,15 +12,17 @@ typedef void (*behavior_function)(Object&);
 class Behavior: public Component {
 private:
     std::list<std::string> actions;
+    std::list<std::string> actionsLocal;
 
     static std::map<std::string, behavior_function> registeredFunctions;
 protected:
     Behavior();
 public:
-    Behavior(std::string actionIdent, behavior_function action);
-    Behavior(std::string actionIdent);
+    Behavior(std::string actionIdent, behavior_function action, bool local = false);
+    Behavior(std::string actionIdent, bool local = false);
 
     static void add(Object* obj, std::string actionIdent, behavior_function action = NULL);
+    static void addLocal(Object* obj, std::string actionIdent, behavior_function action = NULL);
 
     static Behavior* get(Object &obj);
 

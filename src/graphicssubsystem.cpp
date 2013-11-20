@@ -44,11 +44,9 @@ void GraphicsSubsystem::shutdown()
 }
 
 Material::Shader& GraphicsSubsystem::loadShader(std::string name) {
-#ifndef SERVER
-    if (shaderCache[name] == NULL) {
+    if (!NetworkSubsystem::isServer && shaderCache[name] == NULL) {
         shaderCache[name] = new Material::Shader(name);
     }
-#endif
     return *shaderCache[name];
 }
 
@@ -67,7 +65,9 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         exit(-1);
     }
 
-    glutDisplayFunc(GraphicsSubsystem::draw);
+    if (!NetworkSubsystem::isServer) {
+        glutDisplayFunc(GraphicsSubsystem::draw);
+    }
 
     glutIdleFunc(GraphicsSubsystem::idle);
 
@@ -134,26 +134,28 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-#ifndef SERVER
-    //NetworkSubsystem::synchronizeCurrentScene();
-#else
-    NetworkSubsystem::parseIncomingPackets();
-#endif
+    if (NetworkSubsystem::isServer) {
+        NetworkSubsystem::parseIncomingPackets();
+    } else {
+        NetworkSubsystem::synchronizeCurrentScene();
+    }
+
     InputSubsystem::update();
     EventManager::ParseEvents();
     delta = (Utils::time()-frameStart)/1000;
 
     PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().update();
-#ifndef SERVER
-    NetworkSubsystem::parseIncomingPackets();
-#else
-    //NetworkSubsystem::synchronizeCurrentScene();
-#endif
+
+    if (!NetworkSubsystem::isServer) {
+        NetworkSubsystem::parseIncomingPackets();
+    } else {
+        NetworkSubsystem::synchronizeCurrentScene();
+    }
     frameStart = Utils::time();
-#ifndef SERVER
-    glutPostRedisplay();
-#endif
+
+    if (!NetworkSubsystem::isServer)
+        glutPostRedisplay();
 }
 
 void GraphicsSubsystem::run()

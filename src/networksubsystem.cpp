@@ -69,6 +69,8 @@ void NetworkSubsystem::init() {
     peer = RakNet::RakPeerInterface::GetInstance();
     rpc = new RakNet::RPC3;
     rpc->SetNetworkIDManager(&networkIDManager);
+
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, Instantiate);
 }
 
 void NetworkSubsystem::startServer() {
@@ -124,7 +126,11 @@ void NetworkSubsystem::synchronizeCurrentScene() {
     RakNet::BitStream bsOut;
     bsOut.Write((RakNet::MessageID)SYNC_MSG);
     synchronizeObjs(SceneManager::CurrentScene().getObjsList(), bsOut, true);
-    peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,peer->GetMyGUID(),false);
+    if (!isServer) {
+        peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,serverAddress,false);
+    } else {
+        peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,peer->GetMyBoundAddress(),true);
+    }
 }
 
 void initializeSceneOnClient(RakNet::SystemAddress clientAddress) {

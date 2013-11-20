@@ -27,13 +27,19 @@ Behavior::Behavior(): Component(Component::BEHAVIOR) {
 
 }
 
-Behavior::Behavior(std::string actionIdent, behavior_function action): Component(Component::BEHAVIOR) {
+Behavior::Behavior(std::string actionIdent, behavior_function action, bool local): Component(Component::BEHAVIOR) {
     Register(actionIdent, action);
-    actions.push_back(actionIdent);
+    if (local)
+        actionsLocal.push_back(actionIdent);
+    else
+        actions.push_back(actionIdent);
 }
 
-Behavior::Behavior(std::string actionIdent): Component(Component::BEHAVIOR) {
-    actions.push_back(actionIdent);
+Behavior::Behavior(std::string actionIdent, bool local): Component(Component::BEHAVIOR) {
+    if (local)
+        actionsLocal.push_back(actionIdent);
+    else
+        actions.push_back(actionIdent);
 }
 
 Behavior* Behavior::get(Object &obj) {
@@ -50,6 +56,19 @@ void Behavior::add(Object* obj, std::string actionIdent, behavior_function actio
         obj->addComponent(behavior);
     } else {
         behavior->actions.push_back(actionIdent);
+    }
+}
+
+void Behavior::addLocal(Object* obj, std::string actionIdent, behavior_function action) {
+    Behavior *behavior = (Behavior*)obj->getComponent(Component::BEHAVIOR);
+    if (action != NULL) {
+        Register(actionIdent, action);
+    }
+    if (behavior == NULL) {
+        behavior = new Behavior(actionIdent, true);
+        obj->addComponent(behavior);
+    } else {
+        behavior->actionsLocal.push_back(actionIdent);
     }
 }
 
