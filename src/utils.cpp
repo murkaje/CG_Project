@@ -1,6 +1,8 @@
 #include "utils.h"
 #include "object.h"
 #include "scenemanager.h"
+#include "synchronizer.h"
+#include "networksubsystem.h"
 
 #include <stdexcept>
 #include <cerrno>

@@ -11,6 +11,7 @@
 #include <string>
 
 #include "NetworkIDObject.h"
+#include "BitStream.h"
 
 class Component;
 class Scene;
@@ -26,10 +27,11 @@ protected:
     Object* parent_;
 
     Object(Object &other);
+
+
+    void Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork = 0);
 public:
     Object &obj;
-
-    RakNet::NetworkID networkId;
     std::map<std::string,Component*> components;
 
     std::string name;

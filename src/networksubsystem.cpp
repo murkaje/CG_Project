@@ -12,12 +12,11 @@ RakNet::NetworkIDManager NetworkSubsystem::networkIDManager;
 RakNet::SystemAddress NetworkSubsystem::serverAddress;
 
 bool NetworkSubsystem::isServer = false;
-bool NetworkSubsystem::isClient = false;
 
 RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in) {
     RakNet::RakString rs(in.name.c_str());
     out.Write(rs);
-    unsigned int networkId = in.networkId;
+    unsigned int networkId = in.GetNetworkID();
     out.Write(networkId);
     unsigned short numComponents = in.components.size();
     out.Write(numComponents);
@@ -71,6 +70,7 @@ void NetworkSubsystem::init() {
     rpc->SetNetworkIDManager(&networkIDManager);
 
     RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, Instantiate);
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, &Object::Synchronize);
 }
 
 void NetworkSubsystem::startServer() {
@@ -86,7 +86,7 @@ void NetworkSubsystem::startServer() {
 bool NetworkSubsystem::connect(const char* host) {
     RakNet::SocketDescriptor sd;
     peer->Startup(1,&sd, 1);
-    printf("Connecting...");
+    printf("Connecting...\n");
     double s = Utils::time();
     serverAddress = RakNet::SystemAddress(host,SERVER_PORT);
     peer->Connect(host, SERVER_PORT, 0,0);
@@ -97,7 +97,6 @@ bool NetworkSubsystem::connect(const char* host) {
         }
     }
     printf("Connected to server on port %d.\n", SERVER_PORT);
-    isClient = true;
     peer->AttachPlugin(rpc);
     return true;
 }
@@ -109,37 +108,38 @@ void NetworkSubsystem::shutdown() {
 
 }
 
-void NetworkSubsystem::synchronizeObjs(std::list<Object*> &objects, RakNet::BitStream &bs, bool write) {
+void NetworkSubsystem::synchronizeObjs(std::list<Object*> &objects) {
     for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         Synchronizer *s = Synchronizer::get(*(*obj));
         if (s != NULL) {
-            if (write)
-                s->write(bs);
-            else
-                s->read(bs);
+            RakNet::BitStream *bs = new RakNet::BitStream;
+            (*obj)->Synchronize(bs);
         }
-        synchronizeObjs((*obj)->getChildren(), bs, write);
+        synchronizeObjs((*obj)->getChildren());
     }
 }
 
 void NetworkSubsystem::synchronizeCurrentScene() {
-    RakNet::BitStream bsOut;
-    bsOut.Write((RakNet::MessageID)SYNC_MSG);
-    synchronizeObjs(SceneManager::CurrentScene().getObjsList(), bsOut, true);
-    if (!isServer) {
-        peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,serverAddress,false);
-    } else {
-        peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,peer->GetMyBoundAddress(),true);
+    unsigned short numConnections = 0;
+    peer->GetConnectionList(NULL, &numConnections);
+    if (isServer && numConnections > 0) {
+        rpc->SetRecipientAddress(peer->GetMyBoundAddress(),true);
+        synchronizeObjs(SceneManager::CurrentScene().getObjsList());
+    } else if (peer->GetConnectionState(serverAddress) == RakNet::IS_CONNECTED) {
+        rpc->SetRecipientAddress(serverAddress,false);
+        synchronizeObjs(SceneManager::CurrentScene().getObjsList());
     }
 }
 
-void initializeSceneOnClient(RakNet::SystemAddress clientAddress) {
+void createPlayerCharacter(RakNet::SystemAddress clientAddress) {
     NetworkSubsystem::rpc->SetRecipientAddress(clientAddress, false);
-    std::list<Object*>::iterator obj = SceneManager::CurrentScene().getObjsList().begin();
-    for (; obj != SceneManager::CurrentScene().getObjsList().end(); obj++) {
-        printf("calling instantiate for %s on %s\n", (*obj)->name.c_str(), clientAddress.ToString());
-        NetworkSubsystem::rpc->CallC("Instantiate", *(*obj));
-    }
+
+    std::string pName = std::string("playerSphere-") + clientAddress.ToString();
+    Object *obj = SceneManager::createPlayerCharacter(pName);
+    Instantiate(*obj);
+    printf("calling instantiate for %s on %s\n", obj->name.c_str(), pName.c_str());
+    NetworkSubsystem::rpc->CallC("Instantiate", *obj);
+
 }
 
 void NetworkSubsystem::parseIncomingPackets() {
@@ -161,7 +161,7 @@ void NetworkSubsystem::parseIncomingPackets() {
         case ID_NEW_INCOMING_CONNECTION:
             {
                 printf("A connection is incoming.\n");
-                initializeSceneOnClient(packet->systemAddress);
+                createPlayerCharacter(packet->systemAddress);
             }
             break;
         case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -169,25 +169,11 @@ void NetworkSubsystem::parseIncomingPackets() {
             break;
         case ID_DISCONNECTION_NOTIFICATION:
             if (isServer) printf("A client has disconnected.\n");
-            if (isClient) printf("We have been disconnected.\n");
+            else printf("We have been disconnected.\n");
             break;
         case ID_CONNECTION_LOST:
             if (isServer) printf("A client lost the connection.\n");
-            if (isClient) printf("Connection lost.\n");
-            break;
-        case SYNC_MSG:
-            {
-                RakNet::BitStream bsIn(packet->data,packet->length,false);
-                bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-                synchronizeObjs(SceneManager::CurrentScene().getObjsList(), bsIn, false);
-            }
-            break;
-        case INIT_SCENE_MSG:
-            {
-                RakNet::BitStream bsIn(packet->data,packet->length,false);
-                bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-
-            }
+            else printf("Connection lost.\n");
             break;
         case ID_RPC_REMOTE_ERROR:
          {

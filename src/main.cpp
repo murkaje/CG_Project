@@ -1,14 +1,11 @@
 #include <graphicssubsystem.h>
 #include <utils.h>
-#include <vec.h>
-#include <behavior.h>
 #include <scenemanager.h>
 #include <inputsubsystem.h>
 #include <eventmanager.h>
 #include <networksubsystem.h>
-#include <synchronizer.h>
 
-#include "funcdefs.h"
+#include <funcdefs.h>
 
 int main(int argc, char* argv[]) {
 
@@ -25,16 +22,11 @@ int main(int argc, char* argv[]) {
 
     InputSubsystem::init();
 
-    //Behavior::Register("moveObject", moveObject);
-    Behavior::Register("colorCollidingObjects", colorCollidingObjects);
-    //Synchronizer::Register("objSaysHello", objSaysHello);
-    Synchronizer::Register("movementSynchronizer", movementSynchronizer);
-    Behavior::Register("rotateObject", rotateObject);
-    Behavior::Register("resetColorIfNoCollisions", resetColorIfNoCollisions);
-
     NetworkSubsystem::connect("localhost");
 
+    SceneManager::createTestScene();
     SceneManager::CurrentScene().init();
+
     GraphicsSubsystem::run();
 
     NetworkSubsystem::shutdown();

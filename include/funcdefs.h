@@ -9,37 +9,37 @@
 #include <collider.h>
 #include <eventmanager.h>
 #include <synchronizer.h>
+#include <networksubsystem.h>
+#include <scenemanager.h>
 
 #include "BitStream.h"
 
-vec3f moveVec(0);
-int movePerSecond = 2;
-
-void moveLeft()
+inline void moveLeft()
 {
-    moveVec.z() += movePerSecond * GraphicsSubsystem::delta;
+    SceneManager::moveVec.z() += SceneManager::movePerSecond * GraphicsSubsystem::delta;
 }
-void moveRight()
+inline void moveRight()
 {
-    moveVec.z() += -movePerSecond * GraphicsSubsystem::delta;
+    SceneManager::moveVec.z() += -SceneManager::movePerSecond * GraphicsSubsystem::delta;
 }
-void moveBackward()
+inline void moveBackward()
 {
-    moveVec.x() += movePerSecond * GraphicsSubsystem::delta;
+    SceneManager::moveVec.x() += SceneManager::movePerSecond * GraphicsSubsystem::delta;
 }
-void moveForward()
+inline void moveForward()
 {
-    moveVec.x() += -movePerSecond * GraphicsSubsystem::delta;
+    SceneManager::moveVec.x() += -SceneManager::movePerSecond * GraphicsSubsystem::delta;
 }
 
-void rotateObject(Object &obj)
+inline void rotateObject(Object &obj)
 {
     int degreesPerSecond = 90;
     Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
 }
 
-void moveObject(Object &obj)
+inline void moveObject(Object &obj)
 {
+    vec3f moveVec = SceneManager::moveVec;
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
     vec3f newPos = Transform::get(obj)->position+moveVec;
@@ -57,7 +57,7 @@ void moveObject(Object &obj)
     moveVec = vec3f(0);
 }
 
-void colorCollidingObjects(Object &obj) {
+inline void colorCollidingObjects(Object &obj) {
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
     for (; col != c->collisions().end(); col++) {
@@ -66,12 +66,13 @@ void colorCollidingObjects(Object &obj) {
     }
 }
 
-void resetColorIfNoCollisions(Object &obj) {
+inline void resetColorIfNoCollisions(Object &obj) {
     Collider *c = Collider::get(obj);
     if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
 }
 
-void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
+inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
+    vec3f moveVec = SceneManager::moveVec;
     Transform *t = Transform::get(obj);
     if (t != NULL) {
         if (write) {

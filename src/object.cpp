@@ -3,6 +3,7 @@
 #include <component.h>
 #include <scenemanager.h>
 #include <networksubsystem.h>
+#include <synchronizer.h>
 
 #include <cstdio>
 
@@ -34,14 +35,28 @@ bool Object::equal(Object &other) {
 
 Object::Object(std::string name): parent_(NULL), obj(*this), name(name) {
     SetNetworkIDManager(&NetworkSubsystem::networkIDManager);
-    networkId = nextNetworkId++;
-	SetNetworkID(networkId);
+    if (NetworkSubsystem::isServer) {
+        SetNetworkID(nextNetworkId++);
+    }
+}
+
+void Object::Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork) {
+    if (rpcFromNetwork == 0) {
+        Synchronizer *s = Synchronizer::get(*this);
+        s->writeTo(*bs);
+        printf("Writing %s sync to bitstream (%d bits)\n", this->name.c_str(), bs->GetNumberOfUnreadBits());
+        NetworkSubsystem::rpc->CallCPP("&Object::Synchronize", GetNetworkID());
+    } else {
+        Synchronizer *s = Synchronizer::get(*this);
+        printf("Reading %s sync from bitstream (%d bits)\n", this->name.c_str(), bs->GetNumberOfUnreadBits();
+        //s->readFrom(bs);
+    }
 }
 
 
 Object::Object(Object &other): parent_(other.parent()), obj(*this), name(other.name) {
     SetNetworkIDManager(other.networkIDManager);
-	SetNetworkID(other.networkId);
+	SetNetworkID(other.GetNetworkID());
 	components = other.components;
 	for (std::map<std::string,Component*>::iterator comp = components.begin(); comp != components.end(); comp++) {
         if (comp->second != NULL) {
@@ -52,7 +67,6 @@ Object::Object(Object &other): parent_(other.parent()), obj(*this), name(other.n
         addChild(copy(**obj));
     }
 }
-
 
 Object& Object::copy(Object &other) {
     return *(new Object(other));

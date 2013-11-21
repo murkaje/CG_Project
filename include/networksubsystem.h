@@ -23,7 +23,7 @@ protected:
 private:
     static RakNet::RakPeerInterface *peer;
 
-    static void synchronizeObjs(std::list<Object*> &objects, RakNet::BitStream &bs, bool write);
+    static void synchronizeObjs(std::list<Object*> &objects);
 
     static void synchronizeCurrentScene();
 public:
@@ -41,7 +41,7 @@ public:
 
     static RakNet::SystemAddress serverAddress;
 
-    static bool isServer, isClient;
+    static bool isServer;
 
     static void init();
 
