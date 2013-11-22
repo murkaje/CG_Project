@@ -52,10 +52,12 @@ void Object::Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork) {
 }
 
 
-Object::Object(Object &other): parent_(other.parent()), obj(*this), name(other.name) {
+Object::Object(Object &other): parent_(other.parent()), obj(*this), name(other.name), tag(other.tag) {
     SetNetworkIDManager(other.networkIDManager);
 	SetNetworkID(other.GetNetworkID());
+
 	components = other.components;
+
 	for (std::map<std::string,Component*>::iterator comp = components.begin(); comp != components.end(); comp++) {
         if (comp->second != NULL) {
             comp->second->owner_ = this;
@@ -104,14 +106,19 @@ std::list<Object*>& Object::getChildren() {
 }
 
 Object::~Object() {
-    /*
-    for (std::map<std::string,Component*>::iterator comp = components.begin(); comp != components.end(); comp++) {
+    //disabled temporarily until copying of components is implemented for Object::copy?
+    /*for (std::map<std::string,Component*>::iterator comp = components.begin(); comp != components.end(); comp++) {
         if (comp->second != NULL) {
             delete comp->second;
             comp->second = NULL;
         }
+    }*/
+    for (std::list<Object*>::iterator obj = getChildren().begin(); obj != getChildren().end(); obj++) {
+        if (*obj != NULL) {
+            delete *obj;
+            (*obj) = NULL;
+        }
     }
-    */
     printf("destroyed object: %s\n", name.c_str());
 }
 

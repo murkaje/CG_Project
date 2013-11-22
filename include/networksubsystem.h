@@ -17,6 +17,11 @@
 RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in);
 RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out);
 
+
+typedef void (*OnIncomingConnection)(const char* addr);
+
+typedef void (*OnConnectionLost)(const char* addr);
+
 class NetworkSubsystem
 {
 protected:
@@ -33,6 +38,10 @@ public:
 
     static void parseIncomingPackets();
 //stahp
+
+    static OnIncomingConnection onIncomingConnection;
+    static OnConnectionLost onConnectionLost;
+
     enum Messages
     {
         SYNC_MSG=ID_USER_PACKET_ENUM+1,

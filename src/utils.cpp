@@ -20,12 +20,45 @@ std::string Utils::load(const char *filename) {
     else throw(errno);
 }
 
-void Instantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork) {
+void Instantiate(Object &obj) {
+    SceneManager::CurrentScene().addObject(obj);
+    printf("Placed '%s'(%s) in current scene\n", obj.name.c_str(), obj.tag.c_str());
+}
+
+void RemoteInstantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork) {
     if (rpcFromNetwork == 0) {
-        printf("Locally placed %s in current scene\n", obj.name.c_str());
-        SceneManager::CurrentScene().addObject(obj);
+        Instantiate(obj);
     } else {
-        printf("Deserialized %s and placed it in current scene\n", obj.name.c_str());
-        SceneManager::CurrentScene().addObject(Object::copy(obj));
+        printf("Deserialized '%s'\n", obj.name.c_str());
+        //instantiating a copy of the received object since the original will be popped
+        //from the stack and the reference will point to something arbitrary in memory
+        Instantiate(Object::copy(obj));
+    }
+}
+
+void Destroy(Object &obj) {
+    printf("Destroyed %s\n", obj.name.c_str());
+    SceneManager::CurrentScene().getObjsList().remove(&obj);
+    delete &obj;
+}
+
+void RemoteDestroy(RakNet::RakString objNameRs, RakNet::RPC3 *rpcFromNetwork) {
+    const char* objName = objNameRs.C_String();
+    if (rpcFromNetwork == 0) {
+        printf("Local request to destroy '%s' from current scene\n", objName);
+        Object *obj = Object::Find(objName);
+        if (obj != NULL) {
+            Destroy(*obj);
+        } else {
+            printf("Object '%s' does not exist in current scene", objName);
+        }
+    } else {
+        printf("Remote request to destroy '%s' from current scene\n", objName);
+        Object *obj = Object::Find(objName);
+        if (obj != NULL) {
+            Destroy(*obj);
+        } else {
+            printf("Object '%s' does not exist in current scene", objName);
+        }
     }
 }

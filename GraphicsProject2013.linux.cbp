@@ -65,6 +65,7 @@
 		<Unit filename="include/component.h" />
 		<Unit filename="include/eventmanager.h" />
 		<Unit filename="include/funcdefs.h" />
+		<Unit filename="include/game.h" />
 		<Unit filename="include/graphicssubsystem.h" />
 		<Unit filename="include/inputsubsystem.h" />
 		<Unit filename="include/light.h" />
@@ -87,6 +88,7 @@
 		<Unit filename="src/collider.cpp" />
 		<Unit filename="src/component.cpp" />
 		<Unit filename="src/eventmanager.cpp" />
+		<Unit filename="src/game.cpp" />
 		<Unit filename="src/graphicssubsystem.cpp" />
 		<Unit filename="src/inputsubsystem.cpp" />
 		<Unit filename="src/light.cpp" />

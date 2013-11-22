@@ -12,12 +12,17 @@
 
 class Object;
 
-class Utils {
-public:
-    static double time();
-    static std::string load(const char *filename);
+namespace Utils {
+    double time();
+    std::string load(const char *filename);
 };
 
-void Instantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork = 0);
+void Instantiate(Object &obj);
+
+void RemoteInstantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork = 0);
+
+void Destroy(Object &obj);
+
+void RemoteDestroy(RakNet::RakString objNameRs, RakNet::RPC3 *rpcFromNetwork = 0);
 
 #endif

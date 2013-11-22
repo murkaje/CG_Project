@@ -57,7 +57,8 @@ void Synchronizer::Register(std::string syncIdent, sync_function sync) {
     std::map<std::string,sync_function>::iterator func = registeredFunctions.find(syncIdent);
     if (func != registeredFunctions.end())
         printf("Overriding previously registered synchronizer.\n");
-    registeredFunctions.insert(std::pair<std::string,sync_function>(syncIdent, sync));
+    else
+        registeredFunctions.insert(std::pair<std::string,sync_function>(syncIdent, sync));
 }
 
 void Synchronizer::Execute(std::string syncIdent, Object& obj, RakNet::BitStream &bs, bool write) {

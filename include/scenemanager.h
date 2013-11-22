@@ -8,15 +8,9 @@
 class SceneManager
 {
 public:
-
-    static vec3f moveVec;
-    static const int movePerSecond = 2;
-
     static Scene testScene;
 
     static void createTestScene();
-
-    static Object* createPlayerCharacter(std::string name);
 
     static Scene& CurrentScene();
 };

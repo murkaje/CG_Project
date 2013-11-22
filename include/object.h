@@ -35,6 +35,7 @@ public:
     std::map<std::string,Component*> components;
 
     std::string name;
+    std::string tag;
 
     static Object& copy(Object &other);
 

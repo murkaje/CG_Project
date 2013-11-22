@@ -11,11 +11,16 @@ RakNet::RPC3* NetworkSubsystem::rpc = NULL;
 RakNet::NetworkIDManager NetworkSubsystem::networkIDManager;
 RakNet::SystemAddress NetworkSubsystem::serverAddress;
 
+OnIncomingConnection NetworkSubsystem::onIncomingConnection = NULL;
+OnConnectionLost NetworkSubsystem::onConnectionLost = NULL;
+
 bool NetworkSubsystem::isServer = false;
 
 RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in) {
     RakNet::RakString rs(in.name.c_str());
     out.Write(rs);
+    RakNet::RakString rs2(in.tag.c_str());
+    out.Write(rs2);
     unsigned int networkId = in.GetNetworkID();
     out.Write(networkId);
     unsigned short numComponents = in.components.size();
@@ -39,6 +44,9 @@ RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out) {
     RakNet::RakString rs;
     in.Read(rs);
     out.name = rs.C_String();
+    RakNet::RakString rs2;
+    in.Read(rs2);
+    out.tag = rs2.C_String();
     unsigned int networkId;
     in.Read(networkId);
     out.SetNetworkIDManager(&NetworkSubsystem::networkIDManager);
@@ -69,7 +77,8 @@ void NetworkSubsystem::init() {
     rpc = new RakNet::RPC3;
     rpc->SetNetworkIDManager(&networkIDManager);
 
-    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, Instantiate);
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, RemoteInstantiate);
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, RemoteDestroy);
     RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, &Object::Synchronize);
 }
 
@@ -131,17 +140,6 @@ void NetworkSubsystem::synchronizeCurrentScene() {
     }
 }
 
-void createPlayerCharacter(RakNet::SystemAddress clientAddress) {
-    NetworkSubsystem::rpc->SetRecipientAddress(clientAddress, false);
-
-    std::string pName = std::string("playerSphere-") + clientAddress.ToString();
-    Object *obj = SceneManager::createPlayerCharacter(pName);
-    Instantiate(*obj);
-    printf("calling instantiate for %s on %s\n", obj->name.c_str(), pName.c_str());
-    NetworkSubsystem::rpc->CallC("Instantiate", *obj);
-
-}
-
 void NetworkSubsystem::parseIncomingPackets() {
     RakNet::Packet *packet;
     for (packet=peer->Receive(); packet; peer->DeallocatePacket(packet), packet=peer->Receive()) {
@@ -161,7 +159,9 @@ void NetworkSubsystem::parseIncomingPackets() {
         case ID_NEW_INCOMING_CONNECTION:
             {
                 printf("A connection is incoming.\n");
-                createPlayerCharacter(packet->systemAddress);
+                if (onIncomingConnection != NULL) {
+                    onIncomingConnection(packet->systemAddress.ToString());
+                }
             }
             break;
         case ID_NO_FREE_INCOMING_CONNECTIONS:
@@ -172,8 +172,12 @@ void NetworkSubsystem::parseIncomingPackets() {
             else printf("We have been disconnected.\n");
             break;
         case ID_CONNECTION_LOST:
-            if (isServer) printf("A client lost the connection.\n");
-            else printf("Connection lost.\n");
+            if (isServer) {
+                printf("A client lost the connection.\n");
+                if (onConnectionLost != NULL) {
+                    onConnectionLost(packet->systemAddress.ToString());
+                }
+            } else printf("Connection lost.\n");
             break;
         case ID_RPC_REMOTE_ERROR:
          {

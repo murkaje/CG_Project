@@ -5,9 +5,27 @@
 #include <eventmanager.h>
 #include <networksubsystem.h>
 
-#include <funcdefs.h>
+#include <game.h>
+
+void moveLeft() {
+    Game::get().localPlayer.moveVec.z() += Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+}
+
+void moveRight() {
+    Game::get().localPlayer.moveVec.z() += -Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+}
+
+void moveBackward() {
+    Game::get().localPlayer.moveVec.x() += Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+}
+
+void moveForward() {
+    Game::get().localPlayer.moveVec.x() += -Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+}
 
 int main(int argc, char* argv[]) {
+
+    Game::init();
 
     NetworkSubsystem::init();
 

@@ -11,35 +11,19 @@
 #include <synchronizer.h>
 #include <networksubsystem.h>
 #include <scenemanager.h>
+#include <camera.h>
+
+#include <game.h>
 
 #include "BitStream.h"
 
-inline void moveLeft()
-{
-    SceneManager::moveVec.z() += SceneManager::movePerSecond * GraphicsSubsystem::delta;
-}
-inline void moveRight()
-{
-    SceneManager::moveVec.z() += -SceneManager::movePerSecond * GraphicsSubsystem::delta;
-}
-inline void moveBackward()
-{
-    SceneManager::moveVec.x() += SceneManager::movePerSecond * GraphicsSubsystem::delta;
-}
-inline void moveForward()
-{
-    SceneManager::moveVec.x() += -SceneManager::movePerSecond * GraphicsSubsystem::delta;
-}
-
-inline void rotateObject(Object &obj)
-{
+inline void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
     Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
 }
 
-inline void moveObject(Object &obj)
-{
-    vec3f moveVec = SceneManager::moveVec;
+inline void moveObject(Object &obj) {
+    vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
     vec3f newPos = Transform::get(obj)->position+moveVec;
@@ -71,12 +55,28 @@ inline void resetColorIfNoCollisions(Object &obj) {
     if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
 }
 
+inline void attachCamera(Object &obj) {
+    //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
+    Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    Transform::setObjPosition(camera, vec3f(0, 6, 6));
+    Transform::setObjRotation(camera, vec3f(-45, 0, 0));
+    camera->name = "MainCamera";
+    obj.addChild(*camera);
+}
+
 inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
-    vec3f &moveVec = SceneManager::moveVec;
     Transform *t = Transform::get(obj);
     if (t != NULL) {
         if (write) {
             if (!NetworkSubsystem::isServer) {
+
+                //temporary hack to add camera locally
+                std::string addr = NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress().ToString();
+                if (obj.tag.compare(addr) == 0 && Object::Find(&obj, "MainCamera") == NULL) {
+                    attachCamera(obj);
+                }
+
+                vec3f &moveVec = Game::get().localPlayer.moveVec;
                 bs << moveVec;
                 moveVec = vec3f(0);
             } else {
@@ -86,10 +86,45 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
             if (!NetworkSubsystem::isServer) {
                 bs >> t->position;
             } else {
+                vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
                 bs >> moveVec;
             }
         }
     }
+}
+
+inline void OnPlayerConnected(const char* addr) {
+    NetworkSubsystem::rpc->SetRecipientAddress(RakNet::SystemAddress(addr), false);
+    std::string pName = std::string("player-")+addr;
+    Object *pc = Game::Player::createCharacter(pName, addr);
+
+    //instantiate dynamic scene objects on the new remote client (currently other 'players')
+    std::map<std::string,Game::Player*>::iterator p = Game::get().connectedPlayers.begin();
+    for (; p != Game::get().connectedPlayers.end(); p++) {
+        Object *pc1 = Object::Find(p->second->name);
+        if (pc != NULL) {
+            NetworkSubsystem::rpc->CallC("RemoteInstantiate", *pc1);
+        }
+    }
+
+    NetworkSubsystem::rpc->SetRecipientAddress(NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress(), true);
+    Game::get().connectedPlayers.insert(std::pair<std::string,Game::Player*>(std::string(addr), new Game::Player(pName)));
+    Instantiate(*pc);
+    printf("broadcasting instantiate for '%s'\n", pName.c_str());
+    NetworkSubsystem::rpc->CallC("RemoteInstantiate", *pc);
+
+}
+
+inline void OnPlayerDisconnected(const char* addr) {
+    NetworkSubsystem::rpc->SetRecipientAddress(NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress(), true);
+    std::string pName = std::string("player-")+addr;
+    Object *pc = Object::Find(pName);
+
+    printf("broadcasting destroy for '%s'\n", pc->name.c_str());
+    RakNet::RakString rs(pc->name.c_str());
+    NetworkSubsystem::rpc->CallC("RemoteDestroy", rs);
+    Destroy(*pc);
+    Game::get().connectedPlayers.erase(std::string(addr));
 }
 
 #endif
