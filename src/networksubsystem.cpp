@@ -112,8 +112,8 @@ void NetworkSubsystem::synchronizeObjs(std::list<Object*> &objects) {
     for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         Synchronizer *s = Synchronizer::get(*(*obj));
         if (s != NULL) {
-            RakNet::BitStream *bs = new RakNet::BitStream;
-            (*obj)->Synchronize(bs);
+            s->bs.Reset();
+            (*obj)->Synchronize(&s->bs);
         }
         synchronizeObjs((*obj)->getChildren());
     }

@@ -14,7 +14,7 @@ typedef void (*sync_function)(Object&, RakNet::BitStream&, bool);
 class Synchronizer: public Component
 {
 private:
-
+    RakNet::BitStream bs;
     static std::map<std::string, sync_function> registeredFunctions;
 protected:
     void read(RakNet::BitStream &in);
@@ -40,6 +40,7 @@ public:
 
     friend class NetworkSubsystem;
     friend class Component;
+    friend class Object;
 };
 
 #endif

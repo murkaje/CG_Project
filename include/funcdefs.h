@@ -72,7 +72,7 @@ inline void resetColorIfNoCollisions(Object &obj) {
 }
 
 inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
-    vec3f moveVec = SceneManager::moveVec;
+    vec3f &moveVec = SceneManager::moveVec;
     Transform *t = Transform::get(obj);
     if (t != NULL) {
         if (write) {

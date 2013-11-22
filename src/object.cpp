@@ -43,13 +43,11 @@ Object::Object(std::string name): parent_(NULL), obj(*this), name(name) {
 void Object::Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork) {
     if (rpcFromNetwork == 0) {
         Synchronizer *s = Synchronizer::get(*this);
-        s->writeTo(*bs);
-        printf("Writing %s sync to bitstream (%d bits)\n", this->name.c_str(), bs->GetNumberOfUnreadBits());
-        NetworkSubsystem::rpc->CallCPP("&Object::Synchronize", GetNetworkID());
+        s->write(*bs);
+        NetworkSubsystem::rpc->CallCPP("&Object::Synchronize", GetNetworkID(), bs);
     } else {
         Synchronizer *s = Synchronizer::get(*this);
-        printf("Reading %s sync from bitstream (%d bits)\n", this->name.c_str(), bs->GetNumberOfUnreadBits();
-        //s->readFrom(bs);
+        s->read(*bs);
     }
 }
 
