@@ -4,6 +4,8 @@
 #include "synchronizer.h"
 #include "networksubsystem.h"
 
+#include "game.h"
+
 #include <stdexcept>
 #include <cerrno>
 #include <iostream>
@@ -23,6 +25,13 @@ std::string Utils::load(const char *filename) {
 void Instantiate(Object &obj) {
     SceneManager::CurrentScene().addObject(obj);
     printf("Placed '%s'(%s) in current scene\n", obj.name.c_str(), obj.tag.c_str());
+    //temporary hack to add camera locally
+    std::string addr = NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress().ToString();
+    if (addr.compare(obj.tag) == 0) {
+        if (obj.tag.compare(addr) == 0 && Object::Find(&obj, "MainCamera") == NULL) {
+            Game::attachCamera(obj);
+        }
+    }
 }
 
 void RemoteInstantiate(Object &obj, RakNet::RPC3 *rpcFromNetwork) {

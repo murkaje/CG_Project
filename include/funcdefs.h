@@ -26,7 +26,7 @@ inline void moveObject(Object &obj) {
     vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
-    vec3f newPos = Transform::get(obj)->position+moveVec;
+    vec3f newPos = Transform::get(obj)->position+moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta;
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
         //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
@@ -36,7 +36,7 @@ inline void moveObject(Object &obj) {
         if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
         else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
     }
-    Transform::translateObj(&obj, moveVec);
+    Transform::translateObj(&obj, moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta);
     //reset movement vector for next frame
     moveVec = vec3f(0);
 }
@@ -55,30 +55,20 @@ inline void resetColorIfNoCollisions(Object &obj) {
     if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
 }
 
-inline void attachCamera(Object &obj) {
-    //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
-    Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
-    Transform::setObjPosition(camera, vec3f(0, 6, 6));
-    Transform::setObjRotation(camera, vec3f(-45, 0, 0));
-    camera->name = "MainCamera";
-    obj.addChild(*camera);
-}
-
 inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
     Transform *t = Transform::get(obj);
     if (t != NULL) {
         if (write) {
             if (!NetworkSubsystem::isServer) {
-
-                //temporary hack to add camera locally
+                //for checking whether we can move this object, could be a security token
                 std::string addr = NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress().ToString();
-                if (obj.tag.compare(addr) == 0 && Object::Find(&obj, "MainCamera") == NULL) {
-                    attachCamera(obj);
+                RakNet::RakString ident(obj.tag.c_str());
+                bs << ident;
+                if (addr.compare(obj.tag) == 0) {
+                    vec3f &moveVec = Game::get().localPlayer.moveVec;
+                    bs << moveVec;
+                    moveVec = vec3f(0);
                 }
-
-                vec3f &moveVec = Game::get().localPlayer.moveVec;
-                bs << moveVec;
-                moveVec = vec3f(0);
             } else {
                 bs << t->position;
             }
@@ -86,8 +76,12 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
             if (!NetworkSubsystem::isServer) {
                 bs >> t->position;
             } else {
-                vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
-                bs >> moveVec;
+                RakNet::RakString ident;
+                bs >> ident;
+                if (obj.tag.compare(ident.C_String()) == 0) {
+                    vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
+                    bs >> moveVec;
+                }
             }
         }
     }

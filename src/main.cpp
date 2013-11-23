@@ -8,19 +8,19 @@
 #include <game.h>
 
 void moveLeft() {
-    Game::get().localPlayer.moveVec.z() += Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+    Game::get().localPlayer.moveVec.z() = std::min(Game::get().localPlayer.moveVec.z()+1, 1.0f);
 }
 
 void moveRight() {
-    Game::get().localPlayer.moveVec.z() += -Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+    Game::get().localPlayer.moveVec.z() = std::max(Game::get().localPlayer.moveVec.z()-1, -1.0f);
 }
 
 void moveBackward() {
-    Game::get().localPlayer.moveVec.x() += Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+    Game::get().localPlayer.moveVec.x() = std::min(Game::get().localPlayer.moveVec.x()+1, 1.0f);
 }
 
 void moveForward() {
-    Game::get().localPlayer.moveVec.x() += -Game::get().localPlayer.movePerSecond * GraphicsSubsystem::delta;
+    Game::get().localPlayer.moveVec.x() = std::max(Game::get().localPlayer.moveVec.x()-1, -1.0f);
 }
 
 int main(int argc, char* argv[]) {

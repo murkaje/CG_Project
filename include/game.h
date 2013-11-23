@@ -34,6 +34,8 @@ public:
 
     std::map<std::string, Player*> connectedPlayers;
 
+    static void attachCamera(Object &obj);
+
     Game();
     ~Game();
 };

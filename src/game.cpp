@@ -55,3 +55,13 @@ Object* Game::Player::createCharacter(std::string name, std::string addr) {
 
     return sphereObj;
 }
+
+
+void Game::attachCamera(Object &obj) {
+    //Object *camera = Camera::createOrthographicCamera(10, 0.5, 100);
+    Object *camera = Camera::createPerspectiveCamera(45, 4.0/3.0, 0.5, 100);
+    Transform::setObjPosition(camera, vec3f(0, 6, 6));
+    Transform::setObjRotation(camera, vec3f(-45, 0, 0));
+    camera->name = "MainCamera";
+    obj.addChild(*camera);
+}

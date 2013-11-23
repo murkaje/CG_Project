@@ -65,9 +65,7 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         exit(-1);
     }
 
-    if (!NetworkSubsystem::isServer) {
-        glutDisplayFunc(GraphicsSubsystem::draw);
-    }
+    glutDisplayFunc(GraphicsSubsystem::draw);
 
     glutIdleFunc(GraphicsSubsystem::idle);
 
@@ -134,9 +132,7 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-    if (NetworkSubsystem::isServer) {
-        NetworkSubsystem::parseIncomingPackets();
-    } else {
+    if (frames%2 == 0) {
         NetworkSubsystem::synchronizeCurrentScene();
     }
 
@@ -147,15 +143,12 @@ void GraphicsSubsystem::idle()
     PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().update();
 
-    if (!NetworkSubsystem::isServer) {
+    if (frames%2 == 0) {
         NetworkSubsystem::parseIncomingPackets();
-    } else {
-        NetworkSubsystem::synchronizeCurrentScene();
     }
     frameStart = Utils::time();
 
-    if (!NetworkSubsystem::isServer)
-        glutPostRedisplay();
+    glutPostRedisplay();
 }
 
 void GraphicsSubsystem::run()

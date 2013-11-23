@@ -29,14 +29,13 @@ private:
     static RakNet::RakPeerInterface *peer;
 
     static void synchronizeObjs(std::list<Object*> &objects);
-
-    static void synchronizeCurrentScene();
 public:
 //temporarily public
     static RakNet::RPC3 *rpc;
     static RakNet::NetworkIDManager networkIDManager;
 
     static void parseIncomingPackets();
+    static void synchronizeCurrentScene();
 //stahp
 
     static OnIncomingConnection onIncomingConnection;
