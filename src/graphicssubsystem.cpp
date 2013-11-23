@@ -120,11 +120,6 @@ void GraphicsSubsystem::idle()
     if (frames == 0) {
         counter = Utils::time();
     }
-    double needed = frameStart+(1000.0/MAX_FPS);
-    if (needed >= Utils::time()) {
-        double d = (needed-Utils::time())*1000;
-        usleep(d);
-    }
 
     if (counter+1000 >= Utils::time()) {
         frames++;
@@ -132,20 +127,25 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-    if (frames%2 == 0) {
+    if (frames%1 == 0) {
         NetworkSubsystem::synchronizeCurrentScene();
     }
 
     InputSubsystem::update();
     EventManager::ParseEvents();
-    delta = (Utils::time()-frameStart)/1000;
 
     PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().update();
 
-    if (frames%2 == 0) {
+    if (frames%1 == 0) {
         NetworkSubsystem::parseIncomingPackets();
     }
+    double needed = frameStart+(1000.0/MAX_FPS);
+    if (needed >= Utils::time()) {
+        double d = (needed-Utils::time())*1000;
+        usleep(d);
+    }
+    delta = (Utils::time()-frameStart)/1000;
     frameStart = Utils::time();
 
     glutPostRedisplay();

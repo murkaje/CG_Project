@@ -32,11 +32,6 @@ int main(int argc, char* argv[])
         if (frames == 0) {
             counter = Utils::time();
         }
-        double needed = frameStart+(1000.0/SV_FPS);
-        if (needed >= Utils::time()) {
-            double d = (needed-Utils::time())*1000;
-            usleep(d);
-        }
 
         if (counter+1000 >= Utils::time()) {
             frames++;
@@ -46,13 +41,18 @@ int main(int argc, char* argv[])
         }
         NetworkSubsystem::parseIncomingPackets();
 
-        GraphicsSubsystem::delta = (Utils::time()-frameStart)/1000;
 
         PhysicsSubsystem::PerformPhysicsChecks();
         SceneManager::CurrentScene().update();
 
         NetworkSubsystem::synchronizeCurrentScene();
 
+        double needed = frameStart+(1000.0/SV_FPS);
+        if (needed >= Utils::time()) {
+            double d = (needed-Utils::time())*1000;
+            usleep(d);
+        }
+        GraphicsSubsystem::delta = (Utils::time()-frameStart)/1000;
         frameStart = Utils::time();
     }
 
