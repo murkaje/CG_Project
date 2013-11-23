@@ -41,7 +41,6 @@ int main(int argc, char* argv[])
         }
         NetworkSubsystem::parseIncomingPackets();
 
-
         PhysicsSubsystem::PerformPhysicsChecks();
         SceneManager::CurrentScene().update();
 

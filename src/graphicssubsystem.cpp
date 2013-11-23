@@ -70,6 +70,7 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glutIdleFunc(GraphicsSubsystem::idle);
 
     glEnable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
     glShadeModel(GL_SMOOTH);
 }
 
@@ -127,7 +128,7 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-    if (frames%1 == 0) {
+    if (frames%5 == 0) {
         NetworkSubsystem::synchronizeCurrentScene();
     }
 
@@ -135,6 +136,7 @@ void GraphicsSubsystem::idle()
     EventManager::ParseEvents();
 
     PhysicsSubsystem::PerformPhysicsChecks();
+    Light::lightsCache.reset();
     SceneManager::CurrentScene().update();
 
     if (frames%1 == 0) {

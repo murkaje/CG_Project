@@ -38,7 +38,6 @@ inline void moveObject(Object &obj) {
     }
     Transform::translateObj(&obj, moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta);
     //reset movement vector for next frame
-    moveVec = vec3f(0);
 }
 
 inline void colorCollidingObjects(Object &obj) {
@@ -67,7 +66,9 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
                 if (addr.compare(obj.tag) == 0) {
                     vec3f &moveVec = Game::get().localPlayer.moveVec;
                     bs << moveVec;
-                    moveVec = vec3f(0);
+                    moveVec.x() = 0;
+                    moveVec.y() = 0;
+                    moveVec.z() = 0;
                 }
             } else {
                 bs << t->position;

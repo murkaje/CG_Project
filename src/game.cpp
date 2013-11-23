@@ -44,7 +44,6 @@ Object* Game::Player::createCharacter(std::string name, std::string addr) {
     Behavior::addLocal(sphereObj, "moveObject", moveObject);
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, "colorCollidingObjects");
-    //Synchronizer::add(sphereObj, objSaysHello);
     Synchronizer::add(sphereObj, "movementSynchronizer");
 
     Object *light = Light::createPointLight(vec3f(0,1,0));
