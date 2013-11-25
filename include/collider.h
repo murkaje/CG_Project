@@ -31,6 +31,8 @@ public:
 
     static void addBox(Object &obj);
 
+    static void addSphere(Object &obj);
+
     static Collider* get(Object &obj);
 
     friend class PhysicsSubsystem;
@@ -43,4 +45,11 @@ public:
     BoxCollider();
 };
 
+class SphereCollider: public Collider
+{
+public:
+    vec3f center, rotation, scale;
+
+    SphereCollider();
+};
 #endif

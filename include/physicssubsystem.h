@@ -4,13 +4,16 @@
 #include <object.h>
 #include <collider.h>
 
-class PhysicsSubsystem {
+class PhysicsSubsystem
+{
 public:
     static void PerformPhysicsChecks();
 
     static void checkIntersections(Object &obj);
 
     static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
+
+    static void SphereToBoxIntersection(SphereCollider &obj, BoxCollider &iterObj);
 };
 
 #endif

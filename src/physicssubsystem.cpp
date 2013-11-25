@@ -57,17 +57,81 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
     }
 }
 
+
+void PhysicsSubsystem::SphereToBoxIntersection(SphereCollider &collider, BoxCollider &other)
+{
+
+
+   Transform *t = Transform::get(*collider.owner());
+//    float xPos = t->position.x+collider.center.x;
+//    float yPos = t->position.y+collider.center.y;
+//    float zPos = t->position.z+collider.center.z;
+
+    vec3f Pos = t->position + collider.center;
+    Transform *ot = Transform::get(*other.owner());
+
+//    float xOther = ot->position.x+other.center.x;
+//    float yOther = ot->position.y+other.center.y;
+//    float zOther = ot->position.z+other.center.z;
+//
+    vec3f Other = ot->position + other.center;
+
+//    float xDiff = xPos - xOther;
+//    float yDiff = yPos - yOther;
+//    float zDiff = zPos - zOther;
+
+    vec3f Diff = Pos - Other;
+
+
+
+//    float xDistance = fabs(xDiff);
+//    float yDistance = fabs(yDiff);
+//    float zDistance = fabs(zDiff);
+    vec3f Distance = vec3f(fabs(Diff.x()), fabs(Diff.y()), fabs(Diff.z()));
+
+//    float xMinDistance = (collider.scale.x() + other.scale.x())/float(2);
+//    float yMinDistance = (collider.scale.y() + other.scale.y())/float(2);
+//    float zMinDistance = (collider.scale.z() + other.scale.z())/float(2);
+    vec3f MinDistance = (collider.scale + other.scale)/2;
+
+    float maxDistance = max(Distance.x(), Distance.y());
+    maxDistance = max(maxDistance, Distance.z());
+
+
+    if(Distance.x() < MinDistance.x() && Distance.y() < MinDistance.y() && Distance.z() < MinDistance.z())
+    {
+
+        //register collision
+        //vector3f v_temp = vector3f::normalize(v3f((xOther - xPos), (yOther - yPos), (zOther -  zPos)));
+        //std::cout<<v_temp<<std::endl;
+        collider.collisions().push_back(
+            Collider::Collision(other, //collided with
+
+                                Pos - Distance + MinDistance, //collision point
+                                //      v3f(int(xDiff/maxDistance), int(yDiff/maxDistance), int(zDiff/maxDistance)) //normal of collision surface
+                                Other-Pos //normal of collision surface
+                               )
+
+        );
+    }
+}
+
 void PhysicsSubsystem::checkIntersections(Object &obj) {
-    Scene* sceneObj = obj.getCurrentScene();
+  Scene* sceneObj = obj.getCurrentScene();
     Collider *oc = Collider::get(obj);
     std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
-        if(!obj.equal(*iterObj)) {
+    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++)
+    {
+        if(!obj.equal(*iterObj))
+        {
             Collider *c = Collider::get(*iterObj);
-            if (c != NULL) {
-                switch (oc->type()) {
+            if (c != NULL)
+            {
+                switch (oc->type())
+                {
                 case Collider::BOX:
-                    switch (c->type()) {
+                    switch (c->type())
+                    {
                     case Collider::BOX:
                         BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
                         break;
@@ -78,6 +142,16 @@ void PhysicsSubsystem::checkIntersections(Object &obj) {
                     }
                     break;
                 case Collider::SPHERE:
+                    switch (c->type())
+                    {
+                    case Collider::BOX:
+                        SphereToBoxIntersection(*(SphereCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
+                        break;
+                    case Collider::SPHERE:
+                        break;
+                    default:
+                        break;
+                    }
                     break;
                 default:
                     break;

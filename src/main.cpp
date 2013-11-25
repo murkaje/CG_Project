@@ -48,17 +48,73 @@ void rotateObject(Object &obj)
 
 void moveObject(Object &obj)
 {
+    //Main function from before
+
+//    Collider *c = Collider::get(obj);
+//    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+//    vec3f newPos = Transform::get(obj)->position+moveVec;
+//    for (; col != c->collisions().end(); col++) {
+//        alter movement vector so we cannot go beyond collision points
+//        printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
+//        Transform *otherCol = Transform::get(*col->with.owner());
+//        if (otherCol->position.x() > newPos.x() && newPos.x() >= col->point.x()) moveVec.x() += moveVec.x()*col->normal.x(); //x+
+//        else if (otherCol->position.x() < newPos.x() && newPos.x() <= col->point.x()) moveVec.x() -= moveVec.x()*col->normal.x(); //x-
+//        if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
+//        else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
+//    }
+//    Transform::translateObj(&obj, moveVec);
+//    reset movement vector for next frame
+//    moveVec = vec3f(0);
+//
+//
+
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
+
+    vec3f curPos = Transform::get(obj)->position;
     vec3f newPos = Transform::get(obj)->position+moveVec;
-    for (; col != c->collisions().end(); col++) {
+
+
+    for (; col != c->collisions().end(); col++)
+    {
         //alter movement vector so we cannot go beyond collision points
+
         //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
+
+
+        float xNormal = col->normal.x();
+        float zNormal = col->normal.z();
+
+
         Transform *otherCol = Transform::get(*col->with.owner());
-        if (otherCol->position.x() > newPos.x() && newPos.x() >= col->point.x()) moveVec.x() += moveVec.x()*col->normal.x(); //x+
-        else if (otherCol->position.x() < newPos.x() && newPos.x() <= col->point.x()) moveVec.x() -= moveVec.x()*col->normal.x(); //x-
-        if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
-        else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
+
+        if(otherCol ->scale.z() * xNormal <= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal >=  - otherCol->scale.x() * zNormal)
+        {
+            if(newPos.z() - curPos.z() > 0)
+                moveVec.z() = 0;
+        }
+        if(otherCol ->scale.z() * xNormal >= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal <=  - otherCol->scale.x() * zNormal)
+        {
+            if(newPos.z() - curPos.z() < 0)
+                moveVec.z() = 0;
+        }
+
+        if((otherCol ->scale.z() * xNormal >= otherCol->scale.x() * zNormal) && (otherCol ->scale.z() * xNormal >=  - otherCol->scale.x() * zNormal))
+        {
+            //    printf("condition 3");
+            if(newPos.x() - curPos.x() > 0)
+                moveVec.x() = 0;
+        }
+
+        if(otherCol ->scale.z() * xNormal <= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal <=  - otherCol->scale.x() * zNormal)
+        {
+            //   printf("condition 4");
+            if(newPos.x() - curPos.x() < 0)
+                moveVec.x() = 0;
+        }
+
+        printf("x: %f  z: %f\n", ((otherCol->scale.x()) * xNormal), (otherCol->scale.z() * zNormal));
+
     }
     Transform::translateObj(&obj, moveVec);
     //reset movement vector for next frame
@@ -144,7 +200,7 @@ int main(int argc, char* argv[]) {
 
     Object *sphereObj = GeometricShape::createSphere(vec3f(0,0.5,0), vec3f(0,45,0), vec3f(1,1,1),vec3f(0,1,0));
     Behavior::add(sphereObj, moveObject);
-    Collider::addBox(*sphereObj);
+    Collider::addSphere(*sphereObj);
     Behavior::add(sphereObj, colorCollidingObjects);
     //Synchronizer::add(sphereObj, objSaysHello);
     Synchronizer::add(sphereObj, synchronizeTransform);
