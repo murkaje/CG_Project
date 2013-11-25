@@ -79,9 +79,6 @@ void moveObject(Object &obj)
     {
         //alter movement vector so we cannot go beyond collision points
 
-        //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
-
-
         float xNormal = col->normal.x();
         float zNormal = col->normal.z();
 
@@ -113,7 +110,7 @@ void moveObject(Object &obj)
                 moveVec.x() = 0;
         }
 
-        printf("x: %f  z: %f\n", ((otherCol->scale.x()) * xNormal), (otherCol->scale.z() * zNormal));
+       // printf("x: %f  z: %f\n", ((otherCol->scale.x()) * xNormal), (otherCol->scale.z() * zNormal));
 
     }
     Transform::translateObj(&obj, moveVec);

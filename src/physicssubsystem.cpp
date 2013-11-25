@@ -60,58 +60,31 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
 
 void PhysicsSubsystem::SphereToBoxIntersection(SphereCollider &collider, BoxCollider &other)
 {
+    Transform *t = Transform::get(*collider.owner());
 
-
-   Transform *t = Transform::get(*collider.owner());
-//    float xPos = t->position.x+collider.center.x;
-//    float yPos = t->position.y+collider.center.y;
-//    float zPos = t->position.z+collider.center.z;
-
-    vec3f Pos = t->position + collider.center;
     Transform *ot = Transform::get(*other.owner());
 
-//    float xOther = ot->position.x+other.center.x;
-//    float yOther = ot->position.y+other.center.y;
-//    float zOther = ot->position.z+other.center.z;
-//
-    vec3f Other = ot->position + other.center;
+    vec3f pos = t->position + collider.center;
+    vec3f otherVector = ot->position + other.center;
+    vec3f diff = pos - otherVector;
 
-//    float xDiff = xPos - xOther;
-//    float yDiff = yPos - yOther;
-//    float zDiff = zPos - zOther;
+    vec3f distance = vec3f(fabs(diff.x()), fabs(diff.y()), fabs(diff.z()));
 
-    vec3f Diff = Pos - Other;
+    vec3f minDistance = (collider.scale + other.scale)/2;
 
+    float maxDistance = max(distance.x(), distance.y());
+    maxDistance = max(maxDistance, distance.z());
 
 
-//    float xDistance = fabs(xDiff);
-//    float yDistance = fabs(yDiff);
-//    float zDistance = fabs(zDiff);
-    vec3f Distance = vec3f(fabs(Diff.x()), fabs(Diff.y()), fabs(Diff.z()));
-
-//    float xMinDistance = (collider.scale.x() + other.scale.x())/float(2);
-//    float yMinDistance = (collider.scale.y() + other.scale.y())/float(2);
-//    float zMinDistance = (collider.scale.z() + other.scale.z())/float(2);
-    vec3f MinDistance = (collider.scale + other.scale)/2;
-
-    float maxDistance = max(Distance.x(), Distance.y());
-    maxDistance = max(maxDistance, Distance.z());
-
-
-    if(Distance.x() < MinDistance.x() && Distance.y() < MinDistance.y() && Distance.z() < MinDistance.z())
+    if(distance.x() < minDistance.x() && distance.y() < minDistance.y() && distance.z() < minDistance.z())
     {
-
-        //register collision
-        //vector3f v_temp = vector3f::normalize(v3f((xOther - xPos), (yOther - yPos), (zOther -  zPos)));
-        //std::cout<<v_temp<<std::endl;
         collider.collisions().push_back(
             Collider::Collision(other, //collided with
 
-                                Pos - Distance + MinDistance, //collision point
-                                //      v3f(int(xDiff/maxDistance), int(yDiff/maxDistance), int(zDiff/maxDistance)) //normal of collision surface
-                                Other-Pos //normal of collision surface
+                                pos - distance + minDistance, //collision point
+                                // v3f(int(xDiff/maxDistance), int(yDiff/maxDistance), int(zDiff/maxDistance)) //normal of collision surface
+                                otherVector - pos //normal of collision surface
                                )
-
         );
     }
 }
