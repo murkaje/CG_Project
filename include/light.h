@@ -28,7 +28,7 @@ private:
 
     static void update(Object &lightObj);
 
-    Light::Light(bool enabled = true);
+    Light(bool enabled = true);
 public:
     vec4f ambient, diffuse, specular;
     vec3f direction;

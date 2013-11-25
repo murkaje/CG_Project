@@ -14,6 +14,23 @@
 
 Game* Game::instance = NULL;
 
+
+void moveLeft() {
+    Game::get().localPlayer.moveVec.z() = std::min(Game::get().localPlayer.moveVec.z()+1, 1.0f);
+}
+
+void moveRight() {
+    Game::get().localPlayer.moveVec.z() = std::max(Game::get().localPlayer.moveVec.z()-1, -1.0f);
+}
+
+void moveBackward() {
+    Game::get().localPlayer.moveVec.x() = std::min(Game::get().localPlayer.moveVec.x()+1, 1.0f);
+}
+
+void moveForward() {
+    Game::get().localPlayer.moveVec.x() = std::max(Game::get().localPlayer.moveVec.x()-1, -1.0f);
+}
+
 Game::Game(): localPlayer("localPlayer")
 {
     //ctor
@@ -26,6 +43,28 @@ Game::~Game()
 
 void Game::init() {
     instance = new Game();
+
+    Synchronizer::Register("movementSynchronizer", movementSynchronizer);
+    Behavior::Register("colorCollidingObjects", colorCollidingObjects);
+
+    Object *planeObj = GeometricShape::createPlane(vec3f(0,0,0),vec3f(0,0,0), vec3f(25,1,25),vec3f(0.5,0.5,0.5));
+    planeObj->name = "plane";
+    //make the plane really shiny
+    Renderer::get(*planeObj)->material.specular = vec3f(1);
+    Renderer::get(*planeObj)->material.shininess = 100;
+
+    Object *cubeObj = GeometricShape::createCube(vec3f(2,1,2), vec3f(0), vec3f(1,1,1),vec3f(1,0,0));
+    Behavior::addLocal(cubeObj, "rotateObject", rotateObject);
+    Collider::addBox(*cubeObj);
+    Behavior::addLocal(cubeObj, "resetColorIfNoCollisions", resetColorIfNoCollisions);
+
+    Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,.5,.5),vec3f(1,0,1));
+    Collider::addBox(*secondCubeObj);
+    Behavior::addLocal(secondCubeObj, "resetColorIfNoCollisions");
+
+    Instantiate(*planeObj);
+    Instantiate(*cubeObj);
+    Instantiate(*secondCubeObj);
 }
 
 Game& Game::get() {

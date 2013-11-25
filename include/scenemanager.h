@@ -10,8 +10,6 @@ class SceneManager
 public:
     static Scene testScene;
 
-    static void createTestScene();
-
     static Scene& CurrentScene();
 };
 

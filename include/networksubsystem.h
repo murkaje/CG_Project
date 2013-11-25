@@ -17,10 +17,7 @@
 RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in);
 RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out);
 
-
-typedef void (*OnIncomingConnection)(const char* addr);
-
-typedef void (*OnConnectionLost)(const char* addr);
+typedef void (*NetworkEventListener)(const char* addr);
 
 class NetworkSubsystem
 {
@@ -38,8 +35,9 @@ public:
     static void synchronizeCurrentScene();
 //stahp
 
-    static OnIncomingConnection onIncomingConnection;
-    static OnConnectionLost onConnectionLost;
+    static NetworkEventListener onIncomingConnection;
+    static NetworkEventListener onConnectionLost;
+    static NetworkEventListener onDisconnectionNotification;
 
     enum Messages
     {
@@ -56,6 +54,8 @@ public:
     static void startServer();
 
     static bool connect(const char* host);
+
+    static void disconnect();
 
     static void shutdown();
 

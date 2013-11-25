@@ -17,15 +17,15 @@ int frames, fps;
 
 int main(int argc, char* argv[])
 {
-    Game::init();
     GraphicsSubsystem::init(argc, argv);
 
     NetworkSubsystem::init();
     NetworkSubsystem::onIncomingConnection = OnPlayerConnected;
     NetworkSubsystem::onConnectionLost = OnPlayerDisconnected;
+    NetworkSubsystem::onDisconnectionNotification = OnPlayerDisconnected;
     NetworkSubsystem::startServer();
 
-    SceneManager::createTestScene();
+    Game::init();
 
     frameStart = Utils::time();
     while (true) {
@@ -57,7 +57,6 @@ int main(int argc, char* argv[])
 
     NetworkSubsystem::shutdown();
 
-    printf("Successful termination");
     return 0;
 }
 

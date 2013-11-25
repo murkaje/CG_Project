@@ -40,4 +40,10 @@ public:
     ~Game();
 };
 
+
+void moveLeft();
+void moveRight();
+void moveBackward();
+void moveForward();
+
 #endif

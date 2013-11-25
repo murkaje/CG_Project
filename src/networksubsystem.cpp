@@ -11,8 +11,9 @@ RakNet::RPC3* NetworkSubsystem::rpc = NULL;
 RakNet::NetworkIDManager NetworkSubsystem::networkIDManager;
 RakNet::SystemAddress NetworkSubsystem::serverAddress;
 
-OnIncomingConnection NetworkSubsystem::onIncomingConnection = NULL;
-OnConnectionLost NetworkSubsystem::onConnectionLost = NULL;
+NetworkEventListener NetworkSubsystem::onIncomingConnection = NULL;
+NetworkEventListener NetworkSubsystem::onConnectionLost = NULL;
+NetworkEventListener NetworkSubsystem::onDisconnectionNotification = NULL;
 
 bool NetworkSubsystem::isServer = false;
 
@@ -110,9 +111,19 @@ bool NetworkSubsystem::connect(const char* host) {
     return true;
 }
 
+void NetworkSubsystem::disconnect() {
+    if (peer != NULL && peer->GetConnectionState(serverAddress) == RakNet::IS_CONNECTED) {
+        peer->CloseConnection(serverAddress, true);
+        printf("Closed connection to %s\n", serverAddress.ToString());
+    }
+}
+
 void NetworkSubsystem::shutdown() {
-    if (peer != NULL) peer->Shutdown(100, 0);
-    RakNet::RakPeerInterface::DestroyInstance(peer);
+    printf("NetworkSubsystem shutting down...\n");
+    if (peer != NULL) {
+        peer->Shutdown(100, 0);
+        //RakNet::RakPeerInterface::DestroyInstance(peer);
+    }
     if (rpc != NULL) delete rpc;
 
 }
@@ -168,8 +179,12 @@ void NetworkSubsystem::parseIncomingPackets() {
             printf("The server is full.\n");
             break;
         case ID_DISCONNECTION_NOTIFICATION:
-            if (isServer) printf("A client has disconnected.\n");
-            else printf("We have been disconnected.\n");
+            if (isServer) {
+                printf("A client has disconnected.\n");
+                if (onDisconnectionNotification != NULL) {
+                    onDisconnectionNotification(packet->systemAddress.ToString());
+                }
+            } else printf("We have been disconnected.\n");
             break;
         case ID_CONNECTION_LOST:
             if (isServer) {
@@ -206,7 +221,7 @@ void NetworkSubsystem::parseIncomingPackets() {
                printf("RPC_ERROR_CALLING_C_AS_CPP\n");
                break;
             }
-            printf("Function: %s", packet->data+2);
+            printf("Function: %s\n", packet->data+2);
          }
         default:
             printf("Message with identifier %i has arrived.\n", packet->data[0]);

@@ -33,13 +33,16 @@ void GraphicsSubsystem::init(int argc, char* argv[])
 
 void GraphicsSubsystem::shutdown()
 {
-    printf("%s\n", "cleaning up shader cache...");
+    printf("cleaning up shader cache...\n");
     for (std::map<std::string,Material::Shader*>::iterator shad = shaderCache.begin(); shad != shaderCache.end(); shad++) {
         if (shad->second != NULL) {
             delete shad->second;
             shad->second = NULL;
         }
     }
+    NetworkSubsystem::disconnect();
+    NetworkSubsystem::shutdown();
+
     glutLeaveMainLoop();
 }
 
@@ -61,7 +64,7 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
 
     GLint err = glewInit();
     if (err != GLEW_OK) {
-        printf("GLEW initialization failure: %s", glewGetErrorString(err));
+        printf("GLEW initialization failure: %s\n", glewGetErrorString(err));
         exit(-1);
     }
 
@@ -76,12 +79,9 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled)
 {
-    if (enabled)
-    {
+    if (enabled) {
         glEnable(GL_DEPTH_TEST);
-    }
-    else
-    {
+    } else {
         glDisable(GL_DEPTH_TEST);
     }
 }

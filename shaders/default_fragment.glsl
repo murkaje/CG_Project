@@ -25,9 +25,9 @@ vec4 blinn_light(gl_LightSourceParameters light) {
     float intensity = 5.0;
 
     vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient+light.ambient*gl_FrontMaterial.ambient;
-    float attenuation = intensity/(0+
-                            0+
-                            1*pow(d,2));
+    float attenuation = intensity/(0.0+
+                                   0.0+
+                                   1.0*pow(d,2));
     vec4 ldiff = gl_FrontMaterial.diffuse*light.diffuse*max(dot(N, light_dir), 0);
     vec4 lspec = gl_FrontMaterial.specular*light.specular*pow(max(dot(N, h), 0), gl_FrontMaterial.shininess);
 
