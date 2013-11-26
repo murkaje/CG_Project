@@ -57,9 +57,56 @@ void PhysicsSubsystem::BoxToBoxIntersection(BoxCollider &collider, BoxCollider &
     }
 }
 
+
+void PhysicsSubsystem::SphereToBoxIntersection(SphereCollider &collider, BoxCollider &other)
+{
+    Transform *t = Transform::get(*collider.owner());
+
+    Transform *ot = Transform::get(*other.owner());
+
+    vec3f pos = t->position + collider.center;
+    vec3f otherVector = ot->position + other.center;
+    vec3f diff = pos - otherVector;
+
+    vec3f distance = vec3f(fabs(diff.x()), fabs(diff.y()), fabs(diff.z()));
+
+    vec3f minDistance = (collider.scale + other.scale)/2;
+
+    float maxDistance = max(distance.x(), distance.y());
+    maxDistance = max(maxDistance, distance.z());
+
+
+    if(distance.x() < minDistance.x() && distance.y() < minDistance.y() && distance.z() < minDistance.z())
+    {
+        collider.collisions().push_back(
+            Collider::Collision(other, //collided with
+
+                                pos - distance + minDistance, //collision point
+                                // v3f(int(xDiff/maxDistance), int(yDiff/maxDistance), int(zDiff/maxDistance)) //normal of collision surface
+                                otherVector - pos //normal of collision surface
+                               )
+        );
+    }
+}
+
 void PhysicsSubsystem::checkIntersections(Object &obj) {
-    Scene* sceneObj = obj.getCurrentScene();
+  Scene* sceneObj = obj.getCurrentScene();
     Collider *oc = Collider::get(obj);
+<<<<<<< HEAD
+    std::list<Object> &objects = sceneObj->getObjsList();
+    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++)
+    {
+        if(!obj.equal(*iterObj))
+        {
+            Collider *c = Collider::get(*iterObj);
+            if (c != NULL)
+            {
+                switch (oc->type())
+                {
+                case Collider::BOX:
+                    switch (c->type())
+                    {
+=======
     std::list<Object*> &objects = sceneObj->getObjsList();
     for (std::list<Object*>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
         if(!obj.equal(**iterObj)) {
@@ -68,6 +115,7 @@ void PhysicsSubsystem::checkIntersections(Object &obj) {
                 switch (oc->typeId()) {
                 case Collider::BOX:
                     switch (c->typeId()) {
+>>>>>>> 81f29ece32f5a83ee87ec7353416dfe73bf64d94
                     case Collider::BOX:
                         BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(**iterObj));
                         break;
@@ -78,6 +126,16 @@ void PhysicsSubsystem::checkIntersections(Object &obj) {
                     }
                     break;
                 case Collider::SPHERE:
+                    switch (c->type())
+                    {
+                    case Collider::BOX:
+                        SphereToBoxIntersection(*(SphereCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
+                        break;
+                    case Collider::SPHERE:
+                        break;
+                    default:
+                        break;
+                    }
                     break;
                 default:
                     break;

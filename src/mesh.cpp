@@ -2,7 +2,19 @@
 #include <utils.h>
 #include <mesh.h>
 
-Mesh::Mesh(): Component(Component::MESH) {
+Mesh::Mesh(int type): Component(Component::MESH) {
+    this->type = type;
+}
+
+void Mesh::writeTo(RakNet::BitStream& out) {
+
+}
+
+void Mesh::readFrom(RakNet::BitStream& in) {
+
+}
+
+PlaneMesh::PlaneMesh(): Mesh(Mesh::PLANE) {
 
 }
 
@@ -17,8 +29,16 @@ void PlaneMesh::describe() {
     glEnd();
 }
 
+SphereMesh::SphereMesh(): Mesh(Mesh::SPHERE) {
+
+}
+
 void SphereMesh::describe() {
     glutSolidSphere(0.5,10,10);
+}
+
+CubeMesh::CubeMesh(): Mesh(Mesh::CUBE) {
+
 }
 
 void CubeMesh::describe() {

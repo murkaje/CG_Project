@@ -5,6 +5,8 @@
 #include "inputsubsystem.h"
 #include <physicssubsystem.h>
 #include <networksubsystem.h>
+#include "behavior.h"
+#include "light.h"
 
 #include <unistd.h>
 #include <string>
@@ -24,22 +26,28 @@ void GraphicsSubsystem::init(int argc, char* argv[])
 {
     EventManager::RegisterCommand("exit", GraphicsSubsystem::shutdown);
     glutInit(&argc, argv);
+
+    Behavior::Register("lightUpdate", Light::update);
+
 }
 
 void GraphicsSubsystem::shutdown()
 {
-    printf("%s\n", "cleaning up shader cache...");
+    printf("cleaning up shader cache...\n");
     for (std::map<std::string,Material::Shader*>::iterator shad = shaderCache.begin(); shad != shaderCache.end(); shad++) {
         if (shad->second != NULL) {
             delete shad->second;
             shad->second = NULL;
         }
     }
+    NetworkSubsystem::disconnect();
+    NetworkSubsystem::shutdown();
+
     glutLeaveMainLoop();
 }
 
 Material::Shader& GraphicsSubsystem::loadShader(std::string name) {
-    if (shaderCache[name] == NULL) {
+    if (!NetworkSubsystem::isServer && shaderCache[name] == NULL) {
         shaderCache[name] = new Material::Shader(name);
     }
     return *shaderCache[name];
@@ -56,25 +64,24 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
 
     GLint err = glewInit();
     if (err != GLEW_OK) {
-        printf("GLEW initialization failure: %s", glewGetErrorString(err));
+        printf("GLEW initialization failure: %s\n", glewGetErrorString(err));
         exit(-1);
     }
 
     glutDisplayFunc(GraphicsSubsystem::draw);
+
     glutIdleFunc(GraphicsSubsystem::idle);
 
     glEnable(GL_LIGHTING);
+    glDisable(GL_LIGHT0);
     glShadeModel(GL_SMOOTH);
 }
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled)
 {
-    if (enabled)
-    {
+    if (enabled) {
         glEnable(GL_DEPTH_TEST);
-    }
-    else
-    {
+    } else {
         glDisable(GL_DEPTH_TEST);
     }
 }
@@ -84,7 +91,6 @@ void GraphicsSubsystem::draw()
     // Clear screen (TODO: add per-scene render settings?)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    PhysicsSubsystem::PerformPhysicsChecks();
     SceneManager::CurrentScene().draw();
 
     glDisable(GL_LIGHTING);
@@ -115,11 +121,6 @@ void GraphicsSubsystem::idle()
     if (frames == 0) {
         counter = Utils::time();
     }
-    double needed = frameStart+(1000.0/MAX_FPS);
-    if (needed >= Utils::time()) {
-        double d = (needed-Utils::time())*1000;
-        usleep(d);
-    }
 
     if (counter+1000 >= Utils::time()) {
         frames++;
@@ -127,20 +128,28 @@ void GraphicsSubsystem::idle()
         fps = frames;
         frames = 0;
     }
-
-    if (NetworkSubsystem::isServer) NetworkSubsystem::parseIncomingPackets();
-    else NetworkSubsystem::synchronizeCurrentScene();
+    if (frames%5 == 0) {
+        NetworkSubsystem::synchronizeCurrentScene();
+    }
 
     InputSubsystem::update();
     EventManager::ParseEvents();
-    delta = (Utils::time()-frameStart)/1000;
 
+    PhysicsSubsystem::PerformPhysicsChecks();
+    Light::lightsCache.reset();
     SceneManager::CurrentScene().update();
 
-    if (NetworkSubsystem::isClient) NetworkSubsystem::parseIncomingPackets();
-    else NetworkSubsystem::synchronizeCurrentScene();
-
+    if (frames%1 == 0) {
+        NetworkSubsystem::parseIncomingPackets();
+    }
+    double needed = frameStart+(1000.0/MAX_FPS);
+    if (needed >= Utils::time()) {
+        double d = (needed-Utils::time())*1000;
+        usleep(d);
+    }
+    delta = (Utils::time()-frameStart)/1000;
     frameStart = Utils::time();
+
     glutPostRedisplay();
 }
 

@@ -1,0 +1,202 @@
+#include <graphicssubsystem.h>
+#include <utils.h>
+#include <scenemanager.h>
+#include <inputsubsystem.h>
+#include <eventmanager.h>
+#include <networksubsystem.h>
+<<<<<<< HEAD
+#include <synchronizer.h>
+
+#include "BitStream.h"
+
+vec3f moveVec(0);
+int movePerSecond = 2;
+
+void moveLeft()
+{
+    moveVec.z() += movePerSecond * GraphicsSubsystem::delta;
+}
+void moveRight()
+{
+    moveVec.z() += -movePerSecond * GraphicsSubsystem::delta;
+}
+void moveBackward()
+{
+    moveVec.x() += movePerSecond * GraphicsSubsystem::delta;
+}
+void moveForward()
+{
+    moveVec.x() += -movePerSecond * GraphicsSubsystem::delta;
+}
+
+void rotateObject(Object &obj)
+{
+    int degreesPerSecond = 90;
+    Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
+}
+
+void moveObject(Object &obj)
+{
+    //Main function from before
+
+//    Collider *c = Collider::get(obj);
+//    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+//    vec3f newPos = Transform::get(obj)->position+moveVec;
+//    for (; col != c->collisions().end(); col++) {
+//        alter movement vector so we cannot go beyond collision points
+//        printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
+//        Transform *otherCol = Transform::get(*col->with.owner());
+//        if (otherCol->position.x() > newPos.x() && newPos.x() >= col->point.x()) moveVec.x() += moveVec.x()*col->normal.x(); //x+
+//        else if (otherCol->position.x() < newPos.x() && newPos.x() <= col->point.x()) moveVec.x() -= moveVec.x()*col->normal.x(); //x-
+//        if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
+//        else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
+//    }
+//    Transform::translateObj(&obj, moveVec);
+//    reset movement vector for next frame
+//    moveVec = vec3f(0);
+//
+//
+
+    Collider *c = Collider::get(obj);
+    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+
+    vec3f curPos = Transform::get(obj)->position;
+    vec3f newPos = Transform::get(obj)->position+moveVec;
+
+
+    for (; col != c->collisions().end(); col++)
+    {
+        //alter movement vector so we cannot go beyond collision points
+
+        float xNormal = col->normal.x();
+        float zNormal = col->normal.z();
+
+
+        Transform *otherCol = Transform::get(*col->with.owner());
+
+        if(otherCol ->scale.z() * xNormal <= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal >=  - otherCol->scale.x() * zNormal)
+        {
+            if(newPos.z() - curPos.z() > 0)
+                moveVec.z() = 0;
+        }
+        if(otherCol ->scale.z() * xNormal >= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal <=  - otherCol->scale.x() * zNormal)
+        {
+            if(newPos.z() - curPos.z() < 0)
+                moveVec.z() = 0;
+        }
+
+        if((otherCol ->scale.z() * xNormal >= otherCol->scale.x() * zNormal) && (otherCol ->scale.z() * xNormal >=  - otherCol->scale.x() * zNormal))
+        {
+            //    printf("condition 3");
+            if(newPos.x() - curPos.x() > 0)
+                moveVec.x() = 0;
+        }
+
+        if(otherCol ->scale.z() * xNormal <= otherCol->scale.x() * zNormal && otherCol ->scale.z() * xNormal <=  - otherCol->scale.x() * zNormal)
+        {
+            //   printf("condition 4");
+            if(newPos.x() - curPos.x() < 0)
+                moveVec.x() = 0;
+        }
+
+       // printf("x: %f  z: %f\n", ((otherCol->scale.x()) * xNormal), (otherCol->scale.z() * zNormal));
+
+    }
+    Transform::translateObj(&obj, moveVec);
+    //reset movement vector for next frame
+    moveVec = vec3f(0);
+}
+
+void colorCollidingObjects(Object &obj) {
+    Collider *c = Collider::get(obj);
+    std::list<Collider::Collision>::iterator col = c->collisions().begin();
+    for (; col != c->collisions().end(); col++) {
+        //printf("colliding with %s\n", col->with.owner()->name.c_str());
+        Renderer::get(*col->with.owner())->material.diffuse = vec3f(0,1,0);
+    }
+}
+
+void resetColorIfNoCollisions(Object &obj) {
+    Collider *c = Collider::get(obj);
+    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
+}
+
+void objSaysHello(Object& obj, RakNet::BitStream &bs, bool write) {
+    if (write) {
+        bs.Write((std::string("hello from ")+obj.name).c_str());
+    } else {
+        RakNet::RakString rs;
+        bs.Read(rs);
+        printf("%s got a %s\n", obj.name.c_str(), rs.C_String());
+    }
+}
+
+void synchronizeTransform(Object& obj, RakNet::BitStream &bs, bool write) {
+    Transform *t = Transform::get(obj);
+    if (t != NULL) {
+        if (write) {
+            bs.WriteVector(t->position.x(),t->position.y(),t->position.z());
+            bs.WriteVector(t->rotation.x(),t->rotation.y(),t->rotation.z());
+            bs.WriteVector(t->scale.x(),t->scale.y(),t->scale.z());
+        } else {
+            bs.ReadVector(t->position.x(),t->position.y(),t->position.z());
+            bs.ReadVector(t->rotation.x(),t->rotation.y(),t->rotation.z());
+            bs.ReadVector(t->scale.x(),t->scale.y(),t->scale.z());
+        }
+    }
+=======
+>>>>>>> 81f29ece32f5a83ee87ec7353416dfe73bf64d94
+
+#include <game.h>
+
+int main(int argc, char* argv[]) {
+
+    GraphicsSubsystem::init(argc,argv);
+    GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
+    GraphicsSubsystem::zBufferEnabled(true);
+
+    NetworkSubsystem::init();
+
+    EventManager::RegisterCommand("moveForward", moveForward);
+    EventManager::RegisterCommand("moveBackward", moveBackward);
+    EventManager::RegisterCommand("moveLeft", moveLeft);
+    EventManager::RegisterCommand("moveRight", moveRight);
+    InputSubsystem::init();
+
+    NetworkSubsystem::connect("localhost");
+
+<<<<<<< HEAD
+    //The plane "quad mesh" doesn't really work with lighting properly, super thin cube for now instead :(
+    //Object *planeObj = GeometricShape::createPlane(vec3f::zero,vec3f::zero,vec3f(6,0,6),vec3f(0.5,0.5,0.5));
+    Object *planeObj = GeometricShape::createCube(vec3f(0,0,0),vec3f(0,0,0), vec3f(25,0.001,25),vec3f(0.5,0.5,0.5));
+    planeObj->name = "plane";
+    //make the plane really shiny
+    Renderer::get(*planeObj)->material.specular = vec3f(1);
+    Renderer::get(*planeObj)->material.shininess = 100;
+
+    Object *sphereObj = GeometricShape::createSphere(vec3f(0,0.5,0), vec3f(0,45,0), vec3f(1,1,1),vec3f(0,1,0));
+    Behavior::add(sphereObj, moveObject);
+    Collider::addSphere(*sphereObj);
+    Behavior::add(sphereObj, colorCollidingObjects);
+    //Synchronizer::add(sphereObj, objSaysHello);
+    Synchronizer::add(sphereObj, synchronizeTransform);
+
+    Object *cubeObj = GeometricShape::createCube(vec3f(2,1,2), vec3f(0), vec3f(1,1,1),vec3f(1,0,0));
+    Behavior::add(cubeObj, rotateObject);
+    Collider::addBox(*cubeObj);
+    Behavior::add(cubeObj, resetColorIfNoCollisions);
+    //Synchronizer::add(cubeObj, objSaysHello);
+
+    Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,.5,.5),vec3f(1,0,1));
+    Collider::addBox(*secondCubeObj);
+    Behavior::add(secondCubeObj, resetColorIfNoCollisions);
+=======
+    Game::init();
+>>>>>>> 81f29ece32f5a83ee87ec7353416dfe73bf64d94
+
+    GraphicsSubsystem::run();
+
+    return 0;
+}
+
+

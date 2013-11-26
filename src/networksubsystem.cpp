@@ -9,14 +9,78 @@
 RakNet::RakPeerInterface* NetworkSubsystem::peer = NULL;
 RakNet::RPC3* NetworkSubsystem::rpc = NULL;
 RakNet::NetworkIDManager NetworkSubsystem::networkIDManager;
+RakNet::SystemAddress NetworkSubsystem::serverAddress;
+
+NetworkEventListener NetworkSubsystem::onIncomingConnection = NULL;
+NetworkEventListener NetworkSubsystem::onConnectionLost = NULL;
+NetworkEventListener NetworkSubsystem::onDisconnectionNotification = NULL;
 
 bool NetworkSubsystem::isServer = false;
-bool NetworkSubsystem::isClient = false;
+
+RakNet::BitStream& operator<<(RakNet::BitStream& out, Object& in) {
+    RakNet::RakString rs(in.name.c_str());
+    out.Write(rs);
+    RakNet::RakString rs2(in.tag.c_str());
+    out.Write(rs2);
+    unsigned int networkId = in.GetNetworkID();
+    out.Write(networkId);
+    unsigned short numComponents = in.components.size();
+    out.Write(numComponents);
+    for (std::map<std::string,Component*>::iterator comp = in.components.begin(); comp != in.components.end(); comp++) {
+        RakNet::RakString compName(comp->first.c_str());
+        out.Write(compName);
+        int compTypeId = comp->second->typeId();
+        out.Write(compTypeId);
+        comp->second->writeTo(out);
+    }
+    unsigned short numChildren = in.getChildren().size();
+    out.Write(numChildren);
+    for (std::list<Object*>::iterator child = in.getChildren().begin(); child != in.getChildren().end(); child++) {
+        out << *(*child);
+    }
+    return out;
+}
+
+RakNet::BitStream& operator>>(RakNet::BitStream& in, Object& out) {
+    RakNet::RakString rs;
+    in.Read(rs);
+    out.name = rs.C_String();
+    RakNet::RakString rs2;
+    in.Read(rs2);
+    out.tag = rs2.C_String();
+    unsigned int networkId;
+    in.Read(networkId);
+    out.SetNetworkIDManager(&NetworkSubsystem::networkIDManager);
+	out.SetNetworkID(networkId);
+    unsigned short numComponents;
+    in.Read(numComponents);
+    for (int i = 0; i < numComponents; i++) {
+        RakNet::RakString compName;
+        in.Read(compName);
+        int compTypeId = 0;
+        in.Read(compTypeId);
+        Component *comp = Component::allocate(compName.C_String(), compTypeId);
+        comp->readFrom(in);
+        out.addComponent(comp);
+    }
+    unsigned short numChildren;
+    in.Read(numChildren);
+    for (int i = 0; i < numChildren; i++) {
+        Object *child = new Object();
+        in >> *child;
+        out.addChild(*child);
+    }
+    return in;
+}
 
 void NetworkSubsystem::init() {
     peer = RakNet::RakPeerInterface::GetInstance();
     rpc = new RakNet::RPC3;
     rpc->SetNetworkIDManager(&networkIDManager);
+
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, RemoteInstantiate);
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, RemoteDestroy);
+    RPC3_REGISTER_FUNCTION(NetworkSubsystem::rpc, &Object::Synchronize);
 }
 
 void NetworkSubsystem::startServer() {
@@ -26,51 +90,65 @@ void NetworkSubsystem::startServer() {
     peer->Startup(MAX_CLIENTS, &sd, 1);
     peer->SetMaximumIncomingConnections(MAX_CLIENTS);
     isServer = true;
+    peer->AttachPlugin(rpc);
 }
 
 bool NetworkSubsystem::connect(const char* host) {
     RakNet::SocketDescriptor sd;
     peer->Startup(1,&sd, 1);
-    printf("Connecting...");
+    printf("Connecting...\n");
     double s = Utils::time();
+    serverAddress = RakNet::SystemAddress(host,SERVER_PORT);
     peer->Connect(host, SERVER_PORT, 0,0);
-    while (peer->GetConnectionState(peer->GetMyGUID()) != RakNet::IS_CONNECTED) {
+    while (peer->GetConnectionState(serverAddress) != RakNet::IS_CONNECTED) {
         if (Utils::time()-s > 5000) {
             printf("Failed to connect to server on port %d.\n", SERVER_PORT);
             return false;
         }
     }
     printf("Connected to server on port %d.\n", SERVER_PORT);
-    isClient = true;
     peer->AttachPlugin(rpc);
     return true;
 }
 
+void NetworkSubsystem::disconnect() {
+    if (peer != NULL && peer->GetConnectionState(serverAddress) == RakNet::IS_CONNECTED) {
+        peer->CloseConnection(serverAddress, true);
+        printf("Closed connection to %s\n", serverAddress.ToString());
+    }
+}
+
 void NetworkSubsystem::shutdown() {
-    if (peer != NULL) peer->Shutdown(100, 0);
-    RakNet::RakPeerInterface::DestroyInstance(peer);
+    printf("NetworkSubsystem shutting down...\n");
+    if (peer != NULL) {
+        peer->Shutdown(100, 0);
+        //RakNet::RakPeerInterface::DestroyInstance(peer);
+    }
     if (rpc != NULL) delete rpc;
 
 }
 
-void NetworkSubsystem::synchronizeObjs(std::list<Object> &objects, RakNet::BitStream &bs, bool write) {
-    for (std::list<Object>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
-        Synchronizer *s = Synchronizer::get(*obj);
+void NetworkSubsystem::synchronizeObjs(std::list<Object*> &objects) {
+    for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
+        Synchronizer *s = Synchronizer::get(*(*obj));
         if (s != NULL) {
-            if (write)
-                s->write(bs);
-            else
-                s->read(bs);
+            s->bs.Reset();
+            (*obj)->Synchronize(&s->bs);
         }
-        synchronizeObjs((*obj).getChildren(), bs, write);
+        synchronizeObjs((*obj)->getChildren());
     }
 }
 
 void NetworkSubsystem::synchronizeCurrentScene() {
-    RakNet::BitStream bsOut;
-    bsOut.Write((RakNet::MessageID)MSG_1);
-    synchronizeObjs(SceneManager::CurrentScene().getObjsList(), bsOut, true);
-    peer->Send(&bsOut,HIGH_PRIORITY,RELIABLE_ORDERED,0,peer->GetMyGUID(),false);
+    unsigned short numConnections = 0;
+    peer->GetConnectionList(NULL, &numConnections);
+    if (isServer && numConnections > 0) {
+        rpc->SetRecipientAddress(peer->GetMyBoundAddress(),true);
+        synchronizeObjs(SceneManager::CurrentScene().getObjsList());
+    } else if (peer->GetConnectionState(serverAddress) == RakNet::IS_CONNECTED) {
+        rpc->SetRecipientAddress(serverAddress,false);
+        synchronizeObjs(SceneManager::CurrentScene().getObjsList());
+    }
 }
 
 void NetworkSubsystem::parseIncomingPackets() {
@@ -90,25 +168,31 @@ void NetworkSubsystem::parseIncomingPackets() {
             printf("Our connection request has been accepted.\n");
             break;
         case ID_NEW_INCOMING_CONNECTION:
-            printf("A connection is incoming.\n");
+            {
+                printf("A connection is incoming.\n");
+                if (onIncomingConnection != NULL) {
+                    onIncomingConnection(packet->systemAddress.ToString());
+                }
+            }
             break;
         case ID_NO_FREE_INCOMING_CONNECTIONS:
             printf("The server is full.\n");
             break;
         case ID_DISCONNECTION_NOTIFICATION:
-            if (isServer) printf("A client has disconnected.\n");
-            if (isClient) printf("We have been disconnected.\n");
+            if (isServer) {
+                printf("A client has disconnected.\n");
+                if (onDisconnectionNotification != NULL) {
+                    onDisconnectionNotification(packet->systemAddress.ToString());
+                }
+            } else printf("We have been disconnected.\n");
             break;
         case ID_CONNECTION_LOST:
-            if (isServer) printf("A client lost the connection.\n");
-            if (isClient) printf("Connection lost.\n");
-            break;
-        case MSG_1:
-            {
-                RakNet::BitStream bsIn(packet->data,packet->length,false);
-                bsIn.IgnoreBytes(sizeof(RakNet::MessageID));
-                synchronizeObjs(SceneManager::CurrentScene().getObjsList(), bsIn, false);
-            }
+            if (isServer) {
+                printf("A client lost the connection.\n");
+                if (onConnectionLost != NULL) {
+                    onConnectionLost(packet->systemAddress.ToString());
+                }
+            } else printf("Connection lost.\n");
             break;
         case ID_RPC_REMOTE_ERROR:
          {
@@ -137,7 +221,7 @@ void NetworkSubsystem::parseIncomingPackets() {
                printf("RPC_ERROR_CALLING_C_AS_CPP\n");
                break;
             }
-            printf("Function: %s", packet->data+2);
+            printf("Function: %s\n", packet->data+2);
          }
         default:
             printf("Message with identifier %i has arrived.\n", packet->data[0]);

@@ -10,6 +10,14 @@ Transform* Transform::get(Object &obj) {
     return ((Transform*)obj.getComponent(Component::TRANSFORM));
 }
 
+void Transform::writeTo(RakNet::BitStream& out) {
+    out << position << rotation << scale;
+}
+
+void Transform::readFrom(RakNet::BitStream& in) {
+    in >> position >> rotation >> scale;
+}
+
 void Transform::translateObj(Object *obj, const vec3f &delta) {
     Transform *t = (Transform*)obj->getComponent(Component::TRANSFORM);
     if (t != NULL) {
