@@ -12,8 +12,6 @@ public:
     static void checkIntersections(Object &obj);
 
     static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
-
-    static void SphereToBoxIntersection(SphereCollider &obj, BoxCollider &iterObj);
 };
 
 #endif
