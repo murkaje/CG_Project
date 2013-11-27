@@ -55,6 +55,7 @@ Object* Camera::createOrthographicCamera(double vSize, double zNear, double zFar
 
 void Camera::setup() {
     glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
         if (perspective) gluPerspective(fov, aspect, zNear, zFar);
         else glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
     glMatrixMode(GL_MODELVIEW);

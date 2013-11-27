@@ -10,7 +10,9 @@ class GraphicsSubsystem {
 private:
     static std::map<std::string, Material::Shader*> shaderCache;
 
-    static char fpsStr[8];
+    static char fpsStr[8], shadowMapStr[24];
+
+    static void drawFPS();
 
     static double frameStart, counter;
 
@@ -21,6 +23,7 @@ private:
     static void idle();
 
 public:
+    static GLuint shadowMapTextures[3];
 
     static Material::Shader& loadShader(std::string name);
 

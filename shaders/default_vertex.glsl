@@ -1,5 +1,6 @@
 varying vec3 N;
-varying vec3 v;
+varying vec4 v;
+varying vec4 v1;
 
 uniform float time;
 
@@ -15,8 +16,9 @@ uniform bool light7;
 uniform int lighting_enabled;
 
 void main(void) {
-    v = vec3(gl_ModelViewMatrix * gl_Vertex);
+    v = gl_ModelViewMatrix * gl_Vertex;
     N = normalize(gl_NormalMatrix * gl_Normal);
+    v1 = gl_Vertex;
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
 }

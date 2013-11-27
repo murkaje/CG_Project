@@ -6,8 +6,10 @@
 #include <behavior.h>
 #include <camera.h>
 
-void positionCamera(Camera* camera) {
-    glLoadIdentity();
+void positionCamera(Camera* camera, bool projection=false) {
+    if (projection) {
+        glMatrixMode(GL_PROJECTION);
+    } else glLoadIdentity();
     if (camera != NULL) {
         Object* parent = camera->owner();
         while (parent != NULL) {
@@ -18,6 +20,9 @@ void positionCamera(Camera* camera) {
             glTranslatef(-t.position.x(),-t.position.y(),-t.position.z());
             parent = parent->parent();
         }
+    }
+    if (projection){
+        glMatrixMode(GL_MODELVIEW);
     }
 }
 
@@ -51,8 +56,14 @@ void Scene::addObject(Object& object) {
 
 void Scene::update() {
     init();
-    positionCamera(camera); //for lighting updates
-    updateObjs(objects);
+    if (glIsEnabled(GL_LIGHTING)) {
+        glPushMatrix();
+            positionCamera(camera);
+            updateObjs(objects);
+        glPopMatrix();
+    } else {
+        updateObjs(objects);
+    }
 }
 
 void Scene::updateObjs(std::list<Object*> &objects) {
@@ -82,11 +93,10 @@ void Scene::updateObjs(std::list<Object*> &objects) {
     }
 }
 
-void Scene::draw() {
-    glPushMatrix();
+void Scene::draw(bool useCamera) {
+    if (useCamera)
         positionCamera(camera);
-        drawObjs(objects);
-    glPopMatrix();
+    drawObjs(objects);
 }
 
 

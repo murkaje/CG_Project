@@ -18,7 +18,7 @@ private:
 public:
     void init();
 
-    void draw();
+    void draw(bool useCamera=true);
 
     void update();
 
@@ -29,6 +29,8 @@ public:
     std::list<Object*>& getObjsList();
 
     ~Scene();
+
+    friend class GraphicsSubsystem;
 };
 
 #endif
