@@ -27,6 +27,8 @@ char GraphicsSubsystem::fpsStr[8];
 char GraphicsSubsystem::shadowMapStr[24];
 
 GLuint GraphicsSubsystem::shadowMapTextures[3];
+GLuint GraphicsSubsystem::shadowMapFramebuffer[3];
+bool GraphicsSubsystem::shadowMappingEnabled = false;
 
 void GraphicsSubsystem::init(int argc, char* argv[])
 {
@@ -50,6 +52,7 @@ void GraphicsSubsystem::shutdown()
     NetworkSubsystem::shutdown();
 
     glDeleteTextures(3, shadowMapTextures);
+    glDeleteFramebuffers(3, shadowMapFramebuffer);
 
     glutLeaveMainLoop();
 }
@@ -84,18 +87,37 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glDisable(GL_LIGHT0);
     glShadeModel(GL_SMOOTH);
 
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+
     glEnable(GL_TEXTURE_2D);
     glGenTextures(3, shadowMapTextures);
+    glGenFramebuffers(3, shadowMapFramebuffer);
     Material::Shader &defaultShader = loadShader("default");
     glUseProgram(defaultShader.prog);
     for (int i = 0; i < 3; i++) {
         glActiveTexture(GL_TEXTURE0+i);
         glBindTexture(GL_TEXTURE_2D, shadowMapTextures[i]);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         sprintf(shadowMapStr, "shadowMapTexture%d", i);
         GLint shadowMapTexture = glGetUniformLocation(defaultShader.prog, shadowMapStr);
         glUniform1i(shadowMapTexture, i);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
+
+        //shadowMapFramebuffer[i] = 0;
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFramebuffer[i]);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTextures[i], 0);
+        // No color output in the bound framebuffer, only depth.
+        glDrawBuffer(GL_NONE);
+        GLuint status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+        if (status != GL_FRAMEBUFFER_COMPLETE)
+            printf("framebuffer %d fucked (%d)\n", i, status);
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     glUseProgram(0);
 }
@@ -104,6 +126,7 @@ void GraphicsSubsystem::zBufferEnabled(bool enabled)
 {
     if (enabled) {
         glEnable(GL_DEPTH_TEST);
+        glDepthFunc(GL_LESS);
     } else {
         glDisable(GL_DEPTH_TEST);
     }
@@ -119,38 +142,19 @@ void setProjectionFromPoint(vec3f pos, vec3f dir) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void renderSceneDepthToTexture(GLuint textureHandle, Scene &scene, bool toScreen=false) {
-    int w = glutGet(GLUT_WINDOW_WIDTH);
-    int h = glutGet(GLUT_WINDOW_HEIGHT);
+void renderSceneDepthToTexture(GLuint framebufferHandle, Scene &scene, bool toScreen=false) {
+    int w = GraphicsSubsystem::width;
+    int h = GraphicsSubsystem::height;
 
-    float* depth_data = (float*)malloc(w*h*sizeof(float)); // Initialize array for depth data
     GLint lightingEnabled = glIsEnabled(GL_LIGHTING);
     if (lightingEnabled) glDisable(GL_LIGHTING);           // Turn off lighting in the shader
 
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);   // Disable writing to screen
-
+    glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
+    glViewport(0,0,w,h);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     scene.draw(false);
 
-    // Now read out the depth buffer data and copy it to the given texture
-
-    // Note: what we are doing here is not the most efficient way to do it.
-    // In fact, in modern OpenGL you would rather render directly to the texture by creading a separate framebuffer object.
-    // (see e.g. http://www.opengl-tutorial.org/intermediate-tutorials/tutorial-14-render-to-texture/ and
-    // https://developer.nvidia.com/sites/default/files/akamai/gamedev/docs/opengl_rendertexture.pdf)
-    // However, this might not work on some older machines (and it requires the introduction of a bunch of
-    // OpenGL-specific commands, that are not in principle the topic of this practice session nor this course per se).
-    glReadPixels(0, 0, w, h, GL_DEPTH_COMPONENT, GL_FLOAT, depth_data);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, w, h, 0, GL_LUMINANCE, GL_FLOAT, depth_data);
-
-    // NB: If you want to debug such code, the following line flushes the depth array to the screen
-    if (toScreen) glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDrawPixels(w, h, GL_LUMINANCE, GL_FLOAT, depth_data);
-
-    free(depth_data);   // Release memory
-
-    // Switch writing to screen back on, clear the depth buffer that we messed up
-    glClear(GL_DEPTH_BUFFER_BIT);
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     if (lightingEnabled) glEnable(GL_LIGHTING); // Enable lighting again
 }
 
@@ -177,20 +181,25 @@ void GraphicsSubsystem::drawFPS() {
     if (lightingEnabled) glEnable(GL_LIGHTING);
 }
 
+double angle = 120.0 * PI / 180.0;
+double *rotationMatrix = new double[9] {
+             cos(angle),    0.0,    sin(angle),
+             0.0,           1.0,    0.0,
+             -sin(angle),   0.0,    cos(angle)};
+
 void GraphicsSubsystem::draw()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    int shadows = 0;
-    if (shadows) {
+
+    glUseProgram(shaderCache["default"]->prog);
+    GLint shad = glGetUniformLocation(shaderCache["default"]->prog, "shadows_enabled");
+    glUniform1i(shad, shadowMappingEnabled);
+    glUseProgram(0);
+
+    if (shadowMappingEnabled) {
         std::string pName = std::string("player-")+NetworkSubsystem::rpc->GetRakPeer()->GetMyBoundAddress().ToString();
         Object *player = Object::Find(pName);
         if (player != NULL) {
-            float angle = 120.0 * PI / 180.0;
-            float *rotationMatrix = new float[9] {
-             cos(angle),    0.0,    sin(angle),
-             0.0,           1.0,    0.0,
-             -sin(angle),   0.0,    cos(angle),
-            };
             vec3f dir = vec3f(1,0,0);
 
             for (int i = 0; i < 3; i++) {
@@ -200,8 +209,8 @@ void GraphicsSubsystem::draw()
                                 rotationMatrix[1*3+0]*dir.x()+rotationMatrix[1*3+1]*dir.y()+rotationMatrix[1*3+2]*dir.z(),
                                 rotationMatrix[2*3+0]*dir.x()+rotationMatrix[2*3+1]*dir.y()+rotationMatrix[2*3+2]*dir.z());
                 }
-                setProjectionFromPoint(Transform::get(*player)->position+vec3f(0,1,0), dir);
-                renderSceneDepthToTexture(shadowMapTextures[i], SceneManager::CurrentScene());
+                setProjectionFromPoint(Transform::get(*player)->position+vec3f(0,0.25,0), dir);
+                renderSceneDepthToTexture(shadowMapFramebuffer[i], SceneManager::CurrentScene());
                 glGetFloatv(GL_PROJECTION_MATRIX, shadowMatrix);
                 glUseProgram(shaderCache["default"]->prog);
                 sprintf(shadowMapStr, "shadowMapMatrix[%d]", i);

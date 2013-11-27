@@ -22,8 +22,10 @@ private:
 
     static void idle();
 
-public:
     static GLuint shadowMapTextures[3];
+    static GLuint shadowMapFramebuffer[3];
+public:
+    static bool shadowMappingEnabled;
 
     static Material::Shader& loadShader(std::string name);
 

@@ -11,11 +11,9 @@ uniform bool light5;
 uniform bool light6;
 uniform bool light7;
 
-int shadows = 0;
-
 uniform float time;
 
-uniform int lighting_enabled;
+uniform int lighting_enabled, shadows_enabled;
 
 uniform mat4 shadowMapMatrix[3];
 
@@ -24,7 +22,7 @@ uniform sampler2D shadowMapTexture1;
 uniform sampler2D shadowMapTexture2;
 
 vec4 srgb(vec4 color) {
-    return pow(color, vec4(1/2.2));
+    return pow(color, vec4(1.0/2.2));
 }
 
 vec4 blinn_light(gl_LightSourceParameters light) {
@@ -68,17 +66,18 @@ vec4 applyShadowMap(int i, sampler2D tex) {
     c = lamb;
     vec4 sc = shadowMapMatrix[i]*v;
     sc /= sc.w;
-    sc.xyz /= 2;
+    sc.xyz /= 2.0;
     sc.xyz += 0.5;
-    if (sc.z > 1 || sc.x < 0 || sc.x > 1 ) {
+    if (sc.z > 1.0 || sc.x < 0.0 || sc.x > 1.0) {
         //c += lights();
-    } else if (sc.z < 0 || sc.y < 0 || sc.y > 1 ) {
+    } else if (sc.z < 0.0 || sc.y < 0.0 || sc.y > 1.0) {
         c += lights();
     } else {
         if (texture2D(tex, sc.xy).x + offset >= sc.z) {
             c += lights();
         }
     }
+
     return c;
 }
 
@@ -87,7 +86,7 @@ void main (void) {
         gl_FragColor = vec4(0);
         vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient;
         vec4 c = lamb;
-        if (shadows == 1) {
+        if (shadows_enabled == 1) {
             c += applyShadowMap(0, shadowMapTexture0);
             c += applyShadowMap(1, shadowMapTexture1);
             c += applyShadowMap(2, shadowMapTexture2);

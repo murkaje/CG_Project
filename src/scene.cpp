@@ -58,7 +58,7 @@ void Scene::update() {
     init();
     if (glIsEnabled(GL_LIGHTING)) {
         glPushMatrix();
-            positionCamera(camera);
+            positionCamera(camera, true);
             updateObjs(objects);
         glPopMatrix();
     } else {
@@ -95,7 +95,7 @@ void Scene::updateObjs(std::list<Object*> &objects) {
 
 void Scene::draw(bool useCamera) {
     if (useCamera)
-        positionCamera(camera);
+        positionCamera(camera, true);
     drawObjs(objects);
 }
 

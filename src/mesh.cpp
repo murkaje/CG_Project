@@ -20,6 +20,7 @@ PlaneMesh::PlaneMesh(): Mesh(Mesh::PLANE) {
 
 //describe a unit plane centered at 0,0,0
 void PlaneMesh::describe() {
+    glFrontFace(GL_CW);
     glBegin(GL_QUADS);
         glNormal3f(0.0, 1.0, 0.0);
         glVertex3f(-0.5, 0, 0.5);
@@ -27,6 +28,7 @@ void PlaneMesh::describe() {
         glVertex3f(0.5, 0, -0.5);
         glVertex3f(0.5, 0, 0.5);
     glEnd();
+    glFrontFace(GL_CCW);
 }
 
 SphereMesh::SphereMesh(): Mesh(Mesh::SPHERE) {
