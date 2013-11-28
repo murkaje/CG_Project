@@ -15,6 +15,7 @@ class Object;
 namespace Utils {
     double time();
     std::string load(const char *filename);
+    void loadTexture(GLuint &tex, const char* filename);
 };
 
 void Instantiate(Object &obj);

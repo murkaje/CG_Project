@@ -1,19 +1,16 @@
+const int NO_TEXTURE = 666;
+
 varying vec3 N;
 varying vec4 v;
 varying vec4 v1;
 
-uniform bool light0;
-uniform bool light1;
-uniform bool light2;
-uniform bool light3;
-uniform bool light4;
-uniform bool light5;
-uniform bool light6;
-uniform bool light7;
+uniform bool light[8];
 
 uniform float time;
 
-uniform int lighting_enabled, shadows_enabled;
+uniform int lighting_enabled, shadows_enabled, texId;
+
+uniform sampler2D texture;
 
 uniform mat4 shadowMapMatrix[3];
 
@@ -39,7 +36,13 @@ vec4 blinn_light(gl_LightSourceParameters light) {
     float attenuation = intensity/(0.0+
                                    0.0+
                                    1.0*pow(d,2));
-    vec4 ldiff = gl_FrontMaterial.diffuse*light.diffuse*max(dot(N, light_dir), 0);
+    vec4 ldiff;
+    if (texId != NO_TEXTURE) {
+        vec4 texDiff = texture2D(texture, gl_TexCoord[texId].xy);
+        ldiff = texDiff*light.diffuse*max(dot(N, light_dir), 0);
+    } else {
+        ldiff = gl_FrontMaterial.diffuse*light.diffuse*max(dot(N, light_dir), 0);
+    }
     vec4 lspec = gl_FrontMaterial.specular*light.specular*pow(max(dot(N, h), 0), gl_FrontMaterial.shininess);
 
     return lamb+attenuation*(ldiff + lspec);
@@ -47,14 +50,9 @@ vec4 blinn_light(gl_LightSourceParameters light) {
 
 vec4 lights() {
     vec4 c = vec4(0);
-    if (light0) c += blinn_light(gl_LightSource[0]);
-    if (light1) c += blinn_light(gl_LightSource[1]);
-    if (light2) c += blinn_light(gl_LightSource[2]);
-    if (light3) c += blinn_light(gl_LightSource[3]);
-    if (light4) c += blinn_light(gl_LightSource[4]);
-    if (light5) c += blinn_light(gl_LightSource[5]);
-    if (light6) c += blinn_light(gl_LightSource[6]);
-    if (light7) c += blinn_light(gl_LightSource[7]);
+    for (int i = 0; i < 8; i++) {
+        if (light[i]) c += blinn_light(gl_LightSource[i]);
+    }
     return c;
 }
 

@@ -53,14 +53,16 @@ void Game::init() {
     Renderer::get(*planeObj)->material.specular = vec3f(1);
     Renderer::get(*planeObj)->material.shininess = 100;
 
-    Object *cubeObj = GeometricShape::createCube(vec3f(-2,1,2), vec3f(0), vec3f(1,1,1),vec3f(1,0,0));
+    Object *cubeObj = GeometricShape::createCube(vec3f(-2,1,2), vec3f(0), vec3f(1,1,1), vec3f(1,0,0));
     Behavior::addLocal(cubeObj, "rotateObject", rotateObject);
     Collider::addBox(*cubeObj);
     Behavior::addLocal(cubeObj, "resetColorIfNoCollisions", resetColorIfNoCollisions);
+    Renderer::get(*cubeObj)->material.setTexture(4, "../data/serious_cat_is_serious.jpg");
 
     Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,3.5,.5),vec3f(1,0,1));
     Collider::addBox(*secondCubeObj);
     Behavior::addLocal(secondCubeObj, "resetColorIfNoCollisions");
+    Renderer::get(*secondCubeObj)->material.setTexture(5, "../data/texturez_3851.jpg");
 
     Instantiate(*planeObj);
     Instantiate(*cubeObj);

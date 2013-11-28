@@ -11,6 +11,8 @@
 #include <iostream>
 #include <fstream>
 
+#include <SOIL/SOIL.h>
+
 double Utils::time() {
     return glutGet(GLUT_ELAPSED_TIME);
 }
@@ -20,6 +22,17 @@ std::string Utils::load(const char *filename) {
     if (in) return std::string((std::istreambuf_iterator<char>(in)),
                                 std::istreambuf_iterator<char>());
     else throw(errno);
+}
+
+void Utils::loadTexture(GLuint &tex, const char* filename) {
+    /* load an image file directly as a new OpenGL texture */
+    tex = SOIL_load_OGL_texture
+        (
+            filename,
+            SOIL_LOAD_AUTO,
+            tex,
+            SOIL_FLAG_MIPMAPS | SOIL_FLAG_INVERT_Y | SOIL_FLAG_NTSC_SAFE_RGB | SOIL_FLAG_COMPRESS_TO_DXT
+        );
 }
 
 void Instantiate(Object &obj) {

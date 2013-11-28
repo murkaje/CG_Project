@@ -49,9 +49,11 @@
 			<Add option="-Wall" />
 			<Add directory="include" />
 			<Add directory="include/RakNet" />
+			<Add directory="include/SOIL" />
 		</Compiler>
 		<Linker>
 			<Add library="glut" />
+			<Add library="SOIL" />
 			<Add library="GL" />
 			<Add library="GLU" />
 			<Add library="GLEW" />
