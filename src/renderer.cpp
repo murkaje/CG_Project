@@ -56,14 +56,13 @@ void MeshRenderer::render() {
         }
 
         GLint has_tex = glGetUniformLocation(material.shader.prog, "texId");
-        if (material.texId != Material::NO_TEXTURE) {
-            glActiveTexture(GL_TEXTURE0+material.texId);
-            glBindTexture(GL_TEXTURE_2D, material.getTexture());
-            glUniform1i(has_tex, material.texId);
+        GLuint texId = material.texture.getId();
+        if (texId != Material::Texture::EMPTY) {
+            glUniform1i(has_tex, texId);
             GLint tex = glGetUniformLocation(material.shader.prog, "texture");
-            glUniform1i(tex, material.getTexture());
+            glUniform1i(tex, material.texture.getHandle());
         } else {
-            glUniform1i(has_tex, Material::NO_TEXTURE);
+            glUniform1i(has_tex, Material::Texture::EMPTY);
         }
 
         m->describe();

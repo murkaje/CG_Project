@@ -25,7 +25,7 @@ private:
     static GLuint shadowMapTextures[3];
     static GLuint shadowMapFramebuffer[3];
 public:
-    static bool shadowMappingEnabled;
+    static bool shadowMappingEnabled, isInit;
 
     static Material::Shader& loadShader(std::string name);
 

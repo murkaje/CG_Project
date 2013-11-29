@@ -4,6 +4,8 @@ varying vec3 N;
 varying vec4 v;
 varying vec4 v1;
 
+varying vec2 texCoord;
+
 uniform float time;
 
 uniform int texId;
@@ -19,6 +21,6 @@ void main(void) {
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     if (texId != NO_TEXTURE) {
-        gl_TexCoord[texId].xy = (gl_Vertex.xy + 1) / 2.0;
+        texCoord = (gl_Vertex.xy + 1.0) / 2.0;
     }
 }

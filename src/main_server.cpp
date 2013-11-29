@@ -53,6 +53,7 @@ int main(int argc, char* argv[])
         }
         GraphicsSubsystem::delta = (Utils::time()-frameStart)/1000;
         frameStart = Utils::time();
+//        printf("%f\n", GraphicsSubsystem::delta);
     }
 
     NetworkSubsystem::shutdown();

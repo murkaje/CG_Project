@@ -4,6 +4,8 @@ varying vec3 N;
 varying vec4 v;
 varying vec4 v1;
 
+varying vec2 texCoord;
+
 uniform bool light[8];
 
 uniform float time;
@@ -30,7 +32,7 @@ vec4 blinn_light(gl_LightSourceParameters light) {
 
     float d = distance(light.position, v);
 
-    float intensity = 5.0;
+    float intensity = 1.0;
 
     vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient+light.ambient*gl_FrontMaterial.ambient;
     float attenuation = intensity/(0.0+
@@ -38,7 +40,7 @@ vec4 blinn_light(gl_LightSourceParameters light) {
                                    1.0*pow(d,2));
     vec4 ldiff;
     if (texId != NO_TEXTURE) {
-        vec4 texDiff = texture2D(texture, gl_TexCoord[texId].xy);
+        vec4 texDiff = texture2D(texture, texCoord);
         ldiff = texDiff*light.diffuse*max(dot(N, light_dir), 0);
     } else {
         ldiff = gl_FrontMaterial.diffuse*light.diffuse*max(dot(N, light_dir), 0);

@@ -45,37 +45,65 @@ Material::Shader::~Shader() {
     printf("%s\n", ("Deleted shader: "+name).c_str());
 }
 
-Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)),
+std::string Material::Texture::getFilename() {
+    return filename;
+}
+
+GLuint Material::Texture::getId() {
+    return texId;
+}
+
+
+GLuint Material::Texture::getHandle() {
+    return textureHandle;
+}
+
+//texture cache should assign texture IDs
+Material::Texture::Texture(GLuint texId, std::string filename) {
+    this->filename = filename;
+    if (filename.length() == 0) {
+        this->texId = Texture::EMPTY;
+    } else {
+        this->texId = texId;
+        if (GraphicsSubsystem::isInit) {
+            glGenTextures(1, &textureHandle);
+            glActiveTexture(GL_TEXTURE0+texId);
+            glBindTexture(GL_TEXTURE_2D, textureHandle);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+            glEnable(GL_TEXTURE_GEN_S);
+            glEnable(GL_TEXTURE_GEN_T);
+            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+
+            Utils::loadTexture(textureHandle, filename.c_str());
+        }
+    }
+}
+
+Material::Texture::~Texture() {
+    if (texId != EMPTY) {
+        glDeleteTextures(1, &textureHandle);
+    }
+}
+
+//get empty texture from cache here instead of new one for each material
+Material::Material(std::string name): texture(*new Texture(Material::Texture::EMPTY)), shader(GraphicsSubsystem::loadShader(name)),
     ambient(vec3f(0,0,0)), diffuse(vec3f(1,1,1)), specular(vec3f(0,0,0)) {
     shininess = 1;
-    texId = Material::NO_TEXTURE;
 
     lighting_enabled = true;
 }
 
 Material::~Material() {
-    if (texId != Material::NO_TEXTURE) {
-        glDeleteTextures(1, &textureHandle);
-    }
+    //texture cache should handle memory management
+    //delete &texture;
 }
 
 void Material::setTexture(GLuint texId, std::string filename) {
-    this->texId = texId;
-    glGenTextures(1, &textureHandle);
-    glActiveTexture(GL_TEXTURE0+texId);
-    glBindTexture(GL_TEXTURE_2D, textureHandle);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glEnable(GL_TEXTURE_GEN_S);
-    glEnable(GL_TEXTURE_GEN_T);
-    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-    Utils::loadTexture(textureHandle, filename.c_str());
-}
-
-const GLuint Material::getTexture() {
-    return textureHandle;
+    //get this from texture cache
+    texture = *new Texture(texId, filename);
 }
 
 void Material::describe() {

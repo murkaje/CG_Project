@@ -53,8 +53,8 @@
 		</Compiler>
 		<Linker>
 			<Add library="glut" />
-			<Add library="SOIL" />
 			<Add library="GL" />
+			<Add library="SOIL" />
 			<Add library="GLU" />
 			<Add library="GLEW" />
 			<Add library="RakNetLibStatic" />

@@ -26,6 +26,8 @@ int GraphicsSubsystem::frames = 0;
 char GraphicsSubsystem::fpsStr[8];
 char GraphicsSubsystem::shadowMapStr[24];
 
+bool GraphicsSubsystem::isInit = false;
+
 GLuint GraphicsSubsystem::shadowMapTextures[3];
 GLuint GraphicsSubsystem::shadowMapFramebuffer[3];
 bool GraphicsSubsystem::shadowMappingEnabled = false;
@@ -120,6 +122,8 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     glUseProgram(0);
+
+    isInit = true;
 }
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled)
