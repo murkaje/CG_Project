@@ -3,6 +3,8 @@
 #include "vec.h"
 
 #include <utils.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 Camera::Camera(bool perspective): Component(Component::CAMERA) {
     this->perspective = perspective;
@@ -13,7 +15,7 @@ Camera* Camera::get(Object &obj) {
     return (Camera*)obj.getComponent(Component::CAMERA);
 }
 
-Object* Camera::createPerspectiveCamera(int fov, double aspect, double zNear, double zFar) {
+Object* Camera::createPerspectiveCamera(double fov, double aspect, double zNear, double zFar) {
     Object *camera = new Object("perspectiveCamera");
     Camera *c = new Camera();
     c->fov = fov;
@@ -37,9 +39,17 @@ Object* Camera::createOrthographicCamera(double vSize, double zNear, double zFar
 }
 
 void Camera::setup() {
+    if(perspective) {
+        projMat = glm::perspective(fov, aspect, zNear, zFar);
+    } else {
+        projMat = glm::ortho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
+    }
     glMatrixMode(GL_PROJECTION);
+    /*
         if (perspective) gluPerspective(fov, aspect, zNear, zFar);
         else glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
+    */
+        glLoadMatrixf(glm::value_ptr(projMat));
     glMatrixMode(GL_MODELVIEW);
 }
 

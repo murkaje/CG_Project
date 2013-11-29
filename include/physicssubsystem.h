@@ -3,6 +3,7 @@
 
 #include <object.h>
 #include <collider.h>
+#include <glm/glm.hpp>
 
 class PhysicsSubsystem {
 public:
@@ -11,6 +12,9 @@ public:
     static void checkIntersections(Object &obj);
 
     static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
+
+    static bool RayToBoxIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
+    static bool RayToAABBIntersection(const glm::vec3 &origin, const glm::vec3 &dir);
 };
 
 #endif

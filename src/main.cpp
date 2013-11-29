@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     Renderer::get(*planeObj)->material.specular = vec3f(1);
     Renderer::get(*planeObj)->material.shininess = 100;
 
-    Object *sphereObj = GeometricShape::createSphere(vec3f(0,0.5,0), vec3f(0,45,0), vec3f(1,1,1),vec3f(0,1,0));
+    Object *sphereObj = GeometricShape::createSphere(vec3f(-3,0.5,0), vec3f(0,45,0), vec3f(1,1,1),vec3f(0,1,0));
     Behavior::add(sphereObj, moveObject);
     Collider::addBox(*sphereObj);
     Behavior::add(sphereObj, colorCollidingObjects);
@@ -155,7 +155,7 @@ int main(int argc, char* argv[]) {
     Behavior::add(cubeObj, resetColorIfNoCollisions);
     //Synchronizer::add(cubeObj, objSaysHello);
 
-    Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,.5,.5),vec3f(1,0,1));
+    Object *secondCubeObj = GeometricShape::createCube(vec3f(0,0.5,0), vec3f(0), vec3f(3.5,0.5,0.5),vec3f(1,0,1));
     Collider::addBox(*secondCubeObj);
     Behavior::add(secondCubeObj, resetColorIfNoCollisions);
 

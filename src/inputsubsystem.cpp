@@ -6,10 +6,10 @@
 
 #include <utils.h>
 
+glm::vec2 InputSubsystem::mousePos;
 std::map<std::string, int> InputSubsystem::keyMap;
 std::map<int, std::string> InputSubsystem::keyNameMap;
 std::map<int, void (*)()> InputSubsystem::bindMap;
-
 std::map<int, bool> InputSubsystem::keyState;
 
 void InputSubsystem::init() {
@@ -17,6 +17,7 @@ void InputSubsystem::init() {
     glutKeyboardUpFunc(InputSubsystem::keyUp);
     glutSpecialFunc(InputSubsystem::specialKeys);
     glutSpecialUpFunc(InputSubsystem::specialUpKeys);
+    glutPassiveMotionFunc(InputSubsystem::mouseMove);
 
     mapKeys();
 
@@ -91,8 +92,17 @@ void InputSubsystem::specialUpKeys(int key, int x, int y) {
     keyState[key+256] = false;
 }
 
+void InputSubsystem::mouseMove(int x, int y) {
+    mousePos.x = x;
+    mousePos.y = y;
+}
+
 void InputSubsystem::bind(int key, void (*func)()) {
     if(func != NULL) {
         bindMap[key] = func;
     }
+}
+
+glm::vec2 InputSubsystem::getMousePos() {
+    return mousePos;
 }

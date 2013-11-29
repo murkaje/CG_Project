@@ -1,24 +1,34 @@
-
 #include <utils.h>
 #include <scene.h>
 #include <renderer.h>
 #include <transform.h>
 #include <behavior.h>
 #include <camera.h>
+#include <collider.h>
+#include <physicssubsystem.h>
+#include <inputsubsystem.h>
+#include <graphicssubsystem.h>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
-void positionCamera(Camera* camera) {
-    glLoadIdentity();
+void Scene::positionCamera() {
+    viewMat = glm::mat4(1);
+
     if (camera != NULL) {
         Object* parent = camera->owner();
         while (parent != NULL) {
             Transform &t = *Transform::get(*parent);
-            glRotatef(-t.rotation.z(),0.0,0.0,1.0);
-            glRotatef(-t.rotation.y(),0.0,1.0,0.0);
-            glRotatef(-t.rotation.x(),1.0,0.0,0.0);
-            glTranslatef(-t.position.x(),-t.position.y(),-t.position.z());
+
+            viewMat = glm::rotate(viewMat, -t.rotation.z(), glm::vec3(0,0,1));
+            viewMat = glm::rotate(viewMat, -t.rotation.y(), glm::vec3(0,1,0));
+            viewMat = glm::rotate(viewMat, -t.rotation.x(), glm::vec3(1,0,0));
+            viewMat = glm::translate(viewMat, glm::vec3(-t.position.x(), -t.position.y(), -t.position.z()));
+
             parent = parent->parent();
         }
     }
+
+    glLoadMatrixf(glm::value_ptr(viewMat));
 }
 
 void Scene::init() {
@@ -47,8 +57,17 @@ void Scene::addObject(Object* object) {
 
 void Scene::update() {
     //init();
-    positionCamera(camera); //for lighting updates
+    positionCamera(); //for lighting updates
     updateObjs(objects);
+
+    glm::vec2 mouse = InputSubsystem::getMousePos();
+    glm::vec2 res(GraphicsSubsystem::width, GraphicsSubsystem::height);
+
+    mouse = glm::vec2(2)*(mouse - res/glm::vec2(2))/res;
+    mouse.y = -mouse.y;
+
+    //Get the object under the mouse cursor
+    Object *obj = raycastObject(mouse);
 }
 
 
@@ -76,9 +95,44 @@ void Scene::updateObjs(std::list<Object> &objects) {
     }
 }
 
+Object* Scene::raycastObject(const glm::vec2 &deviceCoords) {
+    glm::mat4 invProjMat = glm::inverse(camera->projMat);
+    glm::mat4 invViewMat = glm::inverse(viewMat);
+
+    glm::vec4 ray_eye = invProjMat*
+                            glm::vec4(deviceCoords.x, deviceCoords.y, -1, 1);
+    ray_eye.z = -1;
+    ray_eye.w = 0;
+
+    glm::vec3 ray_world = glm::normalize(glm::vec3(invViewMat*ray_eye));
+    glm::vec3 cameraOrig = glm::vec3(invViewMat*glm::vec4(0,0,0,1));
+
+    return raycastObject(cameraOrig, ray_world);
+}
+
+Object* Scene::raycastObject(const glm::vec3 &origin, const glm::vec3 &dir) {
+    float closestDist = 1.0/0.0;
+    Object* closest = NULL;
+
+    //TODO: Raycast should return collision point to depth sort collisions
+    for(Object& obj : objects) {
+        Collider *cm = Collider::get(obj);
+        if(cm != NULL && cm->type() == Collider::BOX &&
+            PhysicsSubsystem::RayToBoxIntersection(origin, dir, *((BoxCollider*)cm)))
+        {
+            Renderer::get(obj)->material.diffuse = vec3f(0,1,0);
+            closest = &obj;
+        } else if(cm != NULL) {
+            Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
+        }
+    }
+
+    return closest;
+}
+
 void Scene::draw() {
     glPushMatrix();
-        positionCamera(camera);
+        positionCamera();
         drawObjs(objects);
     glPopMatrix();
 }

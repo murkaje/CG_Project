@@ -1,6 +1,7 @@
 #ifndef INCLUDED_VECTOR3F_H
 #define INCLUDED_VECTOR3F_H
 #include <iostream>
+#include <math.h>
 
 //-----------------------------------------------
 //------------------   VEC   --------------------
@@ -53,7 +54,7 @@ public:
 		return *this;
 	}
 
-	vec operator*(tX s) {
+	vec operator*(tX s) const {
 		vec res;
 		for(size_t i=0; i<dim; i++) {
             res.internal[i] = internal[i]*s;
@@ -61,13 +62,16 @@ public:
 		return res;
 	}
 
-	vec operator/(tX s) {
+	vec operator/(tX s) const {
 		vec res;
 		for(size_t i=0; i<dim; i++) {
             res.internal[i] = internal[i]/s;
 		}
 		return res;
 	}
+
+    template<typename tY, size_t dimy>
+	friend vec<tY, dimy> operator/(const vec<tY,dimy> &u, const vec<tY,dimy> &v);
 
 	template<typename tY, size_t dimy>
 	friend vec<tY, dimy> operator+(const vec<tY,dimy> &u, const vec<tY,dimy> &v);
@@ -87,6 +91,15 @@ public:
 	template<typename tY, size_t dimy>
 	friend vec<tY, dimy> normalize(const vec<tY, dimy> &v);
 };
+
+template<typename tX, size_t dim>
+vec<tX,dim> operator/(const vec<tX,dim> &u, const vec<tX,dim> &v) {
+	vec<tX,dim> ret;
+	for(size_t i=0; i<dim; i++) {
+        ret.internal[i] = u.internal[i]/v.internal[i];
+	}
+	return ret;
+}
 
 template<typename tX, size_t dim>
 vec<tX,dim> operator+(const vec<tX,dim> &u, const vec<tX,dim> &v) {
@@ -112,14 +125,16 @@ vec<tX, dim> operator-(const vec<tX, dim> &v) {
     for(size_t i=0; i<dim; i++) {
         res.internal[i] = -v.internal[i];
     }
+    return res;
 }
 
 template<typename tX, size_t dim>
 tX dot(const vec<tX, dim> &v1, const vec<tX, dim> &v2) {
-    tX res;
+    tX res=0;
     for(size_t i=0; i<dim; i++) {
         res += v1.internal[i]*v2.internal[i];
     }
+    return res;
 }
 
 template<typename tX, size_t dim>
@@ -129,7 +144,7 @@ tX length(const vec<tX, dim> &v) {
 
 template<typename tX, size_t dim>
 vec<tX, dim> normalize(const vec<tX, dim> &v) {
-	return v/length(v);
+	return vec<tX,dim>(v/length(v));
 }
 
 //-----------------------------------------------
@@ -156,6 +171,9 @@ public:
 
 	tX& x() { return this->internal[0]; }
 	tX& y() { return this->internal[1]; }
+
+	tX x() const { return this->internal[0]; }
+	tX y() const { return this->internal[1]; }
 };
 typedef vec2<float> vec2f;
 
@@ -182,9 +200,13 @@ public:
 	tX& x() { return this->internal[0]; }
 	tX& y() { return this->internal[1]; }
 	tX& z() { return this->internal[2]; }
+
+    //If vec is const, return by value instead
+	tX x() const { return this->internal[0]; }
+	tX y() const { return this->internal[1]; }
+	tX z() const { return this->internal[2]; }
 };
 typedef vec3<float> vec3f;
-typedef vec3f vector3f __attribute__ ((deprecated));
 
 template<typename tX>
 class vec4 : public vec<tX,4> {
