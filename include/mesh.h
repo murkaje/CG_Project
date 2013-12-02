@@ -18,6 +18,8 @@ public:
     void writeTo(RakNet::BitStream& out);
     void readFrom(RakNet::BitStream& in);
 
+    static Mesh* get(Object &obj);
+
     friend class Component;
 };
 

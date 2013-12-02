@@ -6,6 +6,8 @@
 #include <map>
 #include <string>
 
+#define NUM_SHADOWMAPS 3
+
 class GraphicsSubsystem {
 private:
     static std::map<std::string, Material::Shader*> shaderCache;
@@ -22,8 +24,8 @@ private:
 
     static void idle();
 
-    static GLuint shadowMapTextures[3];
-    static GLuint shadowMapFramebuffer[3];
+    static GLuint shadowMapTextures[NUM_SHADOWMAPS];
+    static GLuint shadowMapFramebuffer[NUM_SHADOWMAPS];
 public:
     static bool shadowMappingEnabled, isInit;
 

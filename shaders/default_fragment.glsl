@@ -70,8 +70,8 @@ vec4 applyShadowMap(int i, sampler2D tex) {
     sc.xyz += 0.5;
     if (sc.z > 1.0 || sc.x < 0.0 || sc.x > 1.0) {
         //c += lights();
-    } else if (sc.z < 0.0 || sc.y < 0.0 || sc.y > 1.0) {
-        c += lights();
+    //} else if (sc.z < 0.0 || sc.y < 0.0 || sc.y > 1.0) {
+        //c += lights();
     } else {
         if (texture2D(tex, sc.xy).x + offset >= sc.z) {
             c += lights();

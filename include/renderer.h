@@ -7,11 +7,15 @@
 
 #include <utils.h>
 
+extern bool NO_SHADER;
+
 class Renderer: public Component {
 protected:
     Renderer(int type=-1);
 public:
     static const int MESH = 0;
+
+    bool receive_shadows, cast_shadows;
 
     Material material;
 

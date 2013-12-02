@@ -94,17 +94,28 @@ void Scene::updateObjs(std::list<Object*> &objects) {
 }
 
 void Scene::draw(bool useCamera) {
+    glPushMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+
     if (useCamera)
         positionCamera(camera, true);
     drawObjs(objects);
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 }
 
 
 void Scene::drawObjs(std::list<Object*> &objects) {
     for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         glPushMatrix();
-            Transform* t = (Transform*)(*obj)->getComponent(Component::TRANSFORM);
+            Transform* t = Transform::get(**obj);
             if (t == NULL) {
+                glPopMatrix();
                 continue;
             } else {
                 glTranslatef(t->position.x(),t->position.y(),t->position.z());
@@ -114,7 +125,7 @@ void Scene::drawObjs(std::list<Object*> &objects) {
                 glScalef(t->scale.x(),t->scale.y(),t->scale.z());
             }
 
-            Renderer* r = (Renderer*)(*obj)->getComponent(Component::RENDERER);
+            Renderer* r = Renderer::get(**obj);
             if (r != NULL) {
                 r->render();
             }
