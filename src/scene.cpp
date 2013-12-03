@@ -72,6 +72,7 @@ void Scene::updateObjs(std::list<Object*> &objects) {
             Transform *t = Transform::get(**obj);
             if (t == NULL) {
                 continue;
+                glPopMatrix();
             } else {
                 glTranslatef(t->position.x(),t->position.y(),t->position.z());
                 glRotatef(t->rotation.x(),1.0,0.0,0.0);

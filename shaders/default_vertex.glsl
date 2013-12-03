@@ -12,8 +12,6 @@ uniform int texId;
 
 uniform bool light[8];
 
-uniform int lighting_enabled;
-
 void main(void) {
     v = gl_ModelViewMatrix * gl_Vertex;
     N = normalize(gl_NormalMatrix * gl_Normal);

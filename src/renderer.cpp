@@ -15,12 +15,16 @@ Renderer::Renderer(int type): Component(Component::RENDERER) {
 void Renderer::writeTo(RakNet::BitStream& out) {
     out.Write(material.shininess);
     out.Write(material.lighting_enabled);
+    out.Write(receive_shadows);
+    out.Write(cast_shadows);
     out << material.diffuse << material.ambient << material.specular;
 }
 
 void Renderer::readFrom(RakNet::BitStream& in) {
     in.Read(material.shininess);
     in.Read(material.lighting_enabled);
+    in.Read(receive_shadows);
+    in.Read(cast_shadows);
     in >> material.diffuse >> material.ambient >> material.specular;
 }
 
@@ -73,6 +77,9 @@ void MeshRenderer::render() {
             } else {
                 glUniform1i(has_tex, Material::Texture::EMPTY);
             }
+            variable_location = glGetUniformLocation(material.shader.prog, "receive_shadows");
+            glUniform1i(variable_location, receive_shadows);
+
             m->describe();
             glUseProgram(0);
         } else {

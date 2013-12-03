@@ -10,7 +10,7 @@ uniform bool light[8];
 
 uniform float time;
 
-uniform int lighting_enabled, shadows_enabled, texId;
+uniform int lighting_enabled, shadows_enabled, texId, receive_shadows;
 
 uniform sampler2D texture;
 
@@ -86,7 +86,7 @@ void main (void) {
         gl_FragColor = vec4(0);
         vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient;
         vec4 c = lamb;
-        if (shadows_enabled == 1) {
+        if (shadows_enabled == 1 && receive_shadows == 1) {
             c += applyShadowMap(0, shadowMapTexture0);
             c += applyShadowMap(1, shadowMapTexture1);
             c += applyShadowMap(2, shadowMapTexture2);

@@ -52,6 +52,7 @@ void Game::init() {
     //make the plane really shiny
     Renderer::get(*planeObj)->material.specular = vec3f(1);
     Renderer::get(*planeObj)->material.shininess = 100;
+    Renderer::get(*planeObj)->cast_shadows = false;
 
     Object *cubeObj = GeometricShape::createCube(vec3f(-2,1,2), vec3f(0), vec3f(1,1,1), vec3f(1,0,0));
     Behavior::addLocal(cubeObj, "rotateObject", rotateObject);
@@ -62,7 +63,7 @@ void Game::init() {
     Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,3.5,.5),vec3f(1,0,1));
     Collider::addBox(*secondCubeObj);
     Behavior::addLocal(secondCubeObj, "resetColorIfNoCollisions");
-    //Renderer::get(*secondCubeObj)->material.setTexture(5, "../data/texturez_3851.jpg");
+    Renderer::get(*secondCubeObj)->material.setTexture(5, "../data/texturez_3851.jpg");
 
     Instantiate(*planeObj);
     Instantiate(*cubeObj);
@@ -92,6 +93,8 @@ Object* Game::Player::createCharacter(std::string name, std::string addr) {
     Renderer::get(*lightBall)->material.lighting_enabled = false;
     light->addChild(*lightBall);
     sphereObj->addChild(*light);
+    Renderer::get(*lightBall)->cast_shadows = false;
+    Renderer::get(*sphereObj)->receive_shadows = false;
 
     return sphereObj;
 }

@@ -10,7 +10,7 @@
 int main(int argc, char* argv[]) {
 
     GraphicsSubsystem::init(argc,argv);
-    GraphicsSubsystem::createWindow(30,30,640,480, "GraphicsProject2013");
+    GraphicsSubsystem::createWindow(30,30,1024,748, "GraphicsProject2013");
     GraphicsSubsystem::zBufferEnabled(true);
 
     GraphicsSubsystem::shadowMappingEnabled = true;
