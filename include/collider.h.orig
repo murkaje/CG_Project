@@ -28,6 +28,8 @@ public:
 
     static void addBox(Object &obj);
 
+    static void addSphere(Object &obj);
+
     static Collider* get(Object &obj);
 
     friend class PhysicsSubsystem;
@@ -44,6 +46,15 @@ public:
     BoxCollider();
 };
 
+<<<<<<< HEAD
+class SphereCollider: public Collider
+{
+public:
+    vec3f center, rotation, scale;
+
+    SphereCollider();
+};
+=======
 template<> inline Component* Component::allocate_t<Collider>(int type) {
     Component *newComp = NULL;
     if (type == Collider::BOX) newComp = new BoxCollider();
@@ -51,4 +62,5 @@ template<> inline Component* Component::allocate_t<Collider>(int type) {
     return newComp;
 };
 
+>>>>>>> 81f29ece32f5a83ee87ec7353416dfe73bf64d94
 #endif

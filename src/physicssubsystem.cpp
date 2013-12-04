@@ -10,12 +10,12 @@ using namespace std;
 
 void PhysicsSubsystem::PerformPhysicsChecks() {
     Scene* sceneObj = &SceneManager::CurrentScene();
-    std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
-        Collider *c = Collider::get(*iterObj);
+    std::list<Object*> &objects = sceneObj->getObjsList();
+    for (std::list<Object*>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
+        Collider *c = Collider::get(**iterObj);
         if (c != NULL) {
             c->collisions().clear();
-            checkIntersections(*iterObj);
+            checkIntersections(**iterObj);
         }
     }
 }
@@ -114,19 +114,64 @@ bool PhysicsSubsystem::RayToAABBIntersection(const glm::vec3 &origin, const glm:
             tmin.z <= tmax.y && tmin.z <= tmax.x;
 }
 
+bool PhysicsSubsystem::RayToSphereIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other) {
+    Transform *t = Transform::get(*other.owner());
+
+    glm::vec4 orig4(origin, 1.0);
+    glm::vec4 dr4(dir, 0.0);
+
+    glm::mat4 transMat(1);
+
+    transMat = glm::scale(transMat, glm::vec3(2.0/t->scale.x(), 2.0/t->scale.y(), 2.0/t->scale.z()));
+
+    transMat = glm::translate(transMat, glm::vec3(-t->position.x(), -t->position.y(), -t->position.z()));
+    transMat = glm::translate(transMat, glm::vec3(-other.center.x(), -other.center.y(), -other.center.z()));
+
+    orig4 = transMat*orig4;
+    dr4 = transMat*dr4;
+
+    glm::vec3 orig(orig4);
+    glm::vec3 dr(dr4);
+
+    glm::vec3 collisionPoint;
+
+    float a = glm::dot(dr, dr);
+    float b = 2*glm::dot(dr, orig);
+    float c = glm::dot(orig, orig)-1;
+
+    if(b*b-4*a*c < 0) {
+        collisionPoint = glm::vec3(1.0/0, 1.0/0, 1.0/0);
+        return false;
+    } else {
+        float q;
+        if(b < 0) {
+            q = -b+sqrt(b*b-4*a*c)/2;
+        } else {
+            q = -b-sqrt(b*b-4*a*c)/2;
+        }
+
+        if(q/a < c/q) {
+            collisionPoint = orig+q/a*dr;
+        } else {
+            collisionPoint = orig+c/q*dr;
+        }
+        return true;
+    }
+}
+
 void PhysicsSubsystem::checkIntersections(Object &obj) {
     Scene* sceneObj = obj.getCurrentScene();
     Collider *oc = Collider::get(obj);
-    std::list<Object> &objects = sceneObj->getObjsList();
-    for (std::list<Object>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
-        if(!obj.equal(*iterObj)) {
-            Collider *c = Collider::get(*iterObj);
+    std::list<Object*> &objects = sceneObj->getObjsList();
+    for (std::list<Object*>::iterator iterObj = objects.begin(); iterObj != objects.end(); iterObj++) {
+        if(!obj.equal(**iterObj)) {
+            Collider *c = Collider::get(**iterObj);
             if (c != NULL) {
-                switch (oc->type()) {
+                switch (oc->typeId()) {
                 case Collider::BOX:
-                    switch (c->type()) {
+                    switch (c->typeId()) {
                     case Collider::BOX:
-                        BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(*iterObj));
+                        BoxToBoxIntersection(*(BoxCollider*)Collider::get(obj), *(BoxCollider*)Collider::get(**iterObj));
                         break;
                     case Collider::SPHERE:
                         break;

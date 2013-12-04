@@ -1,21 +1,24 @@
 #include "collider.h"
 
-Collider::Collider(int type): Component(Component::COLLIDER), _type(type) {
-
+Collider::Collider(int type): Component(Component::COLLIDER) {
+    this->type = type;
 }
 
 Collider::Collision::Collision(Collider &with, vec3f point, vec3f normal): with(with), point(point), normal(normal) {
 
 }
 
+void BoxCollider::writeTo(RakNet::BitStream& out) {
+    out << center << rotation << scale;
+}
+
+void BoxCollider::readFrom(RakNet::BitStream& in) {
+    in >> center >> rotation >> scale;
+}
+
 std::list<Collider::Collision>& Collider::collisions() {
     return _collisions;
 }
-
-int Collider::type() {
-    return _type;
-}
-
 
 Collider* Collider::get(Object &obj) {
     return (Collider*)obj.getComponent(Component::COLLIDER);

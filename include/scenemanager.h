@@ -2,6 +2,8 @@
 #define SCENEMANAGER_H
 
 #include <scene.h>
+#include <vec.h>
+#include <string>
 
 class SceneManager
 {

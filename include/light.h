@@ -16,32 +16,32 @@ private:
         GLenum getAvailableLight();
         void returnLight(GLenum light);
 
+        void reset();
+
         LightsCache() {
-            available.push(GL_LIGHT7);
-            available.push(GL_LIGHT6);
-            available.push(GL_LIGHT5);
-            available.push(GL_LIGHT4);
-            available.push(GL_LIGHT3);
-            available.push(GL_LIGHT2);
-            available.push(GL_LIGHT1);
-            available.push(GL_LIGHT0);
-        }
+            reset();
+        };
     };
     static LightsCache lightsCache;
 
-    GLenum light;
-protected:
+    bool enabled;
+
     static void update(Object &lightObj);
 
-    Light(bool enabled=true);
+    Light(bool enabled = true);
 public:
     vec4f ambient, diffuse, specular;
     vec3f direction;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
-    void enabled(bool enabled);
+    void setEnabled(bool enabled);
 
+    void writeTo(RakNet::BitStream& out);
     static Object* createPointLight(vec3f position);
+    void readFrom(RakNet::BitStream& in);
+
+    friend class GraphicsSubsystem;
+    friend class Component;
 };
 
 #endif

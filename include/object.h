@@ -11,6 +11,7 @@
 #include <string>
 
 #include "NetworkIDObject.h"
+#include "BitStream.h"
 
 class Component;
 class Scene;
@@ -20,17 +21,23 @@ private:
     static int nextNetworkId;
 
     Scene *currentScene_;
-    std::map<std::string,Component*> components;
 
-    RakNet::NetworkID nid;
-
-    std::list<Object> children;
+    std::list<Object*> children;
 protected:
     Object* parent_;
+
+    Object(Object &other);
+
+
+    void Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork = 0);
 public:
     Object &obj;
+    std::map<std::string,Component*> components;
 
     std::string name;
+    std::string tag;
+
+    static Object& copy(Object &other);
 
     Object(std::string name="object");
 
@@ -46,14 +53,16 @@ public:
 
     Scene* getCurrentScene();
 
-    void addChild(Object *object);
+    void addChild(Object &object);
 
-    std::list<Object>& getChildren();
+    std::list<Object*>& getChildren();
 
     static Object* Find(std::string name);
     static Object* Find(Object* obj, std::string name);
 
     bool equal(Object &other);
+
+    friend class NetworkSubsystem;
 };
 
 class GeometricShape: public Object {

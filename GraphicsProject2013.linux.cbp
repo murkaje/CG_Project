@@ -31,14 +31,29 @@
 					<Add option="-g" />
 				</Compiler>
 			</Target>
+			<Target title="Debug_Server">
+				<Option output="bin/test_server" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin" />
+				<Option object_output="obj" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-Wall" />
+					<Add option="-g" />
+					<Add option="-DSERVER=1" />
+				</Compiler>
+			</Target>
 		</Build>
 		<Compiler>
+			<Add option="-std=c++0x" />
 			<Add option="-Wall" />
 			<Add directory="include" />
 			<Add directory="include/RakNet" />
+			<Add directory="include/SOIL" />
 		</Compiler>
 		<Linker>
 			<Add library="glut" />
+			<Add library="SOIL" />
 			<Add library="GL" />
 			<Add library="GLU" />
 			<Add library="GLEW" />
@@ -51,6 +66,8 @@
 		<Unit filename="include/collider.h" />
 		<Unit filename="include/component.h" />
 		<Unit filename="include/eventmanager.h" />
+		<Unit filename="include/funcdefs.h" />
+		<Unit filename="include/game.h" />
 		<Unit filename="include/graphicssubsystem.h" />
 		<Unit filename="include/inputsubsystem.h" />
 		<Unit filename="include/light.h" />
@@ -73,10 +90,17 @@
 		<Unit filename="src/collider.cpp" />
 		<Unit filename="src/component.cpp" />
 		<Unit filename="src/eventmanager.cpp" />
+		<Unit filename="src/game.cpp" />
 		<Unit filename="src/graphicssubsystem.cpp" />
 		<Unit filename="src/inputsubsystem.cpp" />
 		<Unit filename="src/light.cpp" />
-		<Unit filename="src/main.cpp" />
+		<Unit filename="src/main.cpp">
+			<Option target="Release" />
+			<Option target="Debug" />
+		</Unit>
+		<Unit filename="src/main_server.cpp">
+			<Option target="Debug_Server" />
+		</Unit>
 		<Unit filename="src/material.cpp" />
 		<Unit filename="src/mesh.cpp" />
 		<Unit filename="src/networksubsystem.cpp" />

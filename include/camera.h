@@ -14,6 +14,9 @@ public:
 
     glm::mat4 projMat;
 
+    void writeTo(RakNet::BitStream& out);
+    void readFrom(RakNet::BitStream& in);
+
     Camera(bool perspective=true);
 
     void setup();

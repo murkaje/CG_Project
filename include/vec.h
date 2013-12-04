@@ -3,6 +3,8 @@
 #include <iostream>
 #include <math.h>
 
+#include "BitStream.h"
+
 //-----------------------------------------------
 //------------------   VEC   --------------------
 //-----------------------------------------------
@@ -177,6 +179,18 @@ public:
 };
 typedef vec2<float> vec2f;
 
+inline RakNet::BitStream& operator<<(RakNet::BitStream& out, vec2f& in) {
+    out.Write(in.x());
+    out.Write(in.y());
+    return out;
+}
+
+inline RakNet::BitStream& operator>>(RakNet::BitStream& in, vec2f& out) {
+    in.Read(out.x());
+    in.Read(out.y());
+    return in;
+}
+
 template<typename tX>
 class vec3 : public vec<tX,3> {
 public:
@@ -207,6 +221,16 @@ public:
 	tX z() const { return this->internal[2]; }
 };
 typedef vec3<float> vec3f;
+
+inline RakNet::BitStream& operator<<(RakNet::BitStream& out, vec3f& in) {
+    out.WriteVector(in.x(), in.y(), in.z());
+    return out;
+}
+
+inline RakNet::BitStream& operator>>(RakNet::BitStream& in, vec3f& out) {
+    in.ReadVector(out.x(), out.y(), out.z());
+    return in;
+}
 
 template<typename tX>
 class vec4 : public vec<tX,4> {
@@ -241,5 +265,17 @@ public:
 	tX& w() { return this->internal[3]; }
 };
 typedef vec4<float> vec4f;
+
+inline RakNet::BitStream& operator<<(RakNet::BitStream& out, vec4f& in) {
+    out.WriteVector(in.x(), in.y(), in.z());
+    out.Write(in.w());
+    return out;
+}
+
+inline RakNet::BitStream& operator>>(RakNet::BitStream& in, vec4f& out) {
+    in.ReadVector(out.x(), out.y(), out.z());
+    in.Read(out.w());
+    return in;
+}
 
 #endif

@@ -48,20 +48,39 @@ Material::Shader::~Shader() {
 Material::Material(std::string name): shader(GraphicsSubsystem::loadShader(name)),
     ambient(vec3f(0,0,0)), diffuse(vec3f(1,1,1)), specular(vec3f(0,0,0)) {
     shininess = 1;
+    texId = Material::NO_TEXTURE;
 
     lighting_enabled = true;
 }
 
+Material::~Material() {
+    if (texId != Material::NO_TEXTURE) {
+        glDeleteTextures(1, &textureHandle);
+    }
+}
+
+void Material::setTexture(GLuint texId, std::string filename) {
+    this->texId = texId;
+    glGenTextures(1, &textureHandle);
+    glActiveTexture(GL_TEXTURE0+texId);
+    glBindTexture(GL_TEXTURE_2D, textureHandle);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+    Utils::loadTexture(textureHandle, filename.c_str());
+}
+
+const GLuint Material::getTexture() {
+    return textureHandle;
+}
+
 void Material::describe() {
-    //still need to do that proper vector4f implementation
-//    float spec[] = {specular.x, specular.y, specular.z, 1.0};
-//    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, spec);
     glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular.data());
-//    float amb[] = {ambient.x, ambient.y, ambient.z, 1.0};
-//    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, amb);
     glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient.data());
-//    float diff[] = {diffuse.x, diffuse.y, diffuse.z, 1.0};
-//    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diff);
     glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse.data());
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }

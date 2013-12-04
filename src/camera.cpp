@@ -6,10 +6,27 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+void Camera::writeTo(RakNet::BitStream& out) {
+    out.Write(perspective);
+    out.Write(zNear);
+    out.Write(zFar);
+    out.Write(fov);
+    out.Write(vSize);
+    out.Write(aspect);
+}
+
+void Camera::readFrom(RakNet::BitStream& in) {
+    in.Read(perspective);
+    in.Read(zNear);
+    in.Read(zFar);
+    in.Read(fov);
+    in.Read(vSize);
+    in.Read(aspect);
+}
+
 Camera::Camera(bool perspective): Component(Component::CAMERA) {
     this->perspective = perspective;
 }
-
 
 Camera* Camera::get(Object &obj) {
     return (Camera*)obj.getComponent(Component::CAMERA);
@@ -45,10 +62,7 @@ void Camera::setup() {
         projMat = glm::ortho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
     }
     glMatrixMode(GL_PROJECTION);
-    /*
-        if (perspective) gluPerspective(fov, aspect, zNear, zFar);
-        else glOrtho(-vSize/2,vSize/2, -vSize/2, vSize/2, zNear, zFar);
-    */
+        glLoadIdentity();
         glLoadMatrixf(glm::value_ptr(projMat));
     glMatrixMode(GL_MODELVIEW);
 }

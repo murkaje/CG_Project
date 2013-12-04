@@ -15,6 +15,7 @@ public:
 
     static bool RayToBoxIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
     static bool RayToAABBIntersection(const glm::vec3 &origin, const glm::vec3 &dir);
+    static bool RayToSphereIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
 };
 
 #endif
