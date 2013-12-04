@@ -13,9 +13,13 @@
 
 void Scene::positionCamera(bool projection) {
     viewMat = glm::mat4(1);
+    glm::mat4 vpMat;
 
     if (projection) {
         glMatrixMode(GL_PROJECTION);
+        GLfloat mat[16];
+        glGetFloatv(GL_PROJECTION_MATRIX, mat);
+        vpMat = glm::make_mat4(mat);
     } else {
         glLoadIdentity();
     }
@@ -34,7 +38,8 @@ void Scene::positionCamera(bool projection) {
         }
     }
 
-    glLoadMatrixf(glm::value_ptr(viewMat));
+    vpMat = vpMat*viewMat;
+    glLoadMatrixf(glm::value_ptr(vpMat));
 
     if (projection){
         glMatrixMode(GL_MODELVIEW);
