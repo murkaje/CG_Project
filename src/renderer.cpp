@@ -4,19 +4,27 @@
 #include <object.h>
 #include <material.h>
 
+bool NO_SHADER = false;
+
 Renderer::Renderer(int type): Component(Component::RENDERER) {
     this->type = type;
+    cast_shadows = true;
+    receive_shadows = true;
 }
 
 void Renderer::writeTo(RakNet::BitStream& out) {
     out.Write(material.shininess);
     out.Write(material.lighting_enabled);
+    out.Write(receive_shadows);
+    out.Write(cast_shadows);
     out << material.diffuse << material.ambient << material.specular;
 }
 
 void Renderer::readFrom(RakNet::BitStream& in) {
     in.Read(material.shininess);
     in.Read(material.lighting_enabled);
+    in.Read(receive_shadows);
+    in.Read(cast_shadows);
     in >> material.diffuse >> material.ambient >> material.specular;
 }
 
@@ -37,36 +45,47 @@ void toggleLightInShader(GLint prog, GLint lightingEnabled, int i) {
 }
 
 void MeshRenderer::render() {
-    Mesh* m = (Mesh*)owner_->getComponent(Component::MESH);
+    Mesh* m = Mesh::get(*owner_);
     if (m != NULL) {
         material.describe();
-        glUseProgram(material.shader.prog);
-        GLint variable_location = glGetUniformLocation(material.shader.prog, "time");
-        glUniform1f(variable_location, Utils::time());
+        if (!NO_SHADER) {
+            glUseProgram(material.shader.prog);
+            GLint variable_location = glGetUniformLocation(material.shader.prog, "time");
+            glUniform1f(variable_location, Utils::time());
 
-        //enable/disable whether object is affected by lights
-        variable_location = glGetUniformLocation(material.shader.prog, "lighting_enabled");
-        glUniform1i(variable_location, material.lighting_enabled);
-        if (material.lighting_enabled) {
-            //enabled/disable light sources
-            GLint lightingEnabled = glIsEnabled(GL_LIGHTING);
-            for (int i = 0; i < 8; i++) {
-                toggleLightInShader(material.shader.prog, lightingEnabled, i);
+            //enable/disable whether object is affected by lights
+            variable_location = glGetUniformLocation(material.shader.prog, "lighting_enabled");
+            glUniform1i(variable_location, material.lighting_enabled);
+            if (material.lighting_enabled) {
+                //enabled/disable light sources
+                GLint lightingEnabled = glIsEnabled(GL_LIGHTING);
+                for (int i = 0; i < 8; i++) {
+                    toggleLightInShader(material.shader.prog, lightingEnabled, i);
+                }
+            }
+
+            GLint has_tex = glGetUniformLocation(material.shader.prog, "texId");
+            GLuint texId = material.texture.getId();
+            if (texId != Material::Texture::EMPTY) {
+                glUniform1i(has_tex, texId);
+                glActiveTexture(GL_TEXTURE0+texId);
+                GLuint texture = material.texture.getHandle();
+                glBindTexture(GL_TEXTURE_2D, texture);
+                GLint tex = glGetUniformLocation(material.shader.prog, "texture");
+                glUniform1i(tex, texture);
+                glActiveTexture(0);
+            } else {
+                glUniform1i(has_tex, Material::Texture::EMPTY);
+            }
+            variable_location = glGetUniformLocation(material.shader.prog, "receive_shadows");
+            glUniform1i(variable_location, receive_shadows);
+
+            m->describe();
+            glUseProgram(0);
+        } else {
+            if (cast_shadows) {
+                m->describe();
             }
         }
-
-        GLint has_tex = glGetUniformLocation(material.shader.prog, "texId");
-        if (material.texId != Material::NO_TEXTURE) {
-            glActiveTexture(GL_TEXTURE0+material.texId);
-            glBindTexture(GL_TEXTURE_2D, material.getTexture());
-            glUniform1i(has_tex, material.texId);
-            GLint tex = glGetUniformLocation(material.shader.prog, "texture");
-            glUniform1i(tex, material.getTexture());
-        } else {
-            glUniform1i(has_tex, Material::NO_TEXTURE);
-        }
-
-        m->describe();
-        glUseProgram(0);
     }
 }

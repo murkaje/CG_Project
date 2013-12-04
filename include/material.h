@@ -20,23 +20,37 @@ private:
 
         ~Shader();
     };
-
-    GLuint textureHandle;
-
 public:
-    GLuint texId; //temporary
+//TODO material and texture caches
+    class Texture {
+    private:
+        GLuint textureHandle;
+        GLuint texId;
 
-    //TODO material cache, so objects can share materials
+        std::string filename;
+
+    public:
+        static const GLuint EMPTY = 666;
+
+        std::string getFilename();
+
+        GLuint getId();
+
+        GLuint getHandle();
+
+        Texture(GLuint texId, std::string filename="");
+
+        ~Texture();
+    };
+
+    Texture &texture;
+
     Shader &shader;
-
-    static const GLuint NO_TEXTURE = 666;
 
     vec3f ambient, diffuse, specular;
     float shininess;
 
     void setTexture(GLuint texId, std::string filename);
-
-    const GLuint getTexture();
 
     bool lighting_enabled;
 

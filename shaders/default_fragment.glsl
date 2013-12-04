@@ -4,11 +4,13 @@ varying vec3 N;
 varying vec4 v;
 varying vec4 v1;
 
+varying vec2 texCoord;
+
 uniform bool light[8];
 
 uniform float time;
 
-uniform int lighting_enabled, shadows_enabled, texId;
+uniform int lighting_enabled, shadows_enabled, texId, receive_shadows;
 
 uniform sampler2D texture;
 
@@ -30,7 +32,7 @@ vec4 blinn_light(gl_LightSourceParameters light) {
 
     float d = distance(light.position, v);
 
-    float intensity = 5.0;
+    float intensity = 1.0;
 
     vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient+light.ambient*gl_FrontMaterial.ambient;
     float attenuation = intensity/(0.0+
@@ -38,7 +40,7 @@ vec4 blinn_light(gl_LightSourceParameters light) {
                                    1.0*pow(d,2));
     vec4 ldiff;
     if (texId != NO_TEXTURE) {
-        vec4 texDiff = texture2D(texture, gl_TexCoord[texId].xy);
+        vec4 texDiff = texture2D(texture, texCoord);
         ldiff = texDiff*light.diffuse*max(dot(N, light_dir), 0);
     } else {
         ldiff = gl_FrontMaterial.diffuse*light.diffuse*max(dot(N, light_dir), 0);
@@ -68,8 +70,8 @@ vec4 applyShadowMap(int i, sampler2D tex) {
     sc.xyz += 0.5;
     if (sc.z > 1.0 || sc.x < 0.0 || sc.x > 1.0) {
         //c += lights();
-    } else if (sc.z < 0.0 || sc.y < 0.0 || sc.y > 1.0) {
-        c += lights();
+    //} else if (sc.z < 0.0 || sc.y < 0.0 || sc.y > 1.0) {
+        //c += lights();
     } else {
         if (texture2D(tex, sc.xy).x + offset >= sc.z) {
             c += lights();
@@ -84,7 +86,7 @@ void main (void) {
         gl_FragColor = vec4(0);
         vec4 lamb = gl_LightModel.ambient*gl_FrontMaterial.ambient;
         vec4 c = lamb;
-        if (shadows_enabled == 1) {
+        if (shadows_enabled == 1 && receive_shadows == 1) {
             c += applyShadowMap(0, shadowMapTexture0);
             c += applyShadowMap(1, shadowMapTexture1);
             c += applyShadowMap(2, shadowMapTexture2);

@@ -80,14 +80,16 @@ void Scene::update() {
         updateObjs(objects);
     }
 
-    glm::vec2 mouse = InputSubsystem::getMousePos();
-    glm::vec2 res(GraphicsSubsystem::width, GraphicsSubsystem::height);
+    if(GraphicsSubsystem::isInit) {
+        glm::vec2 mouse = InputSubsystem::getMousePos();
+        glm::vec2 res(GraphicsSubsystem::width, GraphicsSubsystem::height);
 
-    mouse = glm::vec2(2)*(mouse - res/glm::vec2(2))/res;
-    mouse.y = -mouse.y;
+        mouse = glm::vec2(2)*(mouse - res/glm::vec2(2))/res;
+        mouse.y = -mouse.y;
 
-    //Get the object under the mouse cursor
-    Object *obj = raycastObject(mouse);
+        //Get the object under the mouse cursor
+        Object *obj = raycastObject(mouse);
+    }
 }
 
 void Scene::updateObjs(std::list<Object*> &objects) {
@@ -96,6 +98,7 @@ void Scene::updateObjs(std::list<Object*> &objects) {
             Transform *t = Transform::get(**obj);
             if (t == NULL) {
                 continue;
+                glPopMatrix();
             } else {
                 glTranslatef(t->position.x(),t->position.y(),t->position.z());
                 glRotatef(t->rotation.x(),1.0,0.0,0.0);
@@ -138,17 +141,30 @@ Object* Scene::raycastObject(const glm::vec3 &origin, const glm::vec3 &dir) {
     float closestDist = 1.0/0.0;
     Object* closest = NULL;
 
-    //TODO: Raycast should return collision point to depth sort collisions
     for(Object* obj : objects) {
         Collider *cm = Collider::get(*obj);
-        if(cm != NULL && cm->typeId() == Collider::BOX &&
-            PhysicsSubsystem::RayToBoxIntersection(origin, dir, *((BoxCollider*)cm)))
-        {
-            Renderer::get(*obj)->material.diffuse = vec3f(0,1,0);
-            closest = obj;
-        } else if(cm != NULL) {
+        if(cm != NULL ) {
+            //reset testing colors
             Renderer::get(*obj)->material.diffuse = vec3f(1,0,0);
+            float dist;
+
+            if(cm->typeId() == Collider::BOX) {
+                dist = PhysicsSubsystem::RayToBoxIntersection(origin, dir, *((BoxCollider*)cm));
+            }
+
+            if(dist < closestDist) {
+                closest = obj;
+                closestDist = dist;
+            }
         }
+    }
+
+    //For testing
+    if(closest != NULL) {
+        glm::vec3 p = origin+closestDist*dir;
+        //std::cout<<"Collision at distance="<<closestDist<<"\n\t"<<"point=("<<
+        //    p.x<<","<<p.y<<","<<p.z<<")\n";
+        Renderer::get(*closest)->material.diffuse = vec3f(0,1,0);
     }
 
     return closest;
@@ -156,17 +172,28 @@ Object* Scene::raycastObject(const glm::vec3 &origin, const glm::vec3 &dir) {
 
 
 void Scene::draw(bool useCamera) {
+    glPushMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+
     if (useCamera)
         positionCamera(true);
     drawObjs(objects);
+
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
 }
 
 
 void Scene::drawObjs(std::list<Object*> &objects) {
     for (std::list<Object*>::iterator obj = objects.begin(); obj != objects.end(); obj++) {
         glPushMatrix();
-            Transform* t = (Transform*)(*obj)->getComponent(Component::TRANSFORM);
+            Transform* t = Transform::get(**obj);
             if (t == NULL) {
+                glPopMatrix();
                 continue;
             } else {
                 glTranslatef(t->position.x(),t->position.y(),t->position.z());
@@ -176,7 +203,7 @@ void Scene::drawObjs(std::list<Object*> &objects) {
                 glScalef(t->scale.x(),t->scale.y(),t->scale.z());
             }
 
-            Renderer* r = (Renderer*)(*obj)->getComponent(Component::RENDERER);
+            Renderer* r = Renderer::get(**obj);
             if (r != NULL) {
                 r->render();
             }

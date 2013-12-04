@@ -1,6 +1,6 @@
-
 #include <utils.h>
 #include <mesh.h>
+#include <object.h>
 
 Mesh::Mesh(int type): Component(Component::MESH) {
     this->type = type;
@@ -12,6 +12,11 @@ void Mesh::writeTo(RakNet::BitStream& out) {
 
 void Mesh::readFrom(RakNet::BitStream& in) {
 
+}
+
+
+Mesh* Mesh::get(Object &obj) {
+    return (Mesh*)obj.getComponent(Component::MESH);
 }
 
 PlaneMesh::PlaneMesh(): Mesh(Mesh::PLANE) {

@@ -26,9 +26,13 @@ int GraphicsSubsystem::frames = 0;
 char GraphicsSubsystem::fpsStr[8];
 char GraphicsSubsystem::shadowMapStr[24];
 
+bool GraphicsSubsystem::isInit = false;
+
 GLuint GraphicsSubsystem::shadowMapTextures[3];
 GLuint GraphicsSubsystem::shadowMapFramebuffer[3];
 bool GraphicsSubsystem::shadowMappingEnabled = false;
+
+int shadowMapSize = 256;
 
 void GraphicsSubsystem::init(int argc, char* argv[])
 {
@@ -51,8 +55,8 @@ void GraphicsSubsystem::shutdown()
     NetworkSubsystem::disconnect();
     NetworkSubsystem::shutdown();
 
-    glDeleteTextures(3, shadowMapTextures);
-    glDeleteFramebuffers(3, shadowMapFramebuffer);
+    glDeleteTextures(NUM_SHADOWMAPS, shadowMapTextures);
+    glDeleteFramebuffers(NUM_SHADOWMAPS, shadowMapFramebuffer);
 
     glutLeaveMainLoop();
 }
@@ -91,14 +95,14 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glCullFace(GL_BACK);
 
     glEnable(GL_TEXTURE_2D);
-    glGenTextures(3, shadowMapTextures);
-    glGenFramebuffers(3, shadowMapFramebuffer);
+    glGenTextures(NUM_SHADOWMAPS, shadowMapTextures);
+    glGenFramebuffers(NUM_SHADOWMAPS, shadowMapFramebuffer);
     Material::Shader &defaultShader = loadShader("default");
     glUseProgram(defaultShader.prog);
-    for (int i = 0; i < 3; i++) {
+    for (int i = 0; i < NUM_SHADOWMAPS; i++) {
         glActiveTexture(GL_TEXTURE0+i);
         glBindTexture(GL_TEXTURE_2D, shadowMapTextures[i]);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT16, shadowMapSize, shadowMapSize, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0);
         sprintf(shadowMapStr, "shadowMapTexture%d", i);
         GLint shadowMapTexture = glGetUniformLocation(defaultShader.prog, shadowMapStr);
         glUniform1i(shadowMapTexture, i);
@@ -109,7 +113,6 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE);
 
-        //shadowMapFramebuffer[i] = 0;
         glBindFramebuffer(GL_FRAMEBUFFER, shadowMapFramebuffer[i]);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowMapTextures[i], 0);
         // No color output in the bound framebuffer, only depth.
@@ -118,8 +121,11 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         if (status != GL_FRAMEBUFFER_COMPLETE)
             printf("framebuffer %d fucked (%d)\n", i, status);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glDrawBuffer(GL_BACK);
     }
     glUseProgram(0);
+
+    isInit = true;
 }
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled)
@@ -142,20 +148,20 @@ void setProjectionFromPoint(vec3f pos, vec3f dir) {
     glMatrixMode(GL_MODELVIEW);
 }
 
-void renderSceneDepthToTexture(GLuint framebufferHandle, Scene &scene, bool toScreen=false) {
-    int w = GraphicsSubsystem::width;
-    int h = GraphicsSubsystem::height;
-
+void renderSceneDepthToTexture(GLuint framebufferHandle, Scene &scene, int s=shadowMapSize) {
     GLint lightingEnabled = glIsEnabled(GL_LIGHTING);
-    if (lightingEnabled) glDisable(GL_LIGHTING);           // Turn off lighting in the shader
+    if (lightingEnabled) glDisable(GL_LIGHTING);
 
     glBindFramebuffer(GL_FRAMEBUFFER, framebufferHandle);
-    glViewport(0,0,w,h);
+    glViewport(0,0,s,s);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    NO_SHADER=true;
     scene.draw(false);
+    NO_SHADER=false;
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    if (lightingEnabled) glEnable(GL_LIGHTING); // Enable lighting again
+    if (lightingEnabled) glEnable(GL_LIGHTING);
 }
 
 void GraphicsSubsystem::drawFPS() {
@@ -203,7 +209,10 @@ void GraphicsSubsystem::draw()
         if (player != NULL) {
             vec3f dir = vec3f(1,0,0);
 
-            for (int i = 0; i < 3; i++) {
+            //temporary hack-fix for the broken first shadowmap
+            renderSceneDepthToTexture(shadowMapFramebuffer[0], SceneManager::CurrentScene(), 1);
+
+            for (int i = 0; i < NUM_SHADOWMAPS; i++) {
             float shadowMatrix[16];
                 if (i > 0){
                     dir = vec3f(rotationMatrix[0*3+0]*dir.x()+rotationMatrix[0*3+1]*dir.y()+rotationMatrix[0*3+2]*dir.z(),
@@ -221,6 +230,9 @@ void GraphicsSubsystem::draw()
             }
         }
     }
+    int w = GraphicsSubsystem::width;
+    int h = GraphicsSubsystem::height;
+    glViewport(0,0,w,h);
     if (SceneManager::CurrentScene().camera != NULL) {
         SceneManager::CurrentScene().camera->setup();
     }

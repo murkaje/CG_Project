@@ -13,9 +13,9 @@ public:
 
     static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
 
-    static bool RayToBoxIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
-    static bool RayToAABBIntersection(const glm::vec3 &origin, const glm::vec3 &dir);
-    static bool RayToSphereIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
+    static float RayToBoxIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
+    static glm::vec3 RayToAABBIntersection(const glm::vec3 &origin, const glm::vec3 &dir);
+    static float RayToSphereIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
 };
 
 #endif
