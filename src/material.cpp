@@ -25,17 +25,19 @@ GLuint compile(GLuint type, std::string source) {
 }
 
 Material::Shader::Shader(std::string name): name(name) {
-    std::string vertex_shader_filename = std::string("../shaders/") + name + "_vertex.glsl";
-    std::string fragment_shader_filename = std::string("../shaders/") + name + "_fragment.glsl";
-    v_source = Utils::load(vertex_shader_filename.c_str());
-    f_source = Utils::load(fragment_shader_filename.c_str());
-    vertex_shader = compile(GL_VERTEX_SHADER, v_source);
-    fragment_shader = compile(GL_FRAGMENT_SHADER, f_source);
-    prog = glCreateProgram();
-    glAttachShader(prog, vertex_shader);
-    glAttachShader(prog, fragment_shader);
-    glLinkProgram(prog);
-    printf("%s\n",("Created shader: "+name).c_str());
+    if (GraphicsSubsystem::isInit) {
+        std::string vertex_shader_filename = std::string("../shaders/") + name + "_vertex.glsl";
+        std::string fragment_shader_filename = std::string("../shaders/") + name + "_fragment.glsl";
+        v_source = Utils::load(vertex_shader_filename.c_str());
+        f_source = Utils::load(fragment_shader_filename.c_str());
+        vertex_shader = compile(GL_VERTEX_SHADER, v_source);
+        fragment_shader = compile(GL_FRAGMENT_SHADER, f_source);
+        prog = glCreateProgram();
+        glAttachShader(prog, vertex_shader);
+        glAttachShader(prog, fragment_shader);
+        glLinkProgram(prog);
+        printf("%s\n",("Created shader: "+name).c_str());
+    }
 }
 
 Material::Shader::~Shader() {
@@ -59,8 +61,7 @@ GLuint Material::Texture::getHandle() {
 }
 
 //texture cache should assign texture IDs
-Material::Texture::Texture(GLuint texId, std::string filename) {
-    this->filename = filename;
+Material::Texture::Texture(GLuint texId, std::string filename): filename(filename) {
     if (filename.length() == 0) {
         this->texId = Texture::EMPTY;
     } else {
@@ -78,6 +79,7 @@ Material::Texture::Texture(GLuint texId, std::string filename) {
             glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
             Utils::loadTexture(textureHandle, filename.c_str());
+            printf("Loaded texture '%s' with unit id %d\n", filename.c_str(), this->texId);
         }
     }
 }
@@ -85,11 +87,11 @@ Material::Texture::Texture(GLuint texId, std::string filename) {
 Material::Texture::~Texture() {
     if (texId != EMPTY) {
         glDeleteTextures(1, &textureHandle);
+        printf("Deleted texture '%s' with unit id %d\n", filename.c_str(), this->texId);
     }
 }
 
-//get empty texture from cache here instead of new one for each material
-Material::Material(std::string name): texture(*new Texture(Material::Texture::EMPTY)), shader(GraphicsSubsystem::loadShader(name)),
+Material::Material(std::string name): texture(&GraphicsSubsystem::loadTexture("empty")), shader(&GraphicsSubsystem::loadShader(name)),
     ambient(vec3f(0,0,0)), diffuse(vec3f(1,1,1)), specular(vec3f(0,0,0)) {
     shininess = 1;
 
@@ -97,13 +99,15 @@ Material::Material(std::string name): texture(*new Texture(Material::Texture::EM
 }
 
 Material::~Material() {
-    //texture cache should handle memory management
-    //delete &texture;
+
 }
 
-void Material::setTexture(GLuint texId, std::string filename) {
-    //get this from texture cache
-    texture = *new Texture(texId, filename);
+void Material::setTexture(std::string filename) {
+    texture = &GraphicsSubsystem::loadTexture(filename);
+}
+
+void Material::setShader(std::string name) {
+    shader = &GraphicsSubsystem::loadShader(name);
 }
 
 void Material::describe() {

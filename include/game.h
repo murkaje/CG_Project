@@ -23,6 +23,8 @@ public:
     struct Player {
         vec3f moveVec;
 
+        Object *playerObj;
+
         int movePerSecond = 2;
 
         std::string name;
@@ -45,5 +47,8 @@ void moveLeft();
 void moveRight();
 void moveBackward();
 void moveForward();
+
+void rotateLeft();
+void rotateRight();
 
 #endif

@@ -49,6 +49,7 @@ void Instantiate(Object &obj) {
         if (obj.tag.compare(addr) == 0 && Object::Find(&obj, "MainCamera") == NULL) {
             std::cout<<"attach camera\n";
             Game::attachCamera(obj);
+            Game::get().localPlayer.playerObj = &obj;
         }
     }
 }

@@ -21,6 +21,10 @@ int main(int argc, char* argv[]) {
     EventManager::RegisterCommand("moveBackward", moveBackward);
     EventManager::RegisterCommand("moveLeft", moveLeft);
     EventManager::RegisterCommand("moveRight", moveRight);
+
+    EventManager::RegisterCommand("rotateLeft", rotateLeft);
+    EventManager::RegisterCommand("rotateRight", rotateRight);
+
     InputSubsystem::init();
 
     NetworkSubsystem::connect("localhost");

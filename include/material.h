@@ -43,14 +43,16 @@ public:
         ~Texture();
     };
 
-    Texture &texture;
+    Texture *texture;
 
-    Shader &shader;
+    Shader *shader;
 
     vec3f ambient, diffuse, specular;
     float shininess;
 
-    void setTexture(GLuint texId, std::string filename);
+    void setTexture(std::string filename);
+
+    void setShader(std::string name);
 
     bool lighting_enabled;
 

@@ -31,14 +31,22 @@ void moveForward() {
     Game::get().localPlayer.moveVec.x() = std::max(Game::get().localPlayer.moveVec.x()-1, -1.0f);
 }
 
-Game::Game(): localPlayer("localPlayer")
-{
-    //ctor
+void rotateLeft() {
+    Transform *t = Transform::get(*Object::Find(Game::get().localPlayer.playerObj, "MainCamera")->parent());
+    t->rotation.y() += 90*GraphicsSubsystem::delta;
 }
 
-Game::~Game()
-{
-    //dtor
+void rotateRight() {
+    Transform *t = Transform::get(*Object::Find(Game::get().localPlayer.playerObj, "MainCamera")->parent());
+    t->rotation.y() -= 90*GraphicsSubsystem::delta;
+}
+
+Game::Game(): localPlayer("localPlayer") {
+
+}
+
+Game::~Game() {
+
 }
 
 void Game::init() {
@@ -58,12 +66,12 @@ void Game::init() {
     Behavior::addLocal(cubeObj, "rotateObject", rotateObject);
     Collider::addBox(*cubeObj);
     Behavior::addLocal(cubeObj, "resetColorIfNoCollisions", resetColorIfNoCollisions);
-    //Renderer::get(*cubeObj)->material.setTexture(4, "../data/serious_cat_is_serious.jpg");
+    //Renderer::get(*cubeObj)->material.setTexture("../data/serious_cat_is_serious.jpg");
 
     Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,3.5,.5),vec3f(1,0,1));
     Collider::addBox(*secondCubeObj);
     Behavior::addLocal(secondCubeObj, "resetColorIfNoCollisions");
-    //Renderer::get(*secondCubeObj)->material.setTexture(5, "../data/texturez_3851.jpg");
+    Renderer::get(*secondCubeObj)->material.setTexture("../data/texturez_3851.jpg");
 
     Instantiate(*planeObj);
     Instantiate(*cubeObj);

@@ -11,8 +11,7 @@
 class GraphicsSubsystem {
 private:
     static std::map<std::string, Material::Shader*> shaderCache;
-
-    static char fpsStr[8], shadowMapStr[24];
+    static std::map<std::string, Material::Texture*> textureCache;
 
     static void drawFPS();
 
@@ -30,6 +29,8 @@ public:
     static bool shadowMappingEnabled, isInit;
 
     static Material::Shader& loadShader(std::string name);
+    static Material::Texture& loadTexture(std::string name);
+
 
     static const int MAX_FPS = 60;
     static double delta;

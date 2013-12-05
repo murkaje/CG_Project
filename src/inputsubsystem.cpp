@@ -62,6 +62,8 @@ void InputSubsystem::mapKeys() {
     keyMap["A"] = 'a';
     keyMap["S"] = 's';
     keyMap["D"] = 'd';
+    keyMap["Q"] = 'q';
+    keyMap["E"] = 'e';
 }
 
 void InputSubsystem::update() {

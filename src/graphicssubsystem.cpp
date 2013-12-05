@@ -16,6 +16,8 @@
 #define PI 3.14159265
 
 std::map<std::string, Material::Shader*> GraphicsSubsystem::shaderCache;
+std::map<std::string, Material::Texture*> GraphicsSubsystem::textureCache;
+
 double GraphicsSubsystem::frameStart = 0;
 double GraphicsSubsystem::counter = 0;
 double GraphicsSubsystem::delta = 0;
@@ -23,8 +25,6 @@ int GraphicsSubsystem::width = 0;
 int GraphicsSubsystem::height = 0;
 int GraphicsSubsystem::fps = 0;
 int GraphicsSubsystem::frames = 0;
-char GraphicsSubsystem::fpsStr[8];
-char GraphicsSubsystem::shadowMapStr[24];
 
 bool GraphicsSubsystem::isInit = false;
 
@@ -33,6 +33,7 @@ GLuint GraphicsSubsystem::shadowMapFramebuffer[3];
 bool GraphicsSubsystem::shadowMappingEnabled = false;
 
 int shadowMapSize = 256;
+char fpsStr[8], shadowMapStr[24];
 
 void GraphicsSubsystem::init(int argc, char* argv[])
 {
@@ -41,6 +42,7 @@ void GraphicsSubsystem::init(int argc, char* argv[])
 
     Behavior::Register("lightUpdate", Light::update);
 
+    textureCache["empty"] = new Material::Texture(Material::Texture::EMPTY);
 }
 
 void GraphicsSubsystem::shutdown()
@@ -52,6 +54,14 @@ void GraphicsSubsystem::shutdown()
             shad->second = NULL;
         }
     }
+    printf("cleaning up texture cache...\n");
+    for (std::map<std::string,Material::Texture*>::iterator tex = textureCache.begin(); tex != textureCache.end(); tex++) {
+        if (tex->second != NULL) {
+            delete tex->second;
+            tex->second = NULL;
+        }
+    }
+
     NetworkSubsystem::disconnect();
     NetworkSubsystem::shutdown();
 
@@ -62,10 +72,18 @@ void GraphicsSubsystem::shutdown()
 }
 
 Material::Shader& GraphicsSubsystem::loadShader(std::string name) {
-    if (!NetworkSubsystem::isServer && shaderCache[name] == NULL) {
+    if (shaderCache[name] == NULL) {
         shaderCache[name] = new Material::Shader(name);
     }
     return *shaderCache[name];
+}
+
+
+Material::Texture& GraphicsSubsystem::loadTexture(std::string name) {
+    if (textureCache[name] == NULL) {
+        textureCache[name] = new Material::Texture(2+textureCache.size(), name);
+    }
+    return *textureCache[name];
 }
 
 void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* title)
@@ -95,6 +113,8 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
     glCullFace(GL_BACK);
 
     glEnable(GL_TEXTURE_2D);
+    isInit = true;
+
     glGenTextures(NUM_SHADOWMAPS, shadowMapTextures);
     glGenFramebuffers(NUM_SHADOWMAPS, shadowMapFramebuffer);
     Material::Shader &defaultShader = loadShader("default");
@@ -124,8 +144,6 @@ void GraphicsSubsystem::createWindow(int x, int y, int w, int h, const char* tit
         glDrawBuffer(GL_BACK);
     }
     glUseProgram(0);
-
-    isInit = true;
 }
 
 void GraphicsSubsystem::zBufferEnabled(bool enabled)
@@ -265,7 +283,7 @@ void GraphicsSubsystem::idle()
     PhysicsSubsystem::PerformPhysicsChecks();
     Light::lightsCache.reset();
 
-    SceneManager::CurrentScene().update();
+    //SceneManager::CurrentScene().update();
 
     if (frames%1 == 0) {
         NetworkSubsystem::parseIncomingPackets();
@@ -279,6 +297,12 @@ void GraphicsSubsystem::idle()
     frameStart = Utils::time();
 
     glutPostRedisplay();
+
+    //putting lighting updates after the screen update
+    //seems to fix the glitchy lighting when
+    //view transform is part of the projection matrix
+    //maybe split lighting updates from general scene update...
+    SceneManager::CurrentScene().update();
 }
 
 void GraphicsSubsystem::run()
