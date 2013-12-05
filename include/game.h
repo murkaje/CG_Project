@@ -25,7 +25,7 @@ public:
 
         Object *playerObj;
 
-        int movePerSecond = 2;
+        int movePerSecond = 5;
 
         std::string name;
 

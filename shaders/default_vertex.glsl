@@ -19,6 +19,7 @@ void main(void) {
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     if (texId != NO_TEXTURE) {
-        texCoord = (gl_Vertex.xy + 1.0) / 2.0;
+    //need to add UV map VBO to mesh and make the shader use it
+        texCoord = vec2(gl_Vertex.x,  min(gl_Vertex.y,gl_Vertex.z) )+0.5;
     }
 }

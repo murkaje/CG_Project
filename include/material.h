@@ -21,7 +21,7 @@ private:
         ~Shader();
     };
 public:
-//TODO material and texture caches
+//TODO material cache
     class Texture {
     private:
         GLuint textureHandle;

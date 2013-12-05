@@ -283,7 +283,9 @@ void GraphicsSubsystem::idle()
     PhysicsSubsystem::PerformPhysicsChecks();
     Light::lightsCache.reset();
 
-    //SceneManager::CurrentScene().update();
+    //need to fix the glitchy late lighting updates
+    //caused by merging view transform into projection matrix
+    SceneManager::CurrentScene().update();
 
     if (frames%1 == 0) {
         NetworkSubsystem::parseIncomingPackets();
@@ -297,12 +299,6 @@ void GraphicsSubsystem::idle()
     frameStart = Utils::time();
 
     glutPostRedisplay();
-
-    //putting lighting updates after the screen update
-    //seems to fix the glitchy lighting when
-    //view transform is part of the projection matrix
-    //maybe split lighting updates from general scene update...
-    SceneManager::CurrentScene().update();
 }
 
 void GraphicsSubsystem::run()

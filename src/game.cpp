@@ -33,12 +33,12 @@ void moveForward() {
 
 void rotateLeft() {
     Transform *t = Transform::get(*Object::Find(Game::get().localPlayer.playerObj, "MainCamera")->parent());
-    t->rotation.y() += 90*GraphicsSubsystem::delta;
+    t->rotation.y() += 180*GraphicsSubsystem::delta;
 }
 
 void rotateRight() {
     Transform *t = Transform::get(*Object::Find(Game::get().localPlayer.playerObj, "MainCamera")->parent());
-    t->rotation.y() -= 90*GraphicsSubsystem::delta;
+    t->rotation.y() -= 180*GraphicsSubsystem::delta;
 }
 
 Game::Game(): localPlayer("localPlayer") {
@@ -62,11 +62,13 @@ void Game::init() {
     Renderer::get(*planeObj)->material.shininess = 100;
     Renderer::get(*planeObj)->cast_shadows = false;
 
+    Renderer::get(*planeObj)->material.setTexture("../data/texturez_3851.jpg");
+
     Object *cubeObj = GeometricShape::createCube(vec3f(-2,1,2), vec3f(0), vec3f(1,1,1), vec3f(1,0,0));
     Behavior::addLocal(cubeObj, "rotateObject", rotateObject);
     Collider::addBox(*cubeObj);
     Behavior::addLocal(cubeObj, "resetColorIfNoCollisions", resetColorIfNoCollisions);
-    //Renderer::get(*cubeObj)->material.setTexture("../data/serious_cat_is_serious.jpg");
+    Renderer::get(*cubeObj)->material.setTexture("../data/serious_cat_is_serious.jpg");
 
     Object *secondCubeObj = GeometricShape::createCube(vec3f(2,0.5,0), vec3f(0), vec3f(3.5,3.5,.5),vec3f(1,0,1));
     Collider::addBox(*secondCubeObj);

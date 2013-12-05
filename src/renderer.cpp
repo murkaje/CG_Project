@@ -34,7 +34,6 @@ void Renderer::readFrom(RakNet::BitStream& in) {
     material.setTexture(rs.C_String());
     RakNet::RakString rs2;
     in.Read(rs2);
-    printf("setting shader %s\n", rs2.C_String());
     material.setShader(rs2.C_String());
     in >> material.diffuse >> material.ambient >> material.specular;
 }

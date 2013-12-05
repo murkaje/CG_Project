@@ -17,6 +17,9 @@
 
 #include "BitStream.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 inline void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
     Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
@@ -65,7 +68,10 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
                 bs << ident;
                 if (addr.compare(obj.tag) == 0) {
                     vec3f &moveVec = Game::get().localPlayer.moveVec;
-                    bs << moveVec;
+                    glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), t->rotation.y()-90, glm::vec3(0,1,0));
+                    glm::vec4 mov = rotMat * glm::vec4(moveVec.x(),moveVec.y(),moveVec.z(),1.0);
+                    vec3f newMoveVec = vec3f(mov.x,mov.y,mov.z);
+                    bs << newMoveVec;
                     moveVec.x() = 0;
                     moveVec.y() = 0;
                     moveVec.z() = 0;
