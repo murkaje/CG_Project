@@ -22,41 +22,41 @@
 
 inline void rotateObject(Object &obj) {
     int degreesPerSecond = 90;
-    Transform::rotateObj(&obj, vec3f(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
+    Transform::rotateObj(&obj, glm::vec3(0, 0, degreesPerSecond*GraphicsSubsystem::delta));
 }
 
 inline void moveObject(Object &obj) {
-    vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
+    glm::vec3 &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
-    vec3f newPos = Transform::get(obj)->position+moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta;
+    glm::vec3 newPos = Transform::get(obj)->position+moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta;
     for (; col != c->collisions().end(); col++) {
         //alter movement vector so we cannot go beyond collision points
         //printf("collision normal %f %f %f \n", col->normal.x, col->normal.y, col->normal.z);
         Transform *otherCol = Transform::get(*col->with.owner());
-        if (otherCol->position.x() > newPos.x() && newPos.x() >= col->point.x()) moveVec.x() += moveVec.x()*col->normal.x(); //x+
-        else if (otherCol->position.x() < newPos.x() && newPos.x() <= col->point.x()) moveVec.x() -= moveVec.x()*col->normal.x(); //x-
-        if (otherCol->position.z() > newPos.z() && newPos.z() >= col->point.z()) moveVec.z() += moveVec.z()*col->normal.z(); //z+
-        else if (otherCol->position.z() < newPos.z() && newPos.z() <= col->point.z()) moveVec.z() -= moveVec.z()*col->normal.z(); //z-
+        if (otherCol->position.x > newPos.x && newPos.x >= col->point.x) moveVec.x += moveVec.x*col->normal.x; //x+
+        else if (otherCol->position.x < newPos.x && newPos.x <= col->point.x) moveVec.x -= moveVec.x*col->normal.x; //x-
+        if (otherCol->position.z > newPos.z && newPos.z >= col->point.z) moveVec.z += moveVec.z*col->normal.z; //z+
+        else if (otherCol->position.z < newPos.z && newPos.z <= col->point.z) moveVec.z -= moveVec.z*col->normal.z; //z-
     }
     Transform::translateObj(&obj, moveVec*Game::get().localPlayer.movePerSecond*GraphicsSubsystem::delta);
     //reset movement vector for next frame
 }
-
+/*
 inline void colorCollidingObjects(Object &obj) {
     Collider *c = Collider::get(obj);
     std::list<Collider::Collision>::iterator col = c->collisions().begin();
     for (; col != c->collisions().end(); col++) {
         //printf("colliding with %s\n", col->with.owner()->name.c_str());
-        Renderer::get(*col->with.owner())->material.diffuse = vec3f(0,1,0);
+        Renderer::get(*col->with.owner())->material.diffuse = glm::vec3(0,1,0);
     }
 }
 
 inline void resetColorIfNoCollisions(Object &obj) {
     Collider *c = Collider::get(obj);
-    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = vec3f(1,0,0);
+    if (c->collisions().size() == 0) Renderer::get(obj)->material.diffuse = glm::vec3(1,0,0);
 }
-
+*/
 inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write) {
     Transform *t = Transform::get(obj);
     if (t != NULL) {
@@ -67,14 +67,11 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
                 RakNet::RakString ident(obj.tag.c_str());
                 bs << ident;
                 if (addr.compare(obj.tag) == 0) {
-                    vec3f &moveVec = Game::get().localPlayer.moveVec;
-                    glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), t->rotation.y()-90, glm::vec3(0,1,0));
-                    glm::vec4 mov = rotMat * glm::vec4(moveVec.x(),moveVec.y(),moveVec.z(),1.0);
-                    vec3f newMoveVec = vec3f(mov.x,mov.y,mov.z);
-                    bs << newMoveVec;
-                    moveVec.x() = 0;
-                    moveVec.y() = 0;
-                    moveVec.z() = 0;
+                    glm::vec4 moveVec = glm::vec4(Game::get().localPlayer.moveVec,0);
+                    glm::mat4 rotMat = glm::rotate(glm::mat4(1.0f), t->rotation.y-90, glm::vec3(0,1,0));
+                    glm::vec3 mov(rotMat * moveVec);
+                    bs << mov;
+                    Game::get().localPlayer.moveVec = glm::vec3(0);
                 }
             } else {
                 bs << t->position;
@@ -86,7 +83,7 @@ inline void movementSynchronizer(Object& obj, RakNet::BitStream &bs, bool write)
                 RakNet::RakString ident;
                 bs >> ident;
                 if (obj.tag.compare(ident.C_String()) == 0) {
-                    vec3f &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
+                    glm::vec3 &moveVec = Game::get().connectedPlayers[obj.tag]->moveVec;
                     bs >> moveVec;
                 }
             }

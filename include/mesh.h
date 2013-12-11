@@ -3,6 +3,7 @@
 
 #include <component.h>
 #include <vec.h>
+#include <GL/glew.h>
 
 class Mesh: public Component {
 protected:

@@ -6,6 +6,7 @@
 #include <map>
 
 #include <vec.h>
+#include <glm/glm.hpp>
 
 class Object;
 
@@ -21,11 +22,12 @@ public:
     static Game& get();
 
     struct Player {
-        vec3f moveVec;
+        glm::vec3 moveVec;
 
         Object *playerObj;
 
-        int movePerSecond = 5;
+        float movePerSecond = 3;
+        float rotationSpeed = 90;
 
         std::string name;
 

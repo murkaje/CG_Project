@@ -11,7 +11,7 @@ public:
 
     static void checkIntersections(Object &obj);
 
-    static void BoxToBoxIntersection(BoxCollider &obj, BoxCollider &iterObj);
+    static void BoxToBoxIntersection(BoxCollider &obj, const BoxCollider &iterObj);
 
     static float RayToBoxIntersection(const glm::vec3 &origin, const glm::vec3 &dir, BoxCollider &other);
     static glm::vec3 RayToAABBIntersection(const glm::vec3 &origin, const glm::vec3 &dir);

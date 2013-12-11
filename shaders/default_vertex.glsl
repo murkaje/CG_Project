@@ -20,6 +20,13 @@ void main(void) {
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     if (texId != NO_TEXTURE) {
     //need to add UV map VBO to mesh and make the shader use it
-        texCoord = vec2(gl_Vertex.x,  min(gl_Vertex.y,gl_Vertex.z) )+0.5;
+        if(gl_Normal.x > 0.999 || gl_Normal.x < -0.999) {
+            texCoord = vec2(gl_Vertex.z, gl_Vertex.y)+0.5;
+        } else if(gl_Normal.y > 0.999 || gl_Normal.y < -0.999) {
+            texCoord = vec2(gl_Vertex.x, gl_Vertex.z)+0.5;
+        } else {
+            texCoord = vec2(gl_Vertex.x, gl_Vertex.y)+0.5;
+        }
+        //texCoord = vec2(gl_Vertex.x,  min(gl_Vertex.y,gl_Vertex.z) )+0.5;
     }
 }

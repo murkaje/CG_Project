@@ -38,7 +38,7 @@ void Renderer::readFrom(RakNet::BitStream& in) {
     in >> material.diffuse >> material.ambient >> material.specular;
 }
 
-MeshRenderer::MeshRenderer(vec3f color): Renderer(Renderer::MESH) {
+MeshRenderer::MeshRenderer(glm::vec3 color): Renderer(Renderer::MESH) {
     material.diffuse = color;
 }
 

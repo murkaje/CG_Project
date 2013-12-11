@@ -2,6 +2,7 @@
 #define MATERIAL_H
 
 #include <string>
+#include <glm/glm.hpp>
 
 #include <utils.h>
 
@@ -47,7 +48,7 @@ public:
 
     Shader *shader;
 
-    vec3f ambient, diffuse, specular;
+    glm::vec3 ambient, diffuse, specular;
     float shininess;
 
     void setTexture(std::string filename);

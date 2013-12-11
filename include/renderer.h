@@ -33,14 +33,14 @@ class MeshRenderer: public Renderer {
 private:
 
 public:
-    MeshRenderer(vec3f color);
+    MeshRenderer(glm::vec3 color);
 
     void render();
 };
 
 template<> inline Component* Component::allocate_t<Renderer>(int type) {
     Component *newComp = NULL;
-    if (type == Renderer::MESH) newComp = new MeshRenderer(vec3f(1));
+    if (type == Renderer::MESH) newComp = new MeshRenderer(glm::vec3(1));
     else printf("WARNING: COULD NOT ALLOCATE COMPONENT FOR TYPE_ID");
     return newComp;
 };

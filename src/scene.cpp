@@ -29,10 +29,10 @@ void Scene::positionCamera(bool projection) {
         while (parent != NULL) {
             Transform &t = *Transform::get(*parent);
 
-            viewMat = glm::rotate(viewMat, -t.rotation.z(), glm::vec3(0,0,1));
-            viewMat = glm::rotate(viewMat, -t.rotation.y(), glm::vec3(0,1,0));
-            viewMat = glm::rotate(viewMat, -t.rotation.x(), glm::vec3(1,0,0));
-            viewMat = glm::translate(viewMat, glm::vec3(-t.position.x(), -t.position.y(), -t.position.z()));
+            viewMat = glm::rotate(viewMat, -t.rotation.z, glm::vec3(0,0,1));
+            viewMat = glm::rotate(viewMat, -t.rotation.y, glm::vec3(0,1,0));
+            viewMat = glm::rotate(viewMat, -t.rotation.x, glm::vec3(1,0,0));
+            viewMat = glm::translate(viewMat, glm::vec3(-t.position.x, -t.position.y, -t.position.z));
 
             parent = parent->parent();
         }
@@ -105,11 +105,11 @@ void Scene::updateObjs(std::list<Object*> &objects) {
                 continue;
                 glPopMatrix();
             } else {
-                glTranslatef(t->position.x(),t->position.y(),t->position.z());
-                glRotatef(t->rotation.x(),1.0,0.0,0.0);
-                glRotatef(t->rotation.y(),0.0,1.0,0.0);
-                glRotatef(t->rotation.z(),0.0,0.0,1.0);
-                glScalef(t->scale.x(),t->scale.y(),t->scale.z());
+                glTranslatef(t->position.x,t->position.y,t->position.z);
+                glRotatef(t->rotation.x,1.0,0.0,0.0);
+                glRotatef(t->rotation.y,0.0,1.0,0.0);
+                glRotatef(t->rotation.z,0.0,0.0,1.0);
+                glScalef(t->scale.x,t->scale.y,t->scale.z);
             }
             Behavior *b = Behavior::get(**obj);
             if (b != NULL) {
@@ -150,7 +150,7 @@ Object* Scene::raycastObject(const glm::vec3 &origin, const glm::vec3 &dir) {
         Collider *cm = Collider::get(*obj);
         if(cm != NULL ) {
             //reset testing colors
-            Renderer::get(*obj)->material.diffuse = vec3f(1,0,0);
+            Renderer::get(*obj)->material.diffuse = glm::vec3(1,0,0);
             float dist;
 
             if(cm->typeId() == Collider::BOX) {
@@ -169,7 +169,7 @@ Object* Scene::raycastObject(const glm::vec3 &origin, const glm::vec3 &dir) {
         glm::vec3 p = origin+closestDist*dir;
         //std::cout<<"Collision at distance="<<closestDist<<"\n\t"<<"point=("<<
         //    p.x<<","<<p.y<<","<<p.z<<")\n";
-        Renderer::get(*closest)->material.diffuse = vec3f(0,1,0);
+        Renderer::get(*closest)->material.diffuse = glm::vec3(0,1,0);
     }
 
     return closest;
@@ -201,11 +201,11 @@ void Scene::drawObjs(std::list<Object*> &objects) {
                 glPopMatrix();
                 continue;
             } else {
-                glTranslatef(t->position.x(),t->position.y(),t->position.z());
-                glRotatef(t->rotation.x(),1.0,0.0,0.0);
-                glRotatef(t->rotation.y(),0.0,1.0,0.0);
-                glRotatef(t->rotation.z(),0.0,0.0,1.0);
-                glScalef(t->scale.x(),t->scale.y(),t->scale.z());
+                glTranslatef(t->position.x,t->position.y,t->position.z);
+                glRotatef(t->rotation.x,1.0,0.0,0.0);
+                glRotatef(t->rotation.y,0.0,1.0,0.0);
+                glRotatef(t->rotation.z,0.0,0.0,1.0);
+                glScalef(t->scale.x,t->scale.y,t->scale.z);
             }
 
             Renderer* r = Renderer::get(**obj);

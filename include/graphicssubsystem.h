@@ -33,7 +33,7 @@ public:
 
 
     static const int MAX_FPS = 60;
-    static double delta;
+    static float delta;
     static int width, height, fps;
 
     static void init(int argc, char* argv[]);

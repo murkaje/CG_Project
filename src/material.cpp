@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cerrno>
 #include <iostream>
+#include <glm/gtc/type_ptr.hpp>
 
 GLuint compile(GLuint type, std::string source) {
     GLuint shader = glCreateShader(type);
@@ -73,10 +74,10 @@ Material::Texture::Texture(GLuint texId, std::string filename): filename(filenam
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-            glEnable(GL_TEXTURE_GEN_S);
-            glEnable(GL_TEXTURE_GEN_T);
-            glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
-            glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+            //glEnable(GL_TEXTURE_GEN_S);
+            //glEnable(GL_TEXTURE_GEN_T);
+            //glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+            //glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
 
             Utils::loadTexture(textureHandle, filename.c_str());
             printf("Loaded texture '%s' with unit id %d\n", filename.c_str(), this->texId);
@@ -92,7 +93,7 @@ Material::Texture::~Texture() {
 }
 
 Material::Material(std::string name): texture(&GraphicsSubsystem::loadTexture("empty")), shader(&GraphicsSubsystem::loadShader(name)),
-    ambient(vec3f(0,0,0)), diffuse(vec3f(1,1,1)), specular(vec3f(0,0,0)) {
+    ambient(glm::vec3(0,0,0)), diffuse(glm::vec3(1,1,1)), specular(glm::vec3(0,0,0)) {
     shininess = 1;
 
     lighting_enabled = true;
@@ -111,8 +112,8 @@ void Material::setShader(std::string name) {
 }
 
 void Material::describe() {
-    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular.data());
-    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient.data());
-    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse.data());
+    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, glm::value_ptr(specular));
+    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, glm::value_ptr(ambient));
+    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, glm::value_ptr(diffuse));
     glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
 }

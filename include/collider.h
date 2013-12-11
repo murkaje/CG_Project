@@ -10,10 +10,10 @@
 class Collider: public Component {
 protected:
     struct Collision {
-        Collider &with;
-        vec3f point, normal;
+        const Collider &with;
+        glm::vec3 point, normal;
 
-        Collision(Collider &with, vec3f point, vec3f normal);
+        Collision(const Collider &with, const glm::vec3 &point, const glm::vec3 &normal);
     };
 
     std::list<Collision> _collisions;
@@ -36,7 +36,7 @@ public:
 
 class BoxCollider: public Collider {
 public:
-    vec3f center, rotation, scale;
+    glm::vec3 center, rotation, scale;
 
     void writeTo(RakNet::BitStream& out);
     void readFrom(RakNet::BitStream& in);

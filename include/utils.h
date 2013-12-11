@@ -10,6 +10,8 @@
 #include "BitStream.h"
 #include "RakNetTypes.h"
 
+#include <glm/glm.hpp>
+
 class Object;
 
 namespace Utils {

@@ -2,6 +2,7 @@
 #include "light.h"
 #include "transform.h"
 #include <cstdio>
+#include <glm/gtc/type_ptr.hpp>
 
 Light::LightsCache Light::lightsCache;
 
@@ -14,17 +15,17 @@ void Light::update(Object &lightObj) {
                 glEnable(l);
             }
             Transform &t = *(Transform*)lightObj.getComponent(Component::TRANSFORM);
-            glLightfv(l, GL_AMBIENT, light->ambient.data());
-            glLightfv(l, GL_DIFFUSE, light->diffuse.data());
-            glLightfv(l, GL_SPECULAR, light->specular.data());
-            glLightfv(l, GL_POSITION, vec4f(t.position, 1.0).data());
+            glLightfv(l, GL_AMBIENT, glm::value_ptr(light->ambient));
+            glLightfv(l, GL_DIFFUSE, glm::value_ptr(light->diffuse));
+            glLightfv(l, GL_SPECULAR, glm::value_ptr(light->specular));
+            glLightfv(l, GL_POSITION, glm::value_ptr(glm::vec4(t.position, 1.0)));
 
             //not currently being used
             //glLightf(l, GL_CONSTANT_ATTENUATION, light->constant_attenuation);
             //glLightf(l, GL_LINEAR_ATTENUATION, light->linear_attenuation);
             //glLightf(l, GL_QUADRATIC_ATTENUATION, light->quadratic_attenuation);
 
-            glLightfv(l, GL_SPOT_DIRECTION, light->direction.data());
+            glLightfv(l, GL_SPOT_DIRECTION, glm::value_ptr(light->direction));
             glLightf(l, GL_SPOT_CUTOFF, light->cutoff);
             glLightf(l, GL_SPOT_EXPONENT, light->exponent);
         } else {
@@ -38,7 +39,7 @@ void Light::setEnabled(bool enabled) {
     this->enabled = enabled;
 }
 
-Light::Light(bool enabled): Component(Component::LIGHT), ambient(vec4f(0)), diffuse(vec4f(1)), specular(vec4f(1)), direction(0,-1,0) {
+Light::Light(bool enabled): Component(Component::LIGHT), ambient(glm::vec4(0)), diffuse(glm::vec4(1)), specular(glm::vec4(1)), direction(0,-1,0) {
     setEnabled(enabled);
     constant_attenuation = 1.0;
     linear_attenuation = 0.0;
@@ -94,7 +95,7 @@ void Light::LightsCache::returnLight(GLenum light) {
     available.push(light);
 }
 
-Object* Light::createPointLight(vec3f position) {
+Object* Light::createPointLight(glm::vec3 position) {
     Object *light = new Object("pointLight");
     Light *l = new Light();
     l->constant_attenuation = 0.0;

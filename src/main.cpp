@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     GraphicsSubsystem::createWindow(0,0,800,600, "GraphicsProject2013");
     GraphicsSubsystem::zBufferEnabled(true);
 
-    GraphicsSubsystem::shadowMappingEnabled = true;
+    GraphicsSubsystem::shadowMappingEnabled = false;
 
     NetworkSubsystem::init();
 

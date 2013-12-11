@@ -3,6 +3,7 @@
 
 #include <object.h>
 #include <vec.h>
+#include <glm/glm.hpp>
 
 #include <stack>
 
@@ -30,14 +31,14 @@ private:
 
     Light(bool enabled = true);
 public:
-    vec4f ambient, diffuse, specular;
-    vec3f direction;
+    glm::vec4 ambient, diffuse, specular;
+    glm::vec3 direction;
     float exponent, cutoff, constant_attenuation, linear_attenuation, quadratic_attenuation;
 
     void setEnabled(bool enabled);
 
     void writeTo(RakNet::BitStream& out);
-    static Object* createPointLight(vec3f position);
+    static Object* createPointLight(glm::vec3 position);
     void readFrom(RakNet::BitStream& in);
 
     friend class GraphicsSubsystem;

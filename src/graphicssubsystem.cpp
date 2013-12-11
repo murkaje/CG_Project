@@ -8,6 +8,7 @@
 #include "behavior.h"
 #include "light.h"
 #include "camera.h"
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <unistd.h>
 #include <string>
@@ -20,7 +21,7 @@ std::map<std::string, Material::Texture*> GraphicsSubsystem::textureCache;
 
 double GraphicsSubsystem::frameStart = 0;
 double GraphicsSubsystem::counter = 0;
-double GraphicsSubsystem::delta = 0;
+float GraphicsSubsystem::delta = 0;
 int GraphicsSubsystem::width = 0;
 int GraphicsSubsystem::height = 0;
 int GraphicsSubsystem::fps = 0;
@@ -156,12 +157,12 @@ void GraphicsSubsystem::zBufferEnabled(bool enabled)
     }
 }
 
-void setProjectionFromPoint(vec3f pos, vec3f dir) {
+void setProjectionFromPoint(glm::vec3 pos, glm::vec3 dir) {
     glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         gluPerspective(104.83, 4/3.0, 0.1, 20);
-        gluLookAt(pos.x(), pos.y(), pos.z(),
-                  pos.x()+dir.x(), pos.y()+dir.y(), pos.z()+dir.z(),
+        gluLookAt(pos.x, pos.y, pos.z,
+                  pos.x+dir.x, pos.y+dir.y, pos.z+dir.z,
                   0, 1, 0);
     glMatrixMode(GL_MODELVIEW);
 }
@@ -205,11 +206,7 @@ void GraphicsSubsystem::drawFPS() {
     if (lightingEnabled) glEnable(GL_LIGHTING);
 }
 
-double angle = 120.0 * PI / 180.0;
-double *rotationMatrix = new double[9] {
-             cos(angle),    0.0,    sin(angle),
-             0.0,           1.0,    0.0,
-             -sin(angle),   0.0,    cos(angle)};
+glm::mat4 rotMat = glm::rotate(glm::mat4(1), 120.f, glm::vec3(0,1,0));
 
 void GraphicsSubsystem::draw()
 {
@@ -225,7 +222,7 @@ void GraphicsSubsystem::draw()
 
         Object *player = Object::Find(pName);
         if (player != NULL) {
-            vec3f dir = vec3f(1,0,0);
+            glm::vec3 dir = glm::vec3(1,0,0);
 
             //temporary hack-fix for the broken first shadowmap
             renderSceneDepthToTexture(shadowMapFramebuffer[0], SceneManager::CurrentScene(), 1);
@@ -233,11 +230,9 @@ void GraphicsSubsystem::draw()
             for (int i = 0; i < NUM_SHADOWMAPS; i++) {
             float shadowMatrix[16];
                 if (i > 0){
-                    dir = vec3f(rotationMatrix[0*3+0]*dir.x()+rotationMatrix[0*3+1]*dir.y()+rotationMatrix[0*3+2]*dir.z(),
-                                rotationMatrix[1*3+0]*dir.x()+rotationMatrix[1*3+1]*dir.y()+rotationMatrix[1*3+2]*dir.z(),
-                                rotationMatrix[2*3+0]*dir.x()+rotationMatrix[2*3+1]*dir.y()+rotationMatrix[2*3+2]*dir.z());
+                    dir = glm::vec3(rotMat * glm::vec4(dir,0));
                 }
-                setProjectionFromPoint(Transform::get(*player)->position+vec3f(0,0.25,0), dir);
+                setProjectionFromPoint(Transform::get(*player)->position+glm::vec3(0,0.25,0), dir);
                 renderSceneDepthToTexture(shadowMapFramebuffer[i], SceneManager::CurrentScene());
                 glGetFloatv(GL_PROJECTION_MATRIX, shadowMatrix);
                 glUseProgram(shaderCache["default"]->prog);

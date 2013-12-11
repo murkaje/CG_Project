@@ -8,7 +8,7 @@
 #include <transform.h>
 #include <mesh.h>
 #include <renderer.h>
-#include <string>
+#include <glm/glm.hpp>
 
 #include "NetworkIDObject.h"
 #include "BitStream.h"
@@ -26,7 +26,7 @@ private:
 protected:
     Object* parent_;
 
-    Object(Object &other);
+    Object(const Object &other);
 
 
     void Synchronize(RakNet::BitStream *bs, RakNet::RPC3 *rpcFromNetwork = 0);
@@ -37,14 +37,14 @@ public:
     std::string name;
     std::string tag;
 
-    static Object& copy(Object &other);
+    static Object& copy(const Object &other);
 
     Object(std::string name="object");
 
     ~Object();
 
     void addComponent(Component *component);
-    Component* getComponent(std::string name);
+    Component* getComponent(const std::string &name);
 
     Object* parent();
 
@@ -57,10 +57,10 @@ public:
 
     std::list<Object*>& getChildren();
 
-    static Object* Find(std::string name);
-    static Object* Find(Object* obj, std::string name);
+    static Object* Find(const std::string &name);
+    static Object* Find(Object* obj, const std::string &name);
 
-    bool equal(Object &other);
+    bool equal(const Object &other);
 
     friend class NetworkSubsystem;
 };
@@ -73,9 +73,20 @@ public:
     Mesh &mesh;
     MeshRenderer &renderer;
 
-    static GeometricShape* createPlane(vec3f position, vec3f rotation, vec3f scale, vec3f color);
-    static GeometricShape* createSphere(vec3f position, vec3f rotation, vec3f scale, vec3f color);
-    static GeometricShape* createCube(vec3f position, vec3f rotation, vec3f scale, vec3f color);
+    static GeometricShape* createPlane(const glm::vec3 &position,
+                                        const glm::vec3 &rotation,
+                                        const glm::vec3 &scale,
+                                        const glm::vec3 &color);
+
+    static GeometricShape* createSphere(const glm::vec3 &position,
+                                        const glm::vec3 &rotation,
+                                        const glm::vec3 &scale,
+                                        const glm::vec3 &color);
+
+    static GeometricShape* createCube(const glm::vec3 &position,
+                                        const glm::vec3 &rotation,
+                                        const glm::vec3 &scale,
+                                        const glm::vec3 &color);
 
 };
 
